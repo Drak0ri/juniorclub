@@ -4,133 +4,515 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Club Attendance</title>
+
+  <!-- Brand font (IES manual: Open Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    body{background:#0b1020;color:#eaf0ff}
-    .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
-    .card{
-      width:min(1050px,95vw);
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.14);
-      border-radius:18px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.35);
-      padding:28px;
-      text-align:center;
+    :root{
+      /* =========================
+         BRAND CONFIG (SAFE DEFAULTS)
+         Update these to match the school
+      ========================= */
+      --ies-logo-blue: #00a0df;
+      --ies-logo-grey: #9a9b9d;
+      --ies-navy: #102d69;
+      --ies-light-blue: #bce4fa;
+      --ies-light-yellow: #fff7b2;
+      --ies-light-green: #d9e6b1;
+      --ies-light-grey: #dbdad8;
+      --ies-black: #000000;
+      --ies-white: #ffffff;
+
+      /* UI */
+      --bg-top: #0b1020;
+      --bg-bottom: #050818;
+      --panel-bg: rgba(255,255,255,0.08);
+      --panel-border: rgba(255,255,255,0.18);
+
+      --text: #eef4ff;
+      --muted: rgba(238,244,255,0.78);
+
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 12px;
+
+      --focus: rgba(0,160,223,0.60);
+      --danger: #4a1111;
+      --warn: #5c4a00;
+      --ok: #0f3d1f;
+
+      --shadow: none; /* keep flat (manual style preference) */
     }
-    h1{margin:0 0 10px;font-size:clamp(26px,4.2vw,44px);letter-spacing:0.5px}
-    .current{
-      margin:0 0 18px;
-      font-size:clamp(20px,3vw,34px);
-      font-weight:900;
-      letter-spacing:0.8px;
-      opacity:0.95;
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
+    body{
+      background: radial-gradient(1100px 700px at top, var(--bg-top) 0%, var(--bg-bottom) 55%, #000 100%);
+      color: var(--text);
+      overflow: hidden;
     }
-    .buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:14px 0 18px}
+
+    /* Layout */
+    .page{
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    /* Header (clean, brand-consistent) */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      padding: 14px 18px;
+      background: rgba(16,45,105,0.28); /* navy tint */
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    /* Logo: keep it simple, no effects, no distortion */
+    .logo-wrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      flex: 0 0 auto;
+    }
+    .logo{
+      max-width: 42px;
+      max-height: 42px;
+      object-fit: contain;
+      display:block;
+    }
+
+    .brand-text{
+      display:flex;
+      flex-direction:column;
+      min-width: 0;
+    }
+    .school-name{
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+    }
+    .page-title{
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .header-right{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      font-size: 12px;
+      color: var(--muted);
+      user-select: none;
+      white-space: nowrap;
+    }
+    .dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--ies-logo-blue);
+      opacity: 0.9;
+    }
+
+    /* Main */
+    main{
+      display:grid;
+      place-items:center;
+      padding: 22px;
+    }
+
+    .panel{
+      width: min(1080px, 96vw);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .hero{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .hero-left{
+      min-width: 260px;
+      flex: 1 1 460px;
+    }
+
+    .h1{
+      margin: 0 0 6px;
+      font-size: clamp(26px, 3.2vw, 44px);
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+    .h2{
+      margin: 0;
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .session-banner{
+      flex: 0 1 360px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      padding: 14px 14px;
+      min-width: 260px;
+    }
+    .session-label{
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: rgba(238,244,255,0.72);
+      margin: 0 0 6px;
+    }
+    .session-value{
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      margin: 0;
+    }
+
+    /* Session buttons */
+    .session-buttons{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0 14px;
+    }
     .btn{
-      min-width:min(420px,90vw);
-      padding:18px 18px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,0.22);
-      background:rgba(255,255,255,0.10);
-      color:#fff;
-      font-size:clamp(18px,2.2vw,22px);
-      font-weight:900;
-      cursor:pointer;
-      transition:transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-radius: var(--radius-md);
+      padding: 16px 16px;
+      font-weight: 900;
+      font-size: 18px;
+      cursor: pointer;
+      flex: 1 1 320px;
+      min-width: min(480px, 90vw);
+      text-align: center;
+      transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
     }
-    .btn:hover{background:rgba(255,255,255,0.16);transform:translateY(-1px)}
+    .btn:hover{ background: rgba(255,255,255,0.10); transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0px); }
     .btn.active{
-      background:rgba(255,255,255,0.22);
-      border-color:rgba(255,255,255,0.38);
-      outline:2px solid rgba(255,255,255,0.18);
+      border-color: rgba(0,160,223,0.85);
+      outline: 2px solid rgba(0,160,223,0.30);
+      background: rgba(0,160,223,0.12);
+    }
+    .btn .sub{
+      display:block;
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(238,244,255,0.72);
+      letter-spacing: 0.2px;
     }
 
-    .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
-    input[type="text"]{
-      width:min(560px,90vw);
-      padding:14px 16px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,0.22);
-      background:rgba(0,0,0,0.25);
-      color:#fff;
-      font-size:18px;
-      outline:none;
+    /* Scan row */
+    .scan-row{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
     }
-    button.small{
-      padding:14px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.22);
-      background:rgba(255,255,255,0.10);color:#fff;font-size:16px;font-weight:800;cursor:pointer;
+
+    .uid{
+      width: min(620px, 92vw);
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      font-size: 18px;
+      outline: none;
     }
-    button.small:hover{background:rgba(255,255,255,0.16)}
+    .uid:focus{
+      border-color: rgba(0,160,223,0.75);
+      outline: 2px solid rgba(0,160,223,0.25);
+    }
 
-    .hint{margin-top:12px;opacity:0.78;line-height:1.45}
-    .badge{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.18);opacity:0.85;font-size:13px}
-    .debug{margin-top:12px;font-size:13px;opacity:0.8;word-break:break-word;text-align:left;white-space:pre-wrap}
+    .submit{
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      min-width: 140px;
+      transition: background 120ms ease, border-color 120ms ease;
+    }
+    .submit:hover{ background: rgba(255,255,255,0.12); }
+    .submit:disabled{ opacity: 0.55; cursor: not-allowed; }
 
+    .help{
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .help strong{ color: rgba(238,244,255,0.92); }
+
+    /* Footer */
+    footer{
+      padding: 10px 18px;
+      color: rgba(238,244,255,0.62);
+      font-size: 12px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .footer-left{ display:flex; align-items:center; gap: 10px; }
+    .footer-right{ display:flex; align-items:center; gap: 10px; }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.22);
+      color: rgba(238,244,255,0.85);
+      white-space: nowrap;
+    }
+
+    /* Debug (hidden by default; toggled with Ctrl+Shift+D) */
+    .debug{
+      display:none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(255,255,255,0.22);
+      background: rgba(0,0,0,0.18);
+      color: rgba(238,244,255,0.90);
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      text-align: left;
+    }
+    .debug.show{ display:block; }
+
+    /* Confirmation overlay */
     .overlay{
-      position:fixed;inset:0;display:none;place-items:center;z-index:50;
-      color:#fff;text-align:center;padding:24px;
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      z-index: 50;
+      padding: 24px;
+      text-align: center;
+      color: var(--ies-white);
     }
-    .overlay.show{display:grid}
-    .overlay.in{background:#0f3d1f}
-    .overlay.out{background:#1b2a4a}
-    .overlay.err{background:#4a1111}
-    .overlay.warn{background:#5c4a00}
-    .big{font-size:clamp(56px,8vw,120px);font-weight:900;letter-spacing:2px;margin:0}
-    .mid{margin-top:12px;font-size:clamp(20px,3vw,34px);font-weight:900;opacity:0.96}
-    .smalltxt{margin-top:10px;font-size:clamp(16px,2.2vw,22px);opacity:0.9;max-width:900px}
+    .overlay.show{ display:grid; }
+    .overlay.in{ background: var(--ok); }
+    .overlay.out{ background: #1b2a4a; }
+    .overlay.warn{ background: var(--warn); }
+    .overlay.err{ background: var(--danger); }
 
-    #hiddenScan { position:absolute; left:-9999px; top:-9999px; opacity:0; }
+    .ov-big{
+      margin: 0;
+      font-size: clamp(56px, 8vw, 120px);
+      font-weight: 900;
+      letter-spacing: 1.6px;
+    }
+    .ov-mid{
+      margin-top: 10px;
+      font-size: clamp(20px, 3vw, 36px);
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      opacity: 0.95;
+    }
+    .ov-small{
+      margin-top: 10px;
+      font-size: clamp(16px, 2.3vw, 22px);
+      font-weight: 700;
+      opacity: 0.92;
+      max-width: 980px;
+    }
 
-    iframe { position:absolute; left:-9999px; width:1px; height:1px; border:0; }
+    /* Hidden “scanner catcher” input */
+    #hiddenScan{
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      opacity: 0;
+    }
+
+    /* Hidden iframe for reliable Google Forms submission */
+    iframe{
+      position:absolute;
+      left:-9999px;
+      width:1px;
+      height:1px;
+      border:0;
+    }
   </style>
 </head>
+
 <body>
+  <!-- Scanner catcher (keyboard wedge) -->
   <input id="hiddenScan" autocomplete="off" />
-  <iframe id="hiddenIframe" name="hidden_iframe"></iframe>
 
-  <div class="wrap">
-    <div class="card">
-      <h1>CLUB ATTENDANCE</h1>
-      <div class="current" id="currentSession">Select a session</div>
+  <!-- Reliable submission target -->
+  <iframe name="hidden_iframe" id="hiddenIframe"></iframe>
 
-      <div class="buttons">
-        <button class="btn" id="btnBreakfast" type="button">Breakfast Club</button>
-        <button class="btn" id="btnJunior" type="button">Junior Club</button>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="logo-wrap" aria-label="School logo">
+          <!-- Put your logo files here (recommended path) -->
+          <img id="logoImg" class="logo" alt="School logo" src="./assets/brand/logo-primary.svg"
+               onerror="this.onerror=null;this.src='./assets/brand/logo-primary.png';" />
+        </div>
+        <div class="brand-text">
+          <p class="school-name" id="schoolName">Your School Name</p>
+          <p class="page-title">Breakfast Club / Junior Club Attendance</p>
+        </div>
       </div>
 
-      <div class="row">
-        <input id="uidInput" type="text" placeholder="Scan card now (or type UID and press Enter)" />
-        <button class="small" id="submitBtn" type="button">Submit</button>
+      <div class="header-right">
+        <div class="pill" id="livePill" title="System status">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">Ready</span>
+        </div>
+        <div class="pill" title="Debug toggle">
+          <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">D</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="panel">
+        <div class="hero">
+          <div class="hero-left">
+            <p class="h1">Tap your card</p>
+            <p class="h2">Select a club, then scan a tag/card. You will see an instant IN/OUT message.</p>
+          </div>
+
+          <div class="session-banner" aria-live="polite">
+            <p class="session-label">Current Session</p>
+            <p class="session-value" id="sessionValue">Not selected</p>
+          </div>
+        </div>
+
+        <div class="session-buttons">
+          <button class="btn" id="btnBreakfast" type="button">
+            Breakfast Club
+            <span class="sub">Morning session</span>
+          </button>
+
+          <button class="btn" id="btnJunior" type="button">
+            Junior Club
+            <span class="sub">Afternoon session</span>
+          </button>
+        </div>
+
+        <div class="scan-row">
+          <input class="uid" id="uidInput" type="text" placeholder="Scan card now (or type UID and press Enter)" />
+          <button class="submit" id="submitBtn" type="button">Submit</button>
+        </div>
+
+        <div class="help" id="helpText">
+          <strong>Flow:</strong> select session → scan/tag → confirmation.<br/>
+          Tip: if scanning does nothing, click once on the page and scan again.
+        </div>
+
+        <div class="debug" id="debugBox"></div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-left">
+        <span id="modeBadge">Mode: LIVE</span>
+        <span class="kbd" id="lockoutBadge">Lockout: 2.5s</span>
+        <span class="kbd">No Apps Script</span>
       </div>
 
-      <div class="hint">
-        <span class="badge" id="modeBadge">Mode: LIVE (submits to Form)</span><br/>
-        Flow: select session → scan/tag → instant IN/OUT confirmation.
+      <div class="footer-right">
+        <span>We prepare students for the world</span>
       </div>
-
-      <div class="debug" id="debug"></div>
-    </div>
+    </footer>
   </div>
 
-  <div id="overlay" class="overlay">
+  <div class="overlay" id="overlay">
     <div>
-      <p id="ovBig" class="big"></p>
-      <div id="ovMid" class="mid"></div>
-      <div id="ovSmall" class="smalltxt"></div>
+      <p class="ov-big" id="ovBig"></p>
+      <div class="ov-mid" id="ovMid"></div>
+      <div class="ov-small" id="ovSmall"></div>
     </div>
   </div>
 
 <script>
-/* =========================
-   CONFIG — your real values
-========================= */
+/* ============================================================
+   CONFIG — EDIT THIS BLOCK ONLY (repeatable for other schools)
+============================================================ */
 const CONFIG = {
+  SCHOOL_NAME: "Internationella Engelska Skolan",
+  LOGO_PRIMARY: "./assets/brand/logo-primary.svg",
+  // If you want a different logo on dark backgrounds, point it here:
+  LOGO_NEGATIVE: "./assets/brand/logo-negative.svg",
+
+  // Live State CSV (published view of Live_State_Today)
   LIVE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0yGTGeJfrBUb4uNolJOBGd0e22eHmC6mS-YFA5tY62GiGlPApb3dhJHnpT6nNECAKQwUGLxeHp8mJ/pub?gid=463628959&single=true&output=csv",
 
-  // IMPORTANT: For iframe/form submission, use the same endpoint:
+  // Google Form POST endpoint
   FORM_POST_URL: "https://docs.google.com/forms/d/e/1FAIpQLScZfhjBTvzLh_uRaFRuyLAJtiNbMZSeMKNP7jSPghhdyH_jXw/formResponse",
 
+  // Form field IDs
   ENTRY_UID: "entry.1193228466",
   ENTRY_DIRECTION: "entry.169195161",
   ENTRY_SESSION: "entry.889014487",
@@ -138,61 +520,104 @@ const CONFIG = {
 
   STATION_NAME: "Club-Attendance-Page-1",
 
-  // Set true to test logic without writing to the form
+  // Values must match Form options exactly:
+  SESSION_BREAKFAST: "Breakfast Club",
+  SESSION_JUNIOR: "Junior Club",
+  DIR_IN: "IN",
+  DIR_OUT: "OUT",
+
+  // Behaviour
+  MIN_UID_LEN: 6,
+  CONFIRM_MS: 1600,
+
+  // Double-scan lockout (prevents “tap twice quickly” errors)
+  LOCKOUT_MS: 2500,
+
+  // CSV fetch caching (reduce repeated requests)
+  CACHE_TTL_MS: 1200,
+
+  // When true: no submissions are sent to the Form
   DRY_RUN: false,
 
-  CONFIRM_MS: 1600,
-  MIN_UID_LEN: 6,
-  CACHE_TTL_MS: 1200
+  // Debug toggle hotkey: Ctrl+Shift+D
+  DEBUG_HOTKEY: true
 };
 
-/* =========================
+/* ============================================================
    UI ELEMENTS
-========================= */
+============================================================ */
 const el = {
+  schoolName: document.getElementById("schoolName"),
+  logoImg: document.getElementById("logoImg"),
+  sessionValue: document.getElementById("sessionValue"),
   btnBreakfast: document.getElementById("btnBreakfast"),
   btnJunior: document.getElementById("btnJunior"),
-  currentSession: document.getElementById("currentSession"),
   uidInput: document.getElementById("uidInput"),
   submitBtn: document.getElementById("submitBtn"),
-  modeBadge: document.getElementById("modeBadge"),
-  debug: document.getElementById("debug"),
+  helpText: document.getElementById("helpText"),
   overlay: document.getElementById("overlay"),
   ovBig: document.getElementById("ovBig"),
   ovMid: document.getElementById("ovMid"),
   ovSmall: document.getElementById("ovSmall"),
+  debugBox: document.getElementById("debugBox"),
+  modeBadge: document.getElementById("modeBadge"),
+  lockoutBadge: document.getElementById("lockoutBadge"),
   hiddenScan: document.getElementById("hiddenScan"),
-  iframe: document.getElementById("hiddenIframe")
+  statusText: document.getElementById("statusText"),
+  statusDot: document.getElementById("statusDot"),
 };
 
-let selectedSession = "";
-let cachedStateMap = new Map(); // key uid|session -> direction
+/* ============================================================
+   STATE
+============================================================ */
+let selectedSession = "";             // Breakfast Club / Junior Club
+let cachedStateMap = new Map();       // key uid|session -> direction
 let lastFetchAt = 0;
-let busy = false;
 
-function setSession(session) {
+let busy = false;
+let debugOn = false;
+
+let lastScanAt = 0;
+let lastScanUid = "";
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function setSchoolBrand(){
+  el.schoolName.textContent = CONFIG.SCHOOL_NAME;
+  el.logoImg.src = CONFIG.LOGO_PRIMARY;
+}
+
+function setSession(session){
   selectedSession = session;
-  el.currentSession.textContent = session ? session : "Select a session";
-  el.btnBreakfast.classList.toggle("active", session === "Breakfast Club");
-  el.btnJunior.classList.toggle("active", session === "Junior Club");
+  el.sessionValue.textContent = session || "Not selected";
+  el.btnBreakfast.classList.toggle("active", session === CONFIG.SESSION_BREAKFAST);
+  el.btnJunior.classList.toggle("active", session === CONFIG.SESSION_JUNIOR);
   focusInputs();
 }
 
-function focusInputs() {
+function focusInputs(){
   try { el.uidInput.focus(); } catch {}
   try { el.hiddenScan.focus(); } catch {}
 }
 
-function normalizeUid(raw) { return String(raw || "").trim(); }
+function setStatus(text, kind){
+  el.statusText.textContent = text;
+  // Kind: ok | warn | err | neutral
+  if (kind === "ok") el.statusDot.style.background = "var(--ies-logo-blue)";
+  else if (kind === "warn") el.statusDot.style.background = "#ffd24a";
+  else if (kind === "err") el.statusDot.style.background = "#ff5a5a";
+  else el.statusDot.style.background = "var(--ies-logo-grey)";
+}
 
-function showOverlay(kind, big, mid, small) {
+function showOverlay(kind, big, mid, small){
   el.overlay.className = "overlay show " + kind;
   el.ovBig.textContent = big || "";
   el.ovMid.textContent = mid || "";
   el.ovSmall.textContent = small || "";
 }
 
-function hideOverlaySoon() {
+function hideOverlaySoon(){
   setTimeout(() => {
     el.overlay.className = "overlay";
     el.ovBig.textContent = "";
@@ -203,25 +628,55 @@ function hideOverlaySoon() {
   }, CONFIG.CONFIRM_MS);
 }
 
-function setDebug(msg) { el.debug.textContent = msg || ""; }
+function normalizeUid(raw){
+  return String(raw || "").trim();
+}
 
-function parseCsvLine(line) {
+function isLockout(uid){
+  const now = Date.now();
+  // Only lock out identical UID scans within LOCKOUT_MS
+  if (uid && uid === lastScanUid && (now - lastScanAt) < CONFIG.LOCKOUT_MS) return true;
+  return false;
+}
+
+function updateLockout(uid){
+  lastScanUid = uid;
+  lastScanAt = Date.now();
+}
+
+function setDebug(text){
+  if (!debugOn) return;
+  el.debugBox.textContent = text || "";
+}
+
+function toggleDebug(){
+  debugOn = !debugOn;
+  el.debugBox.classList.toggle("show", debugOn);
+  if (!debugOn) el.debugBox.textContent = "";
+}
+
+/* ============================================================
+   CSV PARSING (lightweight)
+============================================================ */
+function parseCsvLine(line){
   const out = [];
   let cur = "", inQ = false;
-  for (let i=0;i<line.length;i++) {
+  for (let i=0;i<line.length;i++){
     const ch = line[i];
-    if (ch === '"') {
-      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+    if (ch === '"'){
+      if (inQ && line[i+1] === '"'){ cur += '"'; i++; }
       else inQ = !inQ;
-    } else if (ch === ',' && !inQ) {
+    } else if (ch === ',' && !inQ){
       out.push(cur); cur = "";
-    } else cur += ch;
+    } else {
+      cur += ch;
+    }
   }
   out.push(cur);
   return out.map(s => s.trim());
 }
 
-function buildStateMapFromCsv(csvText) {
+function buildStateMapFromCsv(csvText){
   const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
   const map = new Map();
   if (!lines.length) return map;
@@ -230,48 +685,58 @@ function buildStateMapFromCsv(csvText) {
   const hasHeader = first.some(h => h.includes("rfid")) || first.some(h => h.includes("direction")) || first.some(h => h.includes("session"));
   const start = hasHeader ? 1 : 0;
 
-  for (let i=start;i<lines.length;i++) {
+  for (let i=start;i<lines.length;i++){
     const cells = parseCsvLine(lines[i]);
     let uid = "", session = "", direction = "";
 
-    for (const c of cells) {
+    for (const c of cells){
       const v = String(c || "").trim();
-      if (!direction && (v === "IN" || v === "OUT")) direction = v;
-      if (!session && (v === "Breakfast Club" || v === "Junior Club")) session = v;
+      if (!direction && (v === CONFIG.DIR_IN || v === CONFIG.DIR_OUT)) direction = v;
+      if (!session && (v === CONFIG.SESSION_BREAKFAST || v === CONFIG.SESSION_JUNIOR)) session = v;
     }
-    for (const c of cells) {
+    for (const c of cells){
       const v = String(c || "").trim();
       if (!uid && /^[a-zA-Z0-9]+$/.test(v) && v.length >= CONFIG.MIN_UID_LEN &&
-          v !== "IN" && v !== "OUT" && v !== "Breakfast Club" && v !== "Junior Club") {
+          v !== CONFIG.DIR_IN && v !== CONFIG.DIR_OUT &&
+          v !== CONFIG.SESSION_BREAKFAST && v !== CONFIG.SESSION_JUNIOR){
         uid = v; break;
       }
     }
+
     if (!uid || !session || !direction) continue;
     const key = uid + "|" + session;
+    // Live_State_Today should already be one row per UID+session (latest)
     if (!map.has(key)) map.set(key, direction);
   }
   return map;
 }
 
-async function fetchStateMap() {
+async function fetchStateMap(){
   const now = Date.now();
-  if (now - lastFetchAt < CONFIG.CACHE_TTL_MS && cachedStateMap.size) return cachedStateMap;
+  if ((now - lastFetchAt) < CONFIG.CACHE_TTL_MS && cachedStateMap.size) return cachedStateMap;
 
   lastFetchAt = now;
   const url = CONFIG.LIVE_CSV_URL + (CONFIG.LIVE_CSV_URL.includes("?") ? "&" : "?") + "cachebust=" + now;
+
+  setStatus("Checking system…", "neutral");
   const res = await fetch(url, { method: "GET", cache: "no-store" });
-  if (!res.ok) throw new Error("Live state fetch failed (" + res.status + ")");
+  if (!res.ok){
+    throw new Error("Live state fetch failed (" + res.status + ")");
+  }
   cachedStateMap = buildStateMapFromCsv(await res.text());
+  setStatus("Ready", "ok");
   return cachedStateMap;
 }
 
-function decideNextDirection(lastDirection) {
-  if (!lastDirection) return "IN";
-  return lastDirection === "IN" ? "OUT" : "IN";
+function decideNextDirection(lastDirection){
+  if (!lastDirection) return CONFIG.DIR_IN;
+  return lastDirection === CONFIG.DIR_IN ? CONFIG.DIR_OUT : CONFIG.DIR_IN;
 }
 
-/* ===== reliable submission: HTML form -> hidden iframe ===== */
-function submitViaIframe(uid, direction, session) {
+/* ============================================================
+   SUBMISSION (reliable): HTML form -> hidden iframe
+============================================================ */
+function submitViaIframe(uid, direction, session){
   if (CONFIG.DRY_RUN) return;
 
   const form = document.createElement("form");
@@ -297,27 +762,43 @@ function submitViaIframe(uid, direction, session) {
   form.remove();
 }
 
-async function handleSubmit(uidRaw) {
+/* ============================================================
+   MAIN FLOW
+============================================================ */
+async function handleSubmit(uidRaw){
   if (busy) return;
   busy = true;
 
   const uid = normalizeUid(uidRaw);
 
-  if (!selectedSession) {
+  if (!selectedSession){
     showOverlay("warn", "SELECT SESSION", "", "Tap Breakfast Club or Junior Club first.");
+    setStatus("Session not selected", "warn");
     setDebug("Blocked: no session selected.");
     hideOverlaySoon();
     return;
   }
 
-  if (!uid || uid.length < CONFIG.MIN_UID_LEN) {
+  if (!uid || uid.length < CONFIG.MIN_UID_LEN){
     showOverlay("warn", "TRY AGAIN", selectedSession, "Scan not recognised.");
+    setStatus("Invalid scan", "warn");
     setDebug("Blocked: UID too short/empty.");
     hideOverlaySoon();
     return;
   }
 
-  try {
+  if (isLockout(uid)){
+    showOverlay("warn", "PLEASE WAIT", selectedSession, "Try again in a moment.");
+    setStatus("Lockout (duplicate scan)", "warn");
+    setDebug(`Lockout: UID=${uid} within ${CONFIG.LOCKOUT_MS}ms.`);
+    hideOverlaySoon();
+    return;
+  }
+
+  updateLockout(uid);
+  el.submitBtn.disabled = true;
+
+  try{
     const map = await fetchStateMap();
     const key = uid + "|" + selectedSession;
     const last = map.get(key) || "";
@@ -329,48 +810,76 @@ async function handleSubmit(uidRaw) {
       `Session: ${selectedSession}\n` +
       `Last: ${last || "NONE"}\n` +
       `Next: ${next}\n` +
-      `DRY_RUN: ${CONFIG.DRY_RUN}\n` +
-      `Posting to: ${CONFIG.FORM_POST_URL}\n`
+      `DRY_RUN: ${CONFIG.DRY_RUN}\n`
     );
 
+    // Submit first (best effort) then show overlay
     submitViaIframe(uid, next, selectedSession);
 
-    showOverlay(next === "IN" ? "in" : "out",
-      next === "IN" ? "YOU ARE IN" : "YOU ARE OUT",
+    showOverlay(
+      next === CONFIG.DIR_IN ? "in" : "out",
+      next === CONFIG.DIR_IN ? "YOU ARE IN" : "YOU ARE OUT",
       selectedSession,
-      CONFIG.DRY_RUN ? "(Dry run — not submitted)" : "Submitted."
+      CONFIG.DRY_RUN ? "(Dry run — not submitted)" : "Recorded."
     );
 
     el.uidInput.value = "";
     el.hiddenScan.value = "";
+    setStatus("Ready", "ok");
     hideOverlaySoon();
-  } catch (e) {
-    showOverlay("err", "ERROR", selectedSession, (e && e.message) ? e.message : String(e));
+  } catch (e){
+    showOverlay("err", "SYSTEM UNAVAILABLE", selectedSession, "Please try again.");
+    setStatus("CSV fetch failed", "err");
     setDebug("Error: " + ((e && e.message) ? e.message : String(e)));
     hideOverlaySoon();
+  } finally {
+    el.submitBtn.disabled = false;
   }
 }
 
-/* ===== events ===== */
-el.btnBreakfast.addEventListener("click", () => setSession("Breakfast Club"));
-el.btnJunior.addEventListener("click", () => setSession("Junior Club"));
+/* ============================================================
+   EVENTS
+============================================================ */
+el.btnBreakfast.addEventListener("click", () => setSession(CONFIG.SESSION_BREAKFAST));
+el.btnJunior.addEventListener("click", () => setSession(CONFIG.SESSION_JUNIOR));
 
 el.submitBtn.addEventListener("click", () => handleSubmit(el.uidInput.value));
 
 el.uidInput.addEventListener("keydown", (ev) => {
-  if (ev.key === "Enter") { ev.preventDefault(); handleSubmit(el.uidInput.value); }
+  if (ev.key === "Enter"){ ev.preventDefault(); handleSubmit(el.uidInput.value); }
 });
 
 el.hiddenScan.addEventListener("keydown", (ev) => {
-  if (ev.key === "Enter") { ev.preventDefault(); handleSubmit(el.hiddenScan.value); }
+  if (ev.key === "Enter"){ ev.preventDefault(); handleSubmit(el.hiddenScan.value); }
 });
 
+// Focus recovery for scanners
 document.addEventListener("click", focusInputs);
 window.addEventListener("focus", focusInputs);
 
-(function init() {
-  el.modeBadge.textContent = CONFIG.DRY_RUN ? "Mode: DRY RUN (no submissions)" : "Mode: LIVE (submits to Form)";
+// Debug toggle
+document.addEventListener("keydown", (ev) => {
+  if (!CONFIG.DEBUG_HOTKEY) return;
+  if (ev.ctrlKey && ev.shiftKey && (ev.key === "D" || ev.key === "d")){
+    ev.preventDefault();
+    toggleDebug();
+  }
+});
+
+/* ============================================================
+   INIT
+============================================================ */
+(function init(){
+  setSchoolBrand();
+  el.modeBadge.textContent = CONFIG.DRY_RUN ? "Mode: DRY RUN" : "Mode: LIVE";
+  el.lockoutBadge.textContent = "Lockout: " + Math.round(CONFIG.LOCKOUT_MS/100)/10 + "s";
+  setStatus("Ready", "ok");
   focusInputs();
+
+  // Optional: preload state so first scan is faster
+  fetchStateMap().catch(() => {
+    setStatus("System unavailable", "err");
+  });
 })();
 </script>
 </body>
