@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Club Attendance — Tap Page</title>
+  <title>Club Attendance</title>
   <style>
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -65,7 +65,7 @@
 
     .hint{margin-top:12px;opacity:0.78;line-height:1.45}
     .badge{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.18);opacity:0.85;font-size:13px}
-    .debug{margin-top:10px;font-size:13px;opacity:0.7;word-break:break-word;text-align:left}
+    .debug{margin-top:12px;font-size:13px;opacity:0.8;word-break:break-word;text-align:left;white-space:pre-wrap}
 
     .overlay{
       position:fixed;inset:0;display:none;place-items:center;z-index:50;
@@ -80,12 +80,14 @@
     .mid{margin-top:12px;font-size:clamp(20px,3vw,34px);font-weight:900;opacity:0.96}
     .smalltxt{margin-top:10px;font-size:clamp(16px,2.2vw,22px);opacity:0.9;max-width:900px}
 
-    /* Hidden input to catch keyboard-wedge scans even if focus drops */
     #hiddenScan { position:absolute; left:-9999px; top:-9999px; opacity:0; }
+
+    iframe { position:absolute; left:-9999px; width:1px; height:1px; border:0; }
   </style>
 </head>
 <body>
   <input id="hiddenScan" autocomplete="off" />
+  <iframe id="hiddenIframe" name="hidden_iframe"></iframe>
 
   <div class="wrap">
     <div class="card">
@@ -121,11 +123,12 @@
 
 <script>
 /* =========================
-   CONFIG — already filled with your IDs
+   CONFIG — your real values
 ========================= */
 const CONFIG = {
   LIVE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0yGTGeJfrBUb4uNolJOBGd0e22eHmC6mS-YFA5tY62GiGlPApb3dhJHnpT6nNECAKQwUGLxeHp8mJ/pub?gid=463628959&single=true&output=csv",
 
+  // IMPORTANT: For iframe/form submission, use the same endpoint:
   FORM_POST_URL: "https://docs.google.com/forms/d/e/1FAIpQLScZfhjBTvzLh_uRaFRuyLAJtiNbMZSeMKNP7jSPghhdyH_jXw/formResponse",
 
   ENTRY_UID: "entry.1193228466",
@@ -135,7 +138,9 @@ const CONFIG = {
 
   STATION_NAME: "Club-Attendance-Page-1",
 
+  // Set true to test logic without writing to the form
   DRY_RUN: false,
+
   CONFIRM_MS: 1600,
   MIN_UID_LEN: 6,
   CACHE_TTL_MS: 1200
@@ -156,28 +161,29 @@ const el = {
   ovBig: document.getElementById("ovBig"),
   ovMid: document.getElementById("ovMid"),
   ovSmall: document.getElementById("ovSmall"),
-  hiddenScan: document.getElementById("hiddenScan")
+  hiddenScan: document.getElementById("hiddenScan"),
+  iframe: document.getElementById("hiddenIframe")
 };
 
-let selectedSession = ""; // "Breakfast Club" | "Junior Club"
-let cachedStateMap = new Map(); // key: uid|session -> direction
+let selectedSession = "";
+let cachedStateMap = new Map(); // key uid|session -> direction
 let lastFetchAt = 0;
 let busy = false;
 
-/* =========================
-   HELPERS
-========================= */
 function setSession(session) {
   selectedSession = session;
   el.currentSession.textContent = session ? session : "Select a session";
   el.btnBreakfast.classList.toggle("active", session === "Breakfast Club");
   el.btnJunior.classList.toggle("active", session === "Junior Club");
-  el.uidInput.focus();
+  focusInputs();
 }
 
-function normalizeUid(raw) {
-  return String(raw || "").trim();
+function focusInputs() {
+  try { el.uidInput.focus(); } catch {}
+  try { el.hiddenScan.focus(); } catch {}
 }
+
+function normalizeUid(raw) { return String(raw || "").trim(); }
 
 function showOverlay(kind, big, mid, small) {
   el.overlay.className = "overlay show " + kind;
@@ -197,15 +203,11 @@ function hideOverlaySoon() {
   }, CONFIG.CONFIRM_MS);
 }
 
-function focusInputs() {
-  try { el.uidInput.focus(); } catch {}
-  try { el.hiddenScan.focus(); } catch {}
-}
+function setDebug(msg) { el.debug.textContent = msg || ""; }
 
 function parseCsvLine(line) {
   const out = [];
-  let cur = "";
-  let inQ = false;
+  let cur = "", inQ = false;
   for (let i=0;i<line.length;i++) {
     const ch = line[i];
     if (ch === '"') {
@@ -213,9 +215,7 @@ function parseCsvLine(line) {
       else inQ = !inQ;
     } else if (ch === ',' && !inQ) {
       out.push(cur); cur = "";
-    } else {
-      cur += ch;
-    }
+    } else cur += ch;
   }
   out.push(cur);
   return out.map(s => s.trim());
@@ -226,7 +226,6 @@ function buildStateMapFromCsv(csvText) {
   const map = new Map();
   if (!lines.length) return map;
 
-  // Skip header if present
   const first = parseCsvLine(lines[0]).map(s => s.toLowerCase());
   const hasHeader = first.some(h => h.includes("rfid")) || first.some(h => h.includes("direction")) || first.some(h => h.includes("session"));
   const start = hasHeader ? 1 : 0;
@@ -242,13 +241,14 @@ function buildStateMapFromCsv(csvText) {
     }
     for (const c of cells) {
       const v = String(c || "").trim();
-      if (!uid && /^[a-zA-Z0-9]+$/.test(v) && v.length >= CONFIG.MIN_UID_LEN && v !== "IN" && v !== "OUT" && v !== "Breakfast Club" && v !== "Junior Club") {
+      if (!uid && /^[a-zA-Z0-9]+$/.test(v) && v.length >= CONFIG.MIN_UID_LEN &&
+          v !== "IN" && v !== "OUT" && v !== "Breakfast Club" && v !== "Junior Club") {
         uid = v; break;
       }
     }
     if (!uid || !session || !direction) continue;
     const key = uid + "|" + session;
-    if (!map.has(key)) map.set(key, direction); // Live_State_Today already latest-per-pair
+    if (!map.has(key)) map.set(key, direction);
   }
   return map;
 }
@@ -270,31 +270,33 @@ function decideNextDirection(lastDirection) {
   return lastDirection === "IN" ? "OUT" : "IN";
 }
 
-async function postToForm(uid, direction, session) {
+/* ===== reliable submission: HTML form -> hidden iframe ===== */
+function submitViaIframe(uid, direction, session) {
   if (CONFIG.DRY_RUN) return;
 
-  const data = new URLSearchParams();
-  data.append(CONFIG.ENTRY_UID, uid);
-  data.append(CONFIG.ENTRY_DIRECTION, direction);
-  data.append(CONFIG.ENTRY_SESSION, session);
-  data.append(CONFIG.ENTRY_STATION, CONFIG.STATION_NAME);
+  const form = document.createElement("form");
+  form.action = CONFIG.FORM_POST_URL;
+  form.method = "POST";
+  form.target = "hidden_iframe";
 
-  // no-cors avoids browser CORS blocking for Google Forms
-  await fetch(CONFIG.FORM_POST_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    body: data.toString()
-  });
+  const add = (name, value) => {
+    const inp = document.createElement("input");
+    inp.type = "hidden";
+    inp.name = name;
+    inp.value = value;
+    form.appendChild(inp);
+  };
+
+  add(CONFIG.ENTRY_UID, uid);
+  add(CONFIG.ENTRY_DIRECTION, direction);
+  add(CONFIG.ENTRY_SESSION, session);
+  add(CONFIG.ENTRY_STATION, CONFIG.STATION_NAME);
+
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
 }
 
-function setDebug(msg) {
-  el.debug.textContent = msg || "";
-}
-
-/* =========================
-   MAIN FLOW
-========================= */
 async function handleSubmit(uidRaw) {
   if (busy) return;
   busy = true;
@@ -321,11 +323,24 @@ async function handleSubmit(uidRaw) {
     const last = map.get(key) || "";
     const next = decideNextDirection(last);
 
-    setDebug(`UID=${uid} | Session=${selectedSession} | Last=${last || "NONE"} | Next=${next} | DRY_RUN=${CONFIG.DRY_RUN}`);
+    setDebug(
+      `Attempt:\n` +
+      `UID: ${uid}\n` +
+      `Session: ${selectedSession}\n` +
+      `Last: ${last || "NONE"}\n` +
+      `Next: ${next}\n` +
+      `DRY_RUN: ${CONFIG.DRY_RUN}\n` +
+      `Posting to: ${CONFIG.FORM_POST_URL}\n`
+    );
 
-    await postToForm(uid, next, selectedSession);
+    submitViaIframe(uid, next, selectedSession);
 
-    showOverlay(next === "IN" ? "in" : "out", next === "IN" ? "YOU ARE IN" : "YOU ARE OUT", selectedSession, "");
+    showOverlay(next === "IN" ? "in" : "out",
+      next === "IN" ? "YOU ARE IN" : "YOU ARE OUT",
+      selectedSession,
+      CONFIG.DRY_RUN ? "(Dry run — not submitted)" : "Submitted."
+    );
+
     el.uidInput.value = "";
     el.hiddenScan.value = "";
     hideOverlaySoon();
@@ -336,30 +351,20 @@ async function handleSubmit(uidRaw) {
   }
 }
 
-/* =========================
-   EVENTS
-========================= */
+/* ===== events ===== */
 el.btnBreakfast.addEventListener("click", () => setSession("Breakfast Club"));
 el.btnJunior.addEventListener("click", () => setSession("Junior Club"));
 
 el.submitBtn.addEventListener("click", () => handleSubmit(el.uidInput.value));
 
 el.uidInput.addEventListener("keydown", (ev) => {
-  if (ev.key === "Enter") {
-    ev.preventDefault();
-    handleSubmit(el.uidInput.value);
-  }
+  if (ev.key === "Enter") { ev.preventDefault(); handleSubmit(el.uidInput.value); }
 });
 
-// Hidden scan input (helps catch keyboard-wedge scanners)
 el.hiddenScan.addEventListener("keydown", (ev) => {
-  if (ev.key === "Enter") {
-    ev.preventDefault();
-    handleSubmit(el.hiddenScan.value);
-  }
+  if (ev.key === "Enter") { ev.preventDefault(); handleSubmit(el.hiddenScan.value); }
 });
 
-// Keep focus friendly
 document.addEventListener("click", focusInputs);
 window.addEventListener("focus", focusInputs);
 
@@ -370,4 +375,3 @@ window.addEventListener("focus", focusInputs);
 </script>
 </body>
 </html>
-
