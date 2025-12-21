@@ -1,1 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Club Attendance — Tap Page</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    body{background:#0b1020;color:#eaf0ff}
+    .wrap{min-height:100%;display:grid;place-items:center;padding:24px}
+    .card{
+      width:min(1050px,95vw);
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.35);
+      padding:28px;
+      text-align:center;
+    }
+    h1{margin:0 0 10px;font-size:clamp(26px,4.2vw,44px);letter-spacing:0.5px}
+    .current{
+      margin:0 0 18px;
+      font-size:clamp(20px,3vw,34px);
+      font-weight:900;
+      letter-spacing:0.8px;
+      opacity:0.95;
+    }
+    .buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:14px 0 18px}
+    .btn{
+      min-width:min(420px,90vw);
+      padding:18px 18px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.22);
+      background:rgba(255,255,255,0.10);
+      color:#fff;
+      font-size:clamp(18px,2.2vw,22px);
+      font-weight:900;
+      cursor:pointer;
+      transition:transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+    .btn:hover{background:rgba(255,255,255,0.16);transform:translateY(-1px)}
+    .btn.active{
+      background:rgba(255,255,255,0.22);
+      border-color:rgba(255,255,255,0.38);
+      outline:2px solid rgba(255,255,255,0.18);
+    }
+
+    .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+    input[type="text"]{
+      width:min(560px,90vw);
+      padding:14px 16px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.22);
+      background:rgba(0,0,0,0.25);
+      color:#fff;
+      font-size:18px;
+      outline:none;
+    }
+    button.small{
+      padding:14px 18px;border-radius:12px;border:1px solid rgba(255,255,255,0.22);
+      background:rgba(255,255,255,0.10);color:#fff;font-size:16px;font-weight:800;cursor:pointer;
+    }
+    button.small:hover{background:rgba(255,255,255,0.16)}
+
+    .hint{margin-top:12px;opacity:0.78;line-height:1.45}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.18);opacity:0.85;font-size:13px}
+    .debug{margin-top:10px;font-size:13px;opacity:0.7;word-break:break-word;text-align:left}
+
+    .overlay{
+      position:fixed;inset:0;display:none;place-items:center;z-index:50;
+      color:#fff;text-align:center;padding:24px;
+    }
+    .overlay.show{display:grid}
+    .overlay.in{background:#0f3d1f}
+    .overlay.out{background:#1b2a4a}
+    .overlay.err{background:#4a1111}
+    .overlay.warn{background:#5c4a00}
+    .big{font-size:clamp(56px,8vw,120px);font-weight:900;letter-spacing:2px;margin:0}
+    .mid{margin-top:12px;font-size:clamp(20px,3vw,34px);font-weight:900;opacity:0.96}
+    .smalltxt{margin-top:10px;font-size:clamp(16px,2.2vw,22px);opacity:0.9;max-width:900px}
+
+    /* Hidden input to catch keyboard-wedge scans even if focus drops */
+    #hiddenScan { position:absolute; left:-9999px; top:-9999px; opacity:0; }
+  </style>
+</head>
+<body>
+  <input id="hiddenScan" autocomplete="off" />
+
+  <div class="wrap">
+    <div class="card">
+      <h1>CLUB ATTENDANCE</h1>
+      <div class="current" id="currentSession">Select a session</div>
+
+      <div class="buttons">
+        <button class="btn" id="btnBreakfast" type="button">Breakfast Club</button>
+        <button class="btn" id="btnJunior" type="button">Junior Club</button>
+      </div>
+
+      <div class="row">
+        <input id="uidInput" type="text" placeholder="Scan card now (or type UID and press Enter)" />
+        <button class="small" id="submitBtn" type="button">Submit</button>
+      </div>
+
+      <div class="hint">
+        <span class="badge" id="modeBadge">Mode: LIVE (submits to Form)</span><br/>
+        Flow: select session → scan/tag → instant IN/OUT confirmation.
+      </div>
+
+      <div class="debug" id="debug"></div>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay">
+    <div>
+      <p id="ovBig" class="big"></p>
+      <div id="ovMid" class="mid"></div>
+      <div id="ovSmall" class="smalltxt"></div>
+    </div>
+  </div>
+
+<script>
+/* =========================
+   CONFIG — already filled with your IDs
+========================= */
+const CONFIG = {
+  LIVE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0yGTGeJfrBUb4uNolJOBGd0e22eHmC6mS-YFA5tY62GiGlPApb3dhJHnpT6nNECAKQwUGLxeHp8mJ/pub?gid=463628959&single=true&output=csv",
+
+  FORM_POST_URL: "https://docs.google.com/forms/d/e/1FAIpQLScZfhjBTvzLh_uRaFRuyLAJtiNbMZSeMKNP7jSPghhdyH_jXw/formResponse",
+
+  ENTRY_UID: "entry.1193228466",
+  ENTRY_DIRECTION: "entry.169195161",
+  ENTRY_SESSION: "entry.889014487",
+  ENTRY_STATION: "entry.875924272",
+
+  STATION_NAME: "Club-Attendance-Page-1",
+
+  DRY_RUN: false,
+  CONFIRM_MS: 1600,
+  MIN_UID_LEN: 6,
+  CACHE_TTL_MS: 1200
+};
+
+/* =========================
+   UI ELEMENTS
+========================= */
+const el = {
+  btnBreakfast: document.getElementById("btnBreakfast"),
+  btnJunior: document.getElementById("btnJunior"),
+  currentSession: document.getElementById("currentSession"),
+  uidInput: document.getElementById("uidInput"),
+  submitBtn: document.getElementById("submitBtn"),
+  modeBadge: document.getElementById("modeBadge"),
+  debug: document.getElementById("debug"),
+  overlay: document.getElementById("overlay"),
+  ovBig: document.getElementById("ovBig"),
+  ovMid: document.getElementById("ovMid"),
+  ovSmall: document.getElementById("ovSmall"),
+  hiddenScan: document.getElementById("hiddenScan")
+};
+
+let selectedSession = ""; // "Breakfast Club" | "Junior Club"
+let cachedStateMap = new Map(); // key: uid|session -> direction
+let lastFetchAt = 0;
+let busy = false;
+
+/* =========================
+   HELPERS
+========================= */
+function setSession(session) {
+  selectedSession = session;
+  el.currentSession.textContent = session ? session : "Select a session";
+  el.btnBreakfast.classList.toggle("active", session === "Breakfast Club");
+  el.btnJunior.classList.toggle("active", session === "Junior Club");
+  el.uidInput.focus();
+}
+
+function normalizeUid(raw) {
+  return String(raw || "").trim();
+}
+
+function showOverlay(kind, big, mid, small) {
+  el.overlay.className = "overlay show " + kind;
+  el.ovBig.textContent = big || "";
+  el.ovMid.textContent = mid || "";
+  el.ovSmall.textContent = small || "";
+}
+
+function hideOverlaySoon() {
+  setTimeout(() => {
+    el.overlay.className = "overlay";
+    el.ovBig.textContent = "";
+    el.ovMid.textContent = "";
+    el.ovSmall.textContent = "";
+    busy = false;
+    focusInputs();
+  }, CONFIG.CONFIRM_MS);
+}
+
+function focusInputs() {
+  try { el.uidInput.focus(); } catch {}
+  try { el.hiddenScan.focus(); } catch {}
+}
+
+function parseCsvLine(line) {
+  const out = [];
+  let cur = "";
+  let inQ = false;
+  for (let i=0;i<line.length;i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) {
+      out.push(cur); cur = "";
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out.map(s => s.trim());
+}
+
+function buildStateMapFromCsv(csvText) {
+  const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
+  const map = new Map();
+  if (!lines.length) return map;
+
+  // Skip header if present
+  const first = parseCsvLine(lines[0]).map(s => s.toLowerCase());
+  const hasHeader = first.some(h => h.includes("rfid")) || first.some(h => h.includes("direction")) || first.some(h => h.includes("session"));
+  const start = hasHeader ? 1 : 0;
+
+  for (let i=start;i<lines.length;i++) {
+    const cells = parseCsvLine(lines[i]);
+    let uid = "", session = "", direction = "";
+
+    for (const c of cells) {
+      const v = String(c || "").trim();
+      if (!direction && (v === "IN" || v === "OUT")) direction = v;
+      if (!session && (v === "Breakfast Club" || v === "Junior Club")) session = v;
+    }
+    for (const c of cells) {
+      const v = String(c || "").trim();
+      if (!uid && /^[a-zA-Z0-9]+$/.test(v) && v.length >= CONFIG.MIN_UID_LEN && v !== "IN" && v !== "OUT" && v !== "Breakfast Club" && v !== "Junior Club") {
+        uid = v; break;
+      }
+    }
+    if (!uid || !session || !direction) continue;
+    const key = uid + "|" + session;
+    if (!map.has(key)) map.set(key, direction); // Live_State_Today already latest-per-pair
+  }
+  return map;
+}
+
+async function fetchStateMap() {
+  const now = Date.now();
+  if (now - lastFetchAt < CONFIG.CACHE_TTL_MS && cachedStateMap.size) return cachedStateMap;
+
+  lastFetchAt = now;
+  const url = CONFIG.LIVE_CSV_URL + (CONFIG.LIVE_CSV_URL.includes("?") ? "&" : "?") + "cachebust=" + now;
+  const res = await fetch(url, { method: "GET", cache: "no-store" });
+  if (!res.ok) throw new Error("Live state fetch failed (" + res.status + ")");
+  cachedStateMap = buildStateMapFromCsv(await res.text());
+  return cachedStateMap;
+}
+
+function decideNextDirection(lastDirection) {
+  if (!lastDirection) return "IN";
+  return lastDirection === "IN" ? "OUT" : "IN";
+}
+
+async function postToForm(uid, direction, session) {
+  if (CONFIG.DRY_RUN) return;
+
+  const data = new URLSearchParams();
+  data.append(CONFIG.ENTRY_UID, uid);
+  data.append(CONFIG.ENTRY_DIRECTION, direction);
+  data.append(CONFIG.ENTRY_SESSION, session);
+  data.append(CONFIG.ENTRY_STATION, CONFIG.STATION_NAME);
+
+  // no-cors avoids browser CORS blocking for Google Forms
+  await fetch(CONFIG.FORM_POST_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: data.toString()
+  });
+}
+
+function setDebug(msg) {
+  el.debug.textContent = msg || "";
+}
+
+/* =========================
+   MAIN FLOW
+========================= */
+async function handleSubmit(uidRaw) {
+  if (busy) return;
+  busy = true;
+
+  const uid = normalizeUid(uidRaw);
+
+  if (!selectedSession) {
+    showOverlay("warn", "SELECT SESSION", "", "Tap Breakfast Club or Junior Club first.");
+    setDebug("Blocked: no session selected.");
+    hideOverlaySoon();
+    return;
+  }
+
+  if (!uid || uid.length < CONFIG.MIN_UID_LEN) {
+    showOverlay("warn", "TRY AGAIN", selectedSession, "Scan not recognised.");
+    setDebug("Blocked: UID too short/empty.");
+    hideOverlaySoon();
+    return;
+  }
+
+  try {
+    const map = await fetchStateMap();
+    const key = uid + "|" + selectedSession;
+    const last = map.get(key) || "";
+    const next = decideNextDirection(last);
+
+    setDebug(`UID=${uid} | Session=${selectedSession} | Last=${last || "NONE"} | Next=${next} | DRY_RUN=${CONFIG.DRY_RUN}`);
+
+    await postToForm(uid, next, selectedSession);
+
+    showOverlay(next === "IN" ? "in" : "out", next === "IN" ? "YOU ARE IN" : "YOU ARE OUT", selectedSession, "");
+    el.uidInput.value = "";
+    el.hiddenScan.value = "";
+    hideOverlaySoon();
+  } catch (e) {
+    showOverlay("err", "ERROR", selectedSession, (e && e.message) ? e.message : String(e));
+    setDebug("Error: " + ((e && e.message) ? e.message : String(e)));
+    hideOverlaySoon();
+  }
+}
+
+/* =========================
+   EVENTS
+========================= */
+el.btnBreakfast.addEventListener("click", () => setSession("Breakfast Club"));
+el.btnJunior.addEventListener("click", () => setSession("Junior Club"));
+
+el.submitBtn.addEventListener("click", () => handleSubmit(el.uidInput.value));
+
+el.uidInput.addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter") {
+    ev.preventDefault();
+    handleSubmit(el.uidInput.value);
+  }
+});
+
+// Hidden scan input (helps catch keyboard-wedge scanners)
+el.hiddenScan.addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter") {
+    ev.preventDefault();
+    handleSubmit(el.hiddenScan.value);
+  }
+});
+
+// Keep focus friendly
+document.addEventListener("click", focusInputs);
+window.addEventListener("focus", focusInputs);
+
+(function init() {
+  el.modeBadge.textContent = CONFIG.DRY_RUN ? "Mode: DRY RUN (no submissions)" : "Mode: LIVE (submits to Form)";
+  focusInputs();
+})();
+</script>
+</body>
+</html>
 
