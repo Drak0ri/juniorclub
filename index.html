@@ -316,7 +316,7 @@
       flex-wrap: wrap;
     }
 
-    .footer-left{ display:flex; align-items:center; gap: 10px; }
+    .footer-left{ display:flex; align-items:center; gap: 10px; flex-wrap: wrap; }
     .footer-right{ display:flex; align-items:center; gap: 10px; }
 
     .kbd{
@@ -414,9 +414,9 @@
     <header>
       <div class="brand">
         <div class="logo-wrap" aria-label="School logo">
-          <!-- Put your logo files here (recommended path) -->
-          <img id="logoImg" class="logo" alt="School logo" src="./assets/brand/logo-primary.svg"
-               onerror="this.onerror=null;this.src='./assets/brand/logo-primary.png';" />
+          <!-- Logos are in the repo root (same folder as index.html) -->
+          <img id="logoImg" class="logo" alt="School logo" src="./logo-primary.png"
+               onerror="this.onerror=null;this.src='./logo-negative.png';" />
         </div>
         <div class="brand-text">
           <p class="school-name" id="schoolName">Your School Name</p>
@@ -502,9 +502,10 @@
 ============================================================ */
 const CONFIG = {
   SCHOOL_NAME: "Internationella Engelska Skolan",
-  LOGO_PRIMARY: "./assets/brand/logo-primary.svg",
-  // If you want a different logo on dark backgrounds, point it here:
-  LOGO_NEGATIVE: "./assets/brand/logo-negative.svg",
+
+  // Logos are in the repo root (same folder as index.html)
+  LOGO_PRIMARY: "./logo-primary.png",
+  LOGO_NEGATIVE: "./logo-negative.png",
 
   // Live State CSV (published view of Live_State_Today)
   LIVE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0yGTGeJfrBUb4uNolJOBGd0e22eHmC6mS-YFA5tY62GiGlPApb3dhJHnpT6nNECAKQwUGLxeHp8mJ/pub?gid=463628959&single=true&output=csv",
@@ -635,8 +636,7 @@ function normalizeUid(raw){
 function isLockout(uid){
   const now = Date.now();
   // Only lock out identical UID scans within LOCKOUT_MS
-  if (uid && uid === lastScanUid && (now - lastScanAt) < CONFIG.LOCKOUT_MS) return true;
-  return false;
+  return !!(uid && uid === lastScanUid && (now - lastScanAt) < CONFIG.LOCKOUT_MS);
 }
 
 function updateLockout(uid){
@@ -813,7 +813,7 @@ async function handleSubmit(uidRaw){
       `DRY_RUN: ${CONFIG.DRY_RUN}\n`
     );
 
-    // Submit first (best effort) then show overlay
+    // Submit (best effort) then show overlay
     submitViaIframe(uid, next, selectedSession);
 
     showOverlay(
@@ -871,6 +871,11 @@ document.addEventListener("keydown", (ev) => {
 ============================================================ */
 (function init(){
   setSchoolBrand();
+
+  // Ensure logo uses configured path (root logos)
+  el.logoImg.src = CONFIG.LOGO_PRIMARY;
+  el.logoImg.onerror = () => { el.logoImg.src = CONFIG.LOGO_NEGATIVE; };
+
   el.modeBadge.textContent = CONFIG.DRY_RUN ? "Mode: DRY RUN" : "Mode: LIVE";
   el.lockoutBadge.textContent = "Lockout: " + Math.round(CONFIG.LOCKOUT_MS/100)/10 + "s";
   setStatus("Ready", "ok");
