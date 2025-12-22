@@ -25,11 +25,8 @@ header{
   background:rgba(16,45,105,.28);
   border-bottom:1px solid rgba(255,255,255,.12);
 }
-.logo{
-  width:42px;height:42px;
-}
+.logo{width:42px;height:42px}
 main{padding:24px;max-width:900px;margin:auto}
-h1{margin:.4em 0;font-size:36px}
 button,input{
   font-size:18px;
   padding:14px;
@@ -48,14 +45,9 @@ button.active{outline:3px solid #00a0df}
   border:1px solid rgba(255,255,255,.18);
 }
 .hidden{display:none}
-.big{
-  font-size:72px;
-  font-weight:900;
-  margin:20px 0;
-}
+.big{font-size:72px;font-weight:900;margin:20px 0}
 .ok{background:#0f3d1f}
 .warn{background:#5c4a00}
-.err{background:#4a1111}
 #overlay{
   position:fixed;
   inset:0;
@@ -89,7 +81,6 @@ button.active{outline:3px solid #00a0df}
   <div class="panel">
     <h1>Scan your card</h1>
     <p>No need to click — just scan</p>
-
     <button onclick="togglePin()">Staff: PIN entry</button>
   </div>
 
@@ -98,6 +89,7 @@ button.active{outline:3px solid #00a0df}
     <h1>PIN entry</h1>
     <input id="pinInput" placeholder="4-digit PIN">
     <button onclick="submitPIN()">Submit PIN</button>
+    <button onclick="closeStaffPanels()">Cancel</button>
   </div>
 
   <!-- REGISTER -->
@@ -108,6 +100,7 @@ button.active{outline:3px solid #00a0df}
     <input id="regClass" placeholder="Class">
     <input id="regPin" placeholder="4-digit PIN">
     <button onclick="registerCard()">Register card</button>
+    <button onclick="closeStaffPanels()">Cancel</button>
   </div>
 </main>
 
@@ -119,15 +112,14 @@ button.active{outline:3px solid #00a0df}
 /* ================= CONFIG ================= */
 
 const LIVE_UID_ALLOWLIST =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8mP6s7VAmjA-kJN2n9oFhd9kak5nZyakSKnEdckLBDW9mgdlycXMaIKjXPXG8Agma6li0ZmN9ZHcj/pub?gid=519609097&single=true&output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8mP6s7VAmjA-kJN2n9oFhd9kak5nZyakSKnEdckLBDW9mgdlycXMaIKjXPXG8Agma6li0ZmN9ZHcj/pub?gid=519609097&single=true&output=csv";
 
 const FORM_A =
-  "https://docs.google.com/forms/d/e/1FAIpQLSf-SLyYYCL8FsW4Md8yEA54ET6U-egFa2Nc3a0_wwOl5qx2lA/formResponse";
+"https://docs.google.com/forms/d/e/1FAIpQLSf-SLyYYCL8FsW4Md8yEA54ET6U-egFa2Nc3a0_wwOl5qx2lA/formResponse";
 
 const FORM_B =
-  "https://docs.google.com/forms/d/e/1FAIpQLSdg9PcY7JeBhq6DmTYFlsaRvvoskJ5HSzLOKTi5LZglHWmpMQ/formResponse";
+"https://docs.google.com/forms/d/e/1FAIpQLSdg9PcY7JeBhq6DmTYFlsaRvvoskJ5HSzLOKTi5LZglHWmpMQ/formResponse";
 
-/* Form A entries */
 const A = {
   type:"entry.277093114",
   value:"entry.241623352",
@@ -136,7 +128,7 @@ const A = {
   station:"entry.1543290454",
   note:"entry.1332803006"
 };
-/* Form B entries */
+
 const B = {
   uid:"entry.383658627",
   pin:"entry.1137422341",
@@ -154,6 +146,7 @@ let session="";
 let lastScan="";
 let lastScanAt=0;
 let allowlist=new Set();
+let scanMode=true;
 
 /* ================= INIT ================= */
 
@@ -165,8 +158,9 @@ fetch(LIVE_UID_ALLOWLIST)
     });
   });
 
-scanInput.focus();
-setInterval(()=>scanInput.focus(),1000);
+setInterval(()=>{
+  if(scanMode) scanInput.focus();
+},1000);
 
 /* ================= UI ================= */
 
@@ -188,12 +182,19 @@ function showOverlay(txt,cls){
 
 function togglePin(){
   pinPanel.classList.toggle("hidden");
+  scanMode=pinPanel.classList.contains("hidden");
 }
 
-/* ================= SCAN HANDLING ================= */
+function closeStaffPanels(){
+  pinPanel.classList.add("hidden");
+  regPanel.classList.add("hidden");
+  scanMode=true;
+}
+
+/* ================= SCAN ================= */
 
 scanInput.addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
+  if(e.key==="Enter" && scanMode){
     handleScan(scanInput.value.trim());
     scanInput.value="";
   }
@@ -201,27 +202,26 @@ scanInput.addEventListener("keydown",e=>{
 
 function handleScan(uid){
   if(!session){
-    showOverlay("SELECT SESSION","warn");
-    return;
+    showOverlay("SELECT SESSION","warn"); return;
   }
   const now=Date.now();
   if(uid===lastScan && now-lastScanAt<LOCKOUT_MS){
-    showOverlay("PLEASE WAIT","warn");
-    return;
+    showOverlay("PLEASE WAIT","warn"); return;
   }
   lastScan=uid; lastScanAt=now;
 
   if(!allowlist.has(uid)){
     regPanel.classList.remove("hidden");
+    scanMode=false;
     regUid.value=uid;
+    regName.focus();
     showOverlay("UNKNOWN CARD","warn");
     return;
   }
-
   submitEvent("RFID",uid);
 }
 
-/* ================= SUBMISSIONS ================= */
+/* ================= SUBMIT ================= */
 
 function post(url,data){
   const f=document.createElement("form");
@@ -256,8 +256,9 @@ function submitPIN(){
     [A.station]:"Staff",
     [A.note]:"PIN entry"
   });
-  showOverlay("PIN OK","ok");
   pinInput.value="";
+  closeStaffPanels();
+  showOverlay("PIN OK","ok");
 }
 
 function registerCard(){
@@ -270,7 +271,7 @@ function registerCard(){
     [B.by]:"Staff"
   });
   allowlist.add(regUid.value);
-  regPanel.classList.add("hidden");
+  closeStaffPanels();
   showOverlay("REGISTERED","ok");
 }
 </script>
