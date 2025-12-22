@@ -53,15 +53,8 @@ button.active{outline:3px solid #00a0df}
   color:white;
   z-index:50;
 }
-.big{
-  font-size:64px;
-  font-weight:900;
-}
-.sub{
-  font-size:32px;
-  font-weight:800;
-  margin-top:12px;
-}
+.big{font-size:64px;font-weight:900}
+.sub{font-size:32px;font-weight:800;margin-top:12px}
 .green{background:#0f3d1f}
 .red{background:#5a1111}
 .warn{background:#5c4a00}
@@ -93,7 +86,6 @@ button.active{outline:3px solid #00a0df}
     <button onclick="togglePin()">Staff: PIN entry</button>
   </div>
 
-  <!-- PIN -->
   <div id="pinPanel" class="panel hidden">
     <h1>PIN entry</h1>
     <input id="pinInput" placeholder="4-digit PIN">
@@ -101,7 +93,6 @@ button.active{outline:3px solid #00a0df}
     <button onclick="closeStaffPanels()">Cancel</button>
   </div>
 
-  <!-- REGISTER -->
   <div id="regPanel" class="panel hidden">
     <h1>Register new card</h1>
     <input id="regUid" readonly>
@@ -248,6 +239,9 @@ function handleScan(uid){
 
   submitEvent("RFID",uid,next);
 
+  // 🔑 FIX: update local state immediately
+  liveState.set(key,next);
+
   showOverlay(
     next==="IN"?"green":"red",
     next==="IN"?"WELCOME":"GOODBYE",
@@ -281,10 +275,16 @@ function submitEvent(type,value,direction){
 }
 
 function submitPIN(){
-  submitEvent("PIN",pinInput.value,"IN");
+  const key=`PIN|${pinInput.value}|${session}`;
+  const last=liveState.get(key);
+  const next=(last==="IN")?"OUT":"IN";
+
+  submitEvent("PIN",pinInput.value,next);
+  liveState.set(key,next);
+
   pinInput.value="";
   closeStaffPanels();
-  showOverlay("green","PIN OK",`to ${session}`);
+  showOverlay(next==="IN"?"green":"red",next==="IN"?"WELCOME":"GOODBYE",`${next==="IN"?"to":"from"} ${session}`);
 }
 
 function registerCard(){
