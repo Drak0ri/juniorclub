@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Club Attendance — Staff</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ies-logo-blue:#00a0df;
+      --text:#eef4ff;
+      --muted:rgba(238,244,255,0.78);
+      --bg-top:#0b1020;
+      --bg-bottom:#050818;
+      --panel-bg:rgba(255,255,255,0.08);
+      --panel-border:rgba(255,255,255,0.18);
+      --radius-lg:20px;
+      --radius-md:14px;
+      --radius-sm:12px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Open Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    body{background:radial-gradient(1100px 700px at top,var(--bg-top) 0%,var(--bg-bottom) 55%,#000 100%);color:var(--text)}
+    header{
+      display:flex;align-items:center;gap:14px;
+      padding:14px 18px;background:rgba(16,45,105,0.28);
+      border-bottom:1px solid rgba(255,255,255,0.12);
+    }
+    .logo-wrap{
+      width:54px;height:54px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
+    }
+    .logo{max-width:42px;max-height:42px;object-fit:contain}
+    main{padding:18px;display:grid;gap:14px;max-width:1100px;margin:0 auto}
+    .panel{
+      background:var(--panel-bg);border:1px solid var(--panel-border);
+      border-radius:var(--radius-lg);padding:18px;
+    }
+    h2{margin:0 0 10px;font-size:20px;font-weight:900}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .field{flex:1 1 220px}
+    label{display:block;font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:6px}
+    input,select,textarea{
+      width:100%;padding:12px;border-radius:12px;
+      border:1px solid rgba(255,255,255,0.22);
+      background:rgba(0,0,0,0.22);color:var(--text);
+    }
+    textarea{min-height:80px}
+    .btn{
+      padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.22);
+      background:rgba(255,255,255,0.08);color:var(--text);
+      font-weight:900;cursor:pointer;
+    }
+    .btn:hover{background:rgba(255,255,255,0.12)}
+    .status{margin-top:8px;font-size:13px}
+    iframe{position:absolute;left:-9999px;width:1px;height:1px;border:0}
+  </style>
+</head>
+<body>
+
+<iframe name="hidden_iframe"></iframe>
+
+<header>
+  <div class="logo-wrap">
+    <img class="logo" src="./logo-primary.png"
+         onerror="this.onerror=null;this.src='./logo-negative.png';">
+  </div>
+  <div>
+    <strong>Internationella Engelska Skolan</strong><br>
+    Staff tools — PIN, Manual events, Registration
+  </div>
+</header>
+
+<main>
+
+  <!-- PIN fallback -->
+  <div class="panel">
+    <h2>1) PIN fallback (forgotten card)</h2>
+    <div class="row">
+      <div class="field">
+        <label>Session</label>
+        <select id="pinSession">
+          <option>Breakfast Club</option>
+          <option>Junior Club</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Direction</label>
+        <select id="pinDirection">
+          <option>IN</option>
+          <option>OUT</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>4-digit PIN</label>
+        <input id="pinValue" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Note</label>
+        <input id="pinNote" placeholder="Forgot card">
+      </div>
+    </div>
+    <button class="btn" onclick="submitPin()">Submit PIN event</button>
+    <div class="status" id="pinStatus"></div>
+  </div>
+
+  <!-- Manual -->
+  <div class="panel">
+    <h2>2) Manual attendance event</h2>
+    <div class="row">
+      <div class="field">
+        <label>Session</label>
+        <select id="manSession">
+          <option>Breakfast Club</option>
+          <option>Junior Club</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Direction</label>
+        <select id="manDirection">
+          <option>IN</option>
+          <option>OUT</option>
+        </select>
+      </div>
+      <div class="field" style="flex:2">
+        <label>Note</label>
+        <input id="manNote" placeholder="Manual entry reason">
+      </div>
+    </div>
+    <button class="btn" onclick="submitManual()">Submit manual event</button>
+    <div class="status" id="manStatus"></div>
+  </div>
+
+  <!-- Registration -->
+  <div class="panel">
+    <h2>3) Register / replace RFID tag</h2>
+    <div class="row">
+      <div class="field">
+        <label>RFID UID</label>
+        <input id="regUid">
+      </div>
+      <div class="field">
+        <label>Backup PIN</label>
+        <input id="regPin" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Student name</label>
+        <input id="regName">
+      </div>
+      <div class="field">
+        <label>Class</label>
+        <input id="regClass">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field" style="flex:2">
+        <label>Note</label>
+        <textarea id="regNote"></textarea>
+      </div>
+      <div class="field">
+        <label>Registered by</label>
+        <input id="regBy">
+      </div>
+    </div>
+    <button class="btn" onclick="submitReg()">Submit registration</button>
+    <div class="status" id="regStatus"></div>
+  </div>
+
+</main>
+
+<script>
+const FORM_A = "https://docs.google.com/forms/d/e/1FAIpQLSf-SLyYYCL8FsW4Md8yEA54ET6U-egFa2Nc3a0_wwOl5qx2lA/formResponse";
+const FORM_B = "https://docs.google.com/forms/d/e/1FAIpQLSdg9PcY7JeBhq6DmTYFlsaRvvoskJ5HSzLOKTi5LZglHWmpMQ/formResponse";
+
+const A = {
+  type: "entry.277093114",
+  value: "entry.241623352",
+  session: "entry.1305410599",
+  direction: "entry.729127686",
+  station: "entry.1543290454",
+  note: "entry.1332803006"
+};
+
+const B = {
+  uid: "entry.383658627",
+  pin: "entry.1137422341",
+  name: "entry.2068849833",
+  class: "entry.1002543871",
+  note: "entry.205747186",
+  by: "entry.2021702095"
+};
+
+function post(url, data){
+  const f=document.createElement("form");
+  f.method="POST";f.action=url;f.target="hidden_iframe";
+  Object.entries(data).forEach(([k,v])=>{
+    const i=document.createElement("input");
+    i.type="hidden";i.name=k;i.value=v;
+    f.appendChild(i);
+  });
+  document.body.appendChild(f);
+  f.submit();f.remove();
+}
+
+function submitPin(){
+  post(FORM_A,{
+    [A.type]:"PIN",
+    [A.value]:pinValue.value,
+    [A.session]:pinSession.value,
+    [A.direction]:pinDirection.value,
+    [A.station]:"Staff",
+    [A.note]:pinNote.value
+  });
+  pinStatus.textContent="PIN event submitted";
+}
+
+function submitManual(){
+  post(FORM_A,{
+    [A.type]:"MANUAL",
+    [A.value]:"MANUAL",
+    [A.session]:manSession.value,
+    [A.direction]:manDirection.value,
+    [A.station]:"Staff",
+    [A.note]:manNote.value
+  });
+  manStatus.textContent="Manual event submitted";
+}
+
+function submitReg(){
+  post(FORM_B,{
+    [B.uid]:regUid.value,
+    [B.pin]:regPin.value,
+    [B.name]:regName.value,
+    [B.class]:regClass.value,
+    [B.note]:regNote.value,
+    [B.by]:regBy.value
+  });
+  regStatus.textContent="Registration submitted";
+}
+</script>
+</body>
+</html>
