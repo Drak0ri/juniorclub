@@ -1,206 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Club Attendance</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Club Attendance</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700;800&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --ies-logo-blue:#00a0df;
-      --text:#eef4ff;
-      --muted:rgba(238,244,255,0.78);
-      --bg-top:#0b1020;
-      --bg-bottom:#050818;
-      --panel-bg:rgba(255,255,255,0.08);
-      --panel-border:rgba(255,255,255,0.18);
-      --ok:#0f3d1f;
-      --warn:#5c4a00;
-      --err:#4a1111;
-      --radius-lg:20px;
-      --radius-md:14px;
-      --radius-sm:12px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:"Open Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    body{background:radial-gradient(1100px 700px at top,var(--bg-top) 0%,var(--bg-bottom) 55%,#000 100%);color:var(--text);overflow:hidden}
-    .page{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
-    header{
-      display:flex;align-items:center;justify-content:space-between;gap:14px;
-      padding:14px 18px;background:rgba(16,45,105,0.28);
-      border-bottom:1px solid rgba(255,255,255,0.12);
-    }
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo-wrap{
-      width:54px;height:54px;border-radius:12px;
-      display:flex;align-items:center;justify-content:center;
-      background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
-    }
-    .logo{max-width:42px;max-height:42px;object-fit:contain}
-    .school-name{margin:0;font-weight:800;font-size:16px}
-    .page-title{margin:0;font-size:13px;font-weight:600;color:var(--muted)}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);
-      font-size:12px;color:var(--muted);
-    }
-    .dot{width:8px;height:8px;border-radius:999px;background:var(--ies-logo-blue)}
-    main{display:grid;place-items:center;padding:22px}
-    .panel{
-      width:min(1080px,96vw);background:var(--panel-bg);border:1px solid var(--panel-border);
-      border-radius:var(--radius-lg);padding:22px;
-    }
-    .h1{margin:0 0 6px;font-size:clamp(26px,3.2vw,44px);font-weight:800}
-    .h2{margin:0;font-size:clamp(16px,2vw,22px);font-weight:700;color:var(--muted)}
-    .session-buttons{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
-    .btn{
-      flex:1 1 320px;
-      padding:16px;border-radius:var(--radius-md);
-      border:1px solid rgba(255,255,255,0.18);
-      background:rgba(255,255,255,0.06);color:var(--text);
-      font-weight:900;font-size:18px;cursor:pointer;
-    }
-    .btn.active{outline:2px solid rgba(0,160,223,0.35);background:rgba(0,160,223,0.12)}
-    .scan-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-    .uid{
-      width:min(620px,92vw);padding:14px;border-radius:var(--radius-sm);
-      border:1px solid rgba(255,255,255,0.22);background:rgba(0,0,0,0.22);
-      color:var(--text);font-size:18px;
-    }
-    .submit{
-      min-width:140px;padding:14px 18px;border-radius:var(--radius-sm);
-      border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.08);
-      color:var(--text);font-weight:900;font-size:16px;cursor:pointer;
-    }
-    footer{
-      padding:10px 18px;font-size:12px;color:rgba(238,244,255,0.62);
-      border-top:1px solid rgba(255,255,255,0.10);
-    }
-    .overlay{position:fixed;inset:0;display:none;place-items:center;z-index:50;text-align:center}
-    .overlay.show{display:grid}
-    .overlay.in{background:var(--ok)}
-    .overlay.out{background:#1b2a4a}
-    .overlay.warn{background:var(--warn)}
-    .overlay.err{background:var(--err)}
-    .ov-big{font-size:clamp(56px,8vw,120px);font-weight:900}
-    iframe{position:absolute;left:-9999px;width:1px;height:1px;border:0}
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:"Open Sans",system-ui;
+  background:radial-gradient(circle at top,#0b1020,#000);
+  color:#eef4ff;
+  text-align:center;
+}
+header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 18px;
+  background:rgba(16,45,105,.28);
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.logo{
+  width:42px;height:42px;
+}
+main{padding:24px;max-width:900px;margin:auto}
+h1{margin:.4em 0;font-size:36px}
+button,input{
+  font-size:18px;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);
+  color:#eef4ff;
+}
+button{cursor:pointer;font-weight:800}
+button.active{outline:3px solid #00a0df}
+.panel{
+  margin-top:20px;
+  padding:18px;
+  border-radius:20px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.18);
+}
+.hidden{display:none}
+.big{
+  font-size:72px;
+  font-weight:900;
+  margin:20px 0;
+}
+.ok{background:#0f3d1f}
+.warn{background:#5c4a00}
+.err{background:#4a1111}
+#overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  place-items:center;
+  color:white;
+  z-index:50;
+}
+</style>
 </head>
-
 <body>
-  <iframe name="hidden_iframe"></iframe>
 
-  <div class="page">
-    <header>
-      <div class="brand">
-        <div class="logo-wrap">
-          <img class="logo" src="./logo-primary.png"
-               onerror="this.onerror=null;this.src='./logo-negative.png';">
-        </div>
-        <div>
-          <p class="school-name">Internationella Engelska Skolan</p>
-          <p class="page-title">Club Attendance</p>
-        </div>
-      </div>
-      <div class="pill"><span class="dot"></span> Ready</div>
-    </header>
+<input id="scanInput" autocomplete="off" style="position:absolute;left:-9999px">
+<iframe name="hidden_iframe" style="display:none"></iframe>
 
-    <main>
-      <div class="panel">
-        <p class="h1">Tap your card</p>
-        <p class="h2">Select a session, then scan your card.</p>
+<header>
+  <img src="./logo-primary.png" class="logo"
+       onerror="this.onerror=null;this.src='./logo-negative.png'">
+  <div>
+    <strong>Internationella Engelska Skolan</strong><br>
+    Club Attendance
+  </div>
+</header>
 
-        <div class="session-buttons">
-          <button class="btn" id="btnBreakfast">Breakfast Club</button>
-          <button class="btn" id="btnJunior">Junior Club</button>
-        </div>
+<main>
+  <h1>Select session</h1>
 
-        <div class="scan-row">
-          <input class="uid" id="uidInput" placeholder="Scan card now" />
-          <button class="submit" id="submitBtn">Submit</button>
-        </div>
-      </div>
-    </main>
+  <button id="btnBreakfast">Breakfast Club</button>
+  <button id="btnJunior">Junior Club</button>
 
-    <footer>We prepare students for the world</footer>
+  <div class="panel">
+    <h1>Scan your card</h1>
+    <p>No need to click — just scan</p>
+
+    <button onclick="togglePin()">Staff: PIN entry</button>
   </div>
 
-  <div class="overlay" id="overlay">
-    <div class="ov-big" id="overlayText"></div>
+  <!-- PIN -->
+  <div id="pinPanel" class="panel hidden">
+    <h1>PIN entry</h1>
+    <input id="pinInput" placeholder="4-digit PIN">
+    <button onclick="submitPIN()">Submit PIN</button>
   </div>
+
+  <!-- REGISTER -->
+  <div id="regPanel" class="panel hidden">
+    <h1>Register new card</h1>
+    <input id="regUid" readonly>
+    <input id="regName" placeholder="Student name">
+    <input id="regClass" placeholder="Class">
+    <input id="regPin" placeholder="4-digit PIN">
+    <button onclick="registerCard()">Register card</button>
+  </div>
+</main>
+
+<div id="overlay">
+  <div class="big" id="overlayText"></div>
+</div>
 
 <script>
-const CONFIG = {
-  LIVE_STATE_CSV_URL:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8mP6s7VAmjA-kJN2n9oFhd9kak5nZyakSKnEdckLBDW9mgdlycXMaIKjXPXG8Agma6li0ZmN9ZHcj/pub?gid=1571405085&single=true&output=csv",
+/* ================= CONFIG ================= */
 
-  UID_ALLOWLIST_CSV_URL:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8mP6s7VAmjA-kJN2n9oFhd9kak5nZyakSKnEdckLBDW9mgdlycXMaIKjXPXG8Agma6li0ZmN9ZHcj/pub?gid=519609097&single=true&output=csv",
+const LIVE_UID_ALLOWLIST =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8mP6s7VAmjA-kJN2n9oFhd9kak5nZyakSKnEdckLBDW9mgdlycXMaIKjXPXG8Agma6li0ZmN9ZHcj/pub?gid=519609097&single=true&output=csv";
 
-  EVENTS_FORM_POST_URL:
-    "https://docs.google.com/forms/d/e/1FAIpQLSf-SLyYYCL8FsW4Md8yEA54ET6U-egFa2Nc3a0_wwOl5qx2lA/formResponse",
+const FORM_A =
+  "https://docs.google.com/forms/d/e/1FAIpQLSf-SLyYYCL8FsW4Md8yEA54ET6U-egFa2Nc3a0_wwOl5qx2lA/formResponse";
 
-  ENTRY_IDENTIFIER_TYPE: "entry.277093114",
-  ENTRY_IDENTIFIER_VALUE: "entry.241623352",
-  ENTRY_SESSION: "entry.1305410599",
-  ENTRY_DIRECTION: "entry.729127686",
-  ENTRY_STATION: "entry.1543290454",
-  ENTRY_NOTE: "entry.1332803006",
+const FORM_B =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdg9PcY7JeBhq6DmTYFlsaRvvoskJ5HSzLOKTi5LZglHWmpMQ/formResponse";
 
-  STATION_NAME: "Student-Station-1"
+/* Form A entries */
+const A = {
+  type:"entry.277093114",
+  value:"entry.241623352",
+  session:"entry.1305410599",
+  direction:"entry.729127686",
+  station:"entry.1543290454",
+  note:"entry.1332803006"
+};
+/* Form B entries */
+const B = {
+  uid:"entry.383658627",
+  pin:"entry.1137422341",
+  name:"entry.2068849833",
+  class:"entry.1002543871",
+  note:"entry.205747186",
+  by:"entry.2021702095"
 };
 
-let session = "";
+const LOCKOUT_MS = 2500;
 
-document.getElementById("btnBreakfast").onclick = () => setSession("Breakfast Club");
-document.getElementById("btnJunior").onclick = () => setSession("Junior Club");
+/* ================= STATE ================= */
 
-function setSession(s){
-  session = s;
-  document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
-  (s==="Breakfast Club"?btnBreakfast:btnJunior).classList.add("active");
+let session="";
+let lastScan="";
+let lastScanAt=0;
+let allowlist=new Set();
+
+/* ================= INIT ================= */
+
+fetch(LIVE_UID_ALLOWLIST)
+  .then(r=>r.text())
+  .then(t=>{
+    t.split(/\r?\n/).slice(1).forEach(v=>{
+      if(v.trim()) allowlist.add(v.trim());
+    });
+  });
+
+scanInput.focus();
+setInterval(()=>scanInput.focus(),1000);
+
+/* ================= UI ================= */
+
+btnBreakfast.onclick=()=>selectSession("Breakfast Club");
+btnJunior.onclick=()=>selectSession("Junior Club");
+
+function selectSession(s){
+  session=s;
+  btnBreakfast.classList.toggle("active",s==="Breakfast Club");
+  btnJunior.classList.toggle("active",s==="Junior Club");
 }
 
-document.getElementById("submitBtn").onclick = submitScan;
-
-function submitScan(){
-  const uid = uidInput.value.trim();
-  if(!uid || !session) return;
-
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = CONFIG.EVENTS_FORM_POST_URL;
-  form.target = "hidden_iframe";
-
-  add(form, CONFIG.ENTRY_IDENTIFIER_TYPE, "RFID");
-  add(form, CONFIG.ENTRY_IDENTIFIER_VALUE, uid);
-  add(form, CONFIG.ENTRY_SESSION, session);
-  add(form, CONFIG.ENTRY_DIRECTION, "IN");
-  add(form, CONFIG.ENTRY_STATION, CONFIG.STATION_NAME);
-  add(form, CONFIG.ENTRY_NOTE, "");
-
-  document.body.appendChild(form);
-  form.submit();
-  form.remove();
-
-  showOverlay("IN");
-  uidInput.value = "";
+function showOverlay(txt,cls){
+  overlayText.textContent=txt;
+  overlay.className=cls;
+  overlay.style.display="grid";
+  setTimeout(()=>overlay.style.display="none",1500);
 }
 
-function add(form,name,value){
-  const i=document.createElement("input");
-  i.type="hidden"; i.name=name; i.value=value;
-  form.appendChild(i);
+function togglePin(){
+  pinPanel.classList.toggle("hidden");
 }
 
-function showOverlay(text){
-  overlay.className="overlay show in";
-  overlayText.textContent="YOU ARE IN";
-  setTimeout(()=>overlay.className="overlay",1500);
+/* ================= SCAN HANDLING ================= */
+
+scanInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    handleScan(scanInput.value.trim());
+    scanInput.value="";
+  }
+});
+
+function handleScan(uid){
+  if(!session){
+    showOverlay("SELECT SESSION","warn");
+    return;
+  }
+  const now=Date.now();
+  if(uid===lastScan && now-lastScanAt<LOCKOUT_MS){
+    showOverlay("PLEASE WAIT","warn");
+    return;
+  }
+  lastScan=uid; lastScanAt=now;
+
+  if(!allowlist.has(uid)){
+    regPanel.classList.remove("hidden");
+    regUid.value=uid;
+    showOverlay("UNKNOWN CARD","warn");
+    return;
+  }
+
+  submitEvent("RFID",uid);
+}
+
+/* ================= SUBMISSIONS ================= */
+
+function post(url,data){
+  const f=document.createElement("form");
+  f.method="POST";f.action=url;f.target="hidden_iframe";
+  Object.entries(data).forEach(([k,v])=>{
+    const i=document.createElement("input");
+    i.type="hidden";i.name=k;i.value=v;
+    f.appendChild(i);
+  });
+  document.body.appendChild(f);
+  f.submit();f.remove();
+}
+
+function submitEvent(type,value){
+  post(FORM_A,{
+    [A.type]:type,
+    [A.value]:value,
+    [A.session]:session,
+    [A.direction]:"IN",
+    [A.station]:"Student-Station",
+    [A.note]:""
+  });
+  showOverlay("RECORDED","ok");
+}
+
+function submitPIN(){
+  post(FORM_A,{
+    [A.type]:"PIN",
+    [A.value]:pinInput.value,
+    [A.session]:session,
+    [A.direction]:"IN",
+    [A.station]:"Staff",
+    [A.note]:"PIN entry"
+  });
+  showOverlay("PIN OK","ok");
+  pinInput.value="";
+}
+
+function registerCard(){
+  post(FORM_B,{
+    [B.uid]:regUid.value,
+    [B.pin]:regPin.value,
+    [B.name]:regName.value,
+    [B.class]:regClass.value,
+    [B.note]:"Registered at station",
+    [B.by]:"Staff"
+  });
+  allowlist.add(regUid.value);
+  regPanel.classList.add("hidden");
+  showOverlay("REGISTERED","ok");
 }
 </script>
 </body>
