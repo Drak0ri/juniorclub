@@ -5,887 +5,203 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Club Attendance</title>
 
-  <!-- Brand font (IES manual: Open Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      /* =========================
-         BRAND CONFIG (SAFE DEFAULTS)
-         Update these to match the school
-      ========================= */
-      --ies-logo-blue: #00a0df;
-      --ies-logo-grey: #9a9b9d;
-      --ies-navy: #102d69;
-      --ies-light-blue: #bce4fa;
-      --ies-light-yellow: #fff7b2;
-      --ies-light-green: #d9e6b1;
-      --ies-light-grey: #dbdad8;
-      --ies-black: #000000;
-      --ies-white: #ffffff;
-
-      /* UI */
-      --bg-top: #0b1020;
-      --bg-bottom: #050818;
-      --panel-bg: rgba(255,255,255,0.08);
-      --panel-border: rgba(255,255,255,0.18);
-
-      --text: #eef4ff;
-      --muted: rgba(238,244,255,0.78);
-
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --radius-sm: 12px;
-
-      --focus: rgba(0,160,223,0.60);
-      --danger: #4a1111;
-      --warn: #5c4a00;
-      --ok: #0f3d1f;
-
-      --shadow: none; /* keep flat (manual style preference) */
+      --ies-logo-blue:#00a0df;
+      --text:#eef4ff;
+      --muted:rgba(238,244,255,0.78);
+      --bg-top:#0b1020;
+      --bg-bottom:#050818;
+      --panel-bg:rgba(255,255,255,0.08);
+      --panel-border:rgba(255,255,255,0.18);
+      --ok:#0f3d1f;
+      --warn:#5c4a00;
+      --err:#4a1111;
+      --radius-lg:20px;
+      --radius-md:14px;
+      --radius-sm:12px;
     }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; font-family: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-
-    body{
-      background: radial-gradient(1100px 700px at top, var(--bg-top) 0%, var(--bg-bottom) 55%, #000 100%);
-      color: var(--text);
-      overflow: hidden;
-    }
-
-    /* Layout */
-    .page{
-      min-height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-    }
-
-    /* Header (clean, brand-consistent) */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Open Sans",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    body{background:radial-gradient(1100px 700px at top,var(--bg-top) 0%,var(--bg-bottom) 55%,#000 100%);color:var(--text);overflow:hidden}
+    .page{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
     header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 14px;
-      padding: 14px 18px;
-      background: rgba(16,45,105,0.28); /* navy tint */
-      border-bottom: 1px solid rgba(255,255,255,0.12);
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+      padding:14px 18px;background:rgba(16,45,105,0.28);
+      border-bottom:1px solid rgba(255,255,255,0.12);
     }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    /* Logo: keep it simple, no effects, no distortion */
+    .brand{display:flex;align-items:center;gap:12px}
     .logo-wrap{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width: 54px;
-      height: 54px;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.10);
-      flex: 0 0 auto;
+      width:54px;height:54px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
     }
-    .logo{
-      max-width: 42px;
-      max-height: 42px;
-      object-fit: contain;
-      display:block;
-    }
-
-    .brand-text{
-      display:flex;
-      flex-direction:column;
-      min-width: 0;
-    }
-    .school-name{
-      font-weight: 800;
-      font-size: 16px;
-      letter-spacing: 0.2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin: 0;
-    }
-    .page-title{
-      margin: 0;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .header-right{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex: 0 0 auto;
-    }
-
+    .logo{max-width:42px;max-height:42px;object-fit:contain}
+    .school-name{margin:0;font-weight:800;font-size:16px}
+    .page-title{margin:0;font-size:13px;font-weight:600;color:var(--muted)}
     .pill{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      font-size: 12px;
-      color: var(--muted);
-      user-select: none;
-      white-space: nowrap;
+      display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.06);
+      font-size:12px;color:var(--muted);
     }
-    .dot{
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--ies-logo-blue);
-      opacity: 0.9;
-    }
-
-    /* Main */
-    main{
-      display:grid;
-      place-items:center;
-      padding: 22px;
-    }
-
+    .dot{width:8px;height:8px;border-radius:999px;background:var(--ies-logo-blue)}
+    main{display:grid;place-items:center;padding:22px}
     .panel{
-      width: min(1080px, 96vw);
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: var(--radius-lg);
-      padding: 22px;
+      width:min(1080px,96vw);background:var(--panel-bg);border:1px solid var(--panel-border);
+      border-radius:var(--radius-lg);padding:22px;
     }
-
-    .hero{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .hero-left{
-      min-width: 260px;
-      flex: 1 1 460px;
-    }
-
-    .h1{
-      margin: 0 0 6px;
-      font-size: clamp(26px, 3.2vw, 44px);
-      font-weight: 800;
-      letter-spacing: 0.4px;
-    }
-    .h2{
-      margin: 0;
-      font-size: clamp(16px, 2vw, 22px);
-      font-weight: 700;
-      color: var(--muted);
-    }
-
-    .session-banner{
-      flex: 0 1 360px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      padding: 14px 14px;
-      min-width: 260px;
-    }
-    .session-label{
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: rgba(238,244,255,0.72);
-      margin: 0 0 6px;
-    }
-    .session-value{
-      font-size: clamp(18px, 2.2vw, 26px);
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      margin: 0;
-    }
-
-    /* Session buttons */
-    .session-buttons{
-      display:flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin: 16px 0 14px;
-    }
+    .h1{margin:0 0 6px;font-size:clamp(26px,3.2vw,44px);font-weight:800}
+    .h2{margin:0;font-size:clamp(16px,2vw,22px);font-weight:700;color:var(--muted)}
+    .session-buttons{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
     .btn{
-      appearance: none;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.06);
-      color: var(--text);
-      border-radius: var(--radius-md);
-      padding: 16px 16px;
-      font-weight: 900;
-      font-size: 18px;
-      cursor: pointer;
-      flex: 1 1 320px;
-      min-width: min(480px, 90vw);
-      text-align: center;
-      transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+      flex:1 1 320px;
+      padding:16px;border-radius:var(--radius-md);
+      border:1px solid rgba(255,255,255,0.18);
+      background:rgba(255,255,255,0.06);color:var(--text);
+      font-weight:900;font-size:18px;cursor:pointer;
     }
-    .btn:hover{ background: rgba(255,255,255,0.10); transform: translateY(-1px); }
-    .btn:active{ transform: translateY(0px); }
-    .btn.active{
-      border-color: rgba(0,160,223,0.85);
-      outline: 2px solid rgba(0,160,223,0.30);
-      background: rgba(0,160,223,0.12);
-    }
-    .btn .sub{
-      display:block;
-      margin-top: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      color: rgba(238,244,255,0.72);
-      letter-spacing: 0.2px;
-    }
-
-    /* Scan row */
-    .scan-row{
-      display:flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      margin-top: 10px;
-    }
-
+    .btn.active{outline:2px solid rgba(0,160,223,0.35);background:rgba(0,160,223,0.12)}
+    .scan-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
     .uid{
-      width: min(620px, 92vw);
-      padding: 14px 16px;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255,255,255,0.22);
-      background: rgba(0,0,0,0.22);
-      color: var(--text);
-      font-size: 18px;
-      outline: none;
+      width:min(620px,92vw);padding:14px;border-radius:var(--radius-sm);
+      border:1px solid rgba(255,255,255,0.22);background:rgba(0,0,0,0.22);
+      color:var(--text);font-size:18px;
     }
-    .uid:focus{
-      border-color: rgba(0,160,223,0.75);
-      outline: 2px solid rgba(0,160,223,0.25);
-    }
-
     .submit{
-      padding: 14px 18px;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255,255,255,0.22);
-      background: rgba(255,255,255,0.08);
-      color: var(--text);
-      font-size: 16px;
-      font-weight: 900;
-      cursor: pointer;
-      min-width: 140px;
-      transition: background 120ms ease, border-color 120ms ease;
+      min-width:140px;padding:14px 18px;border-radius:var(--radius-sm);
+      border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.08);
+      color:var(--text);font-weight:900;font-size:16px;cursor:pointer;
     }
-    .submit:hover{ background: rgba(255,255,255,0.12); }
-    .submit:disabled{ opacity: 0.55; cursor: not-allowed; }
-
-    .help{
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.45;
-      text-align: center;
-    }
-
-    .help strong{ color: rgba(238,244,255,0.92); }
-
-    /* Footer */
     footer{
-      padding: 10px 18px;
-      color: rgba(238,244,255,0.62);
-      font-size: 12px;
-      border-top: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.03);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      flex-wrap: wrap;
+      padding:10px 18px;font-size:12px;color:rgba(238,244,255,0.62);
+      border-top:1px solid rgba(255,255,255,0.10);
     }
-
-    .footer-left{ display:flex; align-items:center; gap: 10px; flex-wrap: wrap; }
-    .footer-right{ display:flex; align-items:center; gap: 10px; }
-
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 11px;
-      padding: 3px 7px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(0,0,0,0.22);
-      color: rgba(238,244,255,0.85);
-      white-space: nowrap;
-    }
-
-    /* Debug (hidden by default; toggled with Ctrl+Shift+D) */
-    .debug{
-      display:none;
-      margin-top: 14px;
-      padding: 12px;
-      border-radius: var(--radius-md);
-      border: 1px dashed rgba(255,255,255,0.22);
-      background: rgba(0,0,0,0.18);
-      color: rgba(238,244,255,0.90);
-      font-size: 12px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      text-align: left;
-    }
-    .debug.show{ display:block; }
-
-    /* Confirmation overlay */
-    .overlay{
-      position: fixed;
-      inset: 0;
-      display: none;
-      place-items: center;
-      z-index: 50;
-      padding: 24px;
-      text-align: center;
-      color: var(--ies-white);
-    }
-    .overlay.show{ display:grid; }
-    .overlay.in{ background: var(--ok); }
-    .overlay.out{ background: #1b2a4a; }
-    .overlay.warn{ background: var(--warn); }
-    .overlay.err{ background: var(--danger); }
-
-    .ov-big{
-      margin: 0;
-      font-size: clamp(56px, 8vw, 120px);
-      font-weight: 900;
-      letter-spacing: 1.6px;
-    }
-    .ov-mid{
-      margin-top: 10px;
-      font-size: clamp(20px, 3vw, 36px);
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      opacity: 0.95;
-    }
-    .ov-small{
-      margin-top: 10px;
-      font-size: clamp(16px, 2.3vw, 22px);
-      font-weight: 700;
-      opacity: 0.92;
-      max-width: 980px;
-    }
-
-    /* Hidden “scanner catcher” input */
-    #hiddenScan{
-      position: absolute;
-      left: -9999px;
-      top: -9999px;
-      opacity: 0;
-    }
-
-    /* Hidden iframe for reliable Google Forms submission */
-    iframe{
-      position:absolute;
-      left:-9999px;
-      width:1px;
-      height:1px;
-      border:0;
-    }
+    .overlay{position:fixed;inset:0;display:none;place-items:center;z-index:50;text-align:center}
+    .overlay.show{display:grid}
+    .overlay.in{background:var(--ok)}
+    .overlay.out{background:#1b2a4a}
+    .overlay.warn{background:var(--warn)}
+    .overlay.err{background:var(--err)}
+    .ov-big{font-size:clamp(56px,8vw,120px);font-weight:900}
+    iframe{position:absolute;left:-9999px;width:1px;height:1px;border:0}
   </style>
 </head>
 
 <body>
-  <!-- Scanner catcher (keyboard wedge) -->
-  <input id="hiddenScan" autocomplete="off" />
-
-  <!-- Reliable submission target -->
-  <iframe name="hidden_iframe" id="hiddenIframe"></iframe>
+  <iframe name="hidden_iframe"></iframe>
 
   <div class="page">
     <header>
       <div class="brand">
-        <div class="logo-wrap" aria-label="School logo">
-          <!-- Logos are in the repo root (same folder as index.html) -->
-          <img id="logoImg" class="logo" alt="School logo" src="./logo-primary.png"
-               onerror="this.onerror=null;this.src='./logo-negative.png';" />
+        <div class="logo-wrap">
+          <img class="logo" src="./logo-primary.png"
+               onerror="this.onerror=null;this.src='./logo-negative.png';">
         </div>
-        <div class="brand-text">
-          <p class="school-name" id="schoolName">Your School Name</p>
-          <p class="page-title">Breakfast Club / Junior Club Attendance</p>
-        </div>
-      </div>
-
-      <div class="header-right">
-        <div class="pill" id="livePill" title="System status">
-          <span class="dot" id="statusDot"></span>
-          <span id="statusText">Ready</span>
-        </div>
-        <div class="pill" title="Debug toggle">
-          <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">D</span>
+        <div>
+          <p class="school-name">Internationella Engelska Skolan</p>
+          <p class="page-title">Club Attendance</p>
         </div>
       </div>
+      <div class="pill"><span class="dot"></span> Ready</div>
     </header>
 
     <main>
       <div class="panel">
-        <div class="hero">
-          <div class="hero-left">
-            <p class="h1">Tap your card</p>
-            <p class="h2">Select a club, then scan a tag/card. You will see an instant IN/OUT message.</p>
-          </div>
-
-          <div class="session-banner" aria-live="polite">
-            <p class="session-label">Current Session</p>
-            <p class="session-value" id="sessionValue">Not selected</p>
-          </div>
-        </div>
+        <p class="h1">Tap your card</p>
+        <p class="h2">Select a session, then scan your card.</p>
 
         <div class="session-buttons">
-          <button class="btn" id="btnBreakfast" type="button">
-            Breakfast Club
-            <span class="sub">Morning session</span>
-          </button>
-
-          <button class="btn" id="btnJunior" type="button">
-            Junior Club
-            <span class="sub">Afternoon session</span>
-          </button>
+          <button class="btn" id="btnBreakfast">Breakfast Club</button>
+          <button class="btn" id="btnJunior">Junior Club</button>
         </div>
 
         <div class="scan-row">
-          <input class="uid" id="uidInput" type="text" placeholder="Scan card now (or type UID and press Enter)" />
-          <button class="submit" id="submitBtn" type="button">Submit</button>
+          <input class="uid" id="uidInput" placeholder="Scan card now" />
+          <button class="submit" id="submitBtn">Submit</button>
         </div>
-
-        <div class="help" id="helpText">
-          <strong>Flow:</strong> select session → scan/tag → confirmation.<br/>
-          Tip: if scanning does nothing, click once on the page and scan again.
-        </div>
-
-        <div class="debug" id="debugBox"></div>
       </div>
     </main>
 
-    <footer>
-      <div class="footer-left">
-        <span id="modeBadge">Mode: LIVE</span>
-        <span class="kbd" id="lockoutBadge">Lockout: 2.5s</span>
-        <span class="kbd">No Apps Script</span>
-      </div>
-
-      <div class="footer-right">
-        <span>We prepare students for the world</span>
-      </div>
-    </footer>
+    <footer>We prepare students for the world</footer>
   </div>
 
   <div class="overlay" id="overlay">
-    <div>
-      <p class="ov-big" id="ovBig"></p>
-      <div class="ov-mid" id="ovMid"></div>
-      <div class="ov-small" id="ovSmall"></div>
-    </div>
+    <div class="ov-big" id="overlayText"></div>
   </div>
 
 <script>
-/* ============================================================
-   CONFIG — EDIT THIS BLOCK ONLY (repeatable for other schools)
-============================================================ */
 const CONFIG = {
-  SCHOOL_NAME: "Internationella Engelska Skolan",
+  LIVE_STATE_CSV_URL:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8mP6s7VAmjA-kJN2n9oFhd9kak5nZyakSKnEdckLBDW9mgdlycXMaIKjXPXG8Agma6li0ZmN9ZHcj/pub?gid=1571405085&single=true&output=csv",
 
-  // Logos are in the repo root (same folder as index.html)
-  LOGO_PRIMARY: "./logo-primary.png",
-  LOGO_NEGATIVE: "./logo-negative.png",
+  UID_ALLOWLIST_CSV_URL:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8mP6s7VAmjA-kJN2n9oFhd9kak5nZyakSKnEdckLBDW9mgdlycXMaIKjXPXG8Agma6li0ZmN9ZHcj/pub?gid=519609097&single=true&output=csv",
 
-  // Live State CSV (published view of Live_State_Today)
-  LIVE_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0yGTGeJfrBUb4uNolJOBGd0e22eHmC6mS-YFA5tY62GiGlPApb3dhJHnpT6nNECAKQwUGLxeHp8mJ/pub?gid=463628959&single=true&output=csv",
+  EVENTS_FORM_POST_URL:
+    "https://docs.google.com/forms/d/e/1FAIpQLSf-SLyYYCL8FsW4Md8yEA54ET6U-egFa2Nc3a0_wwOl5qx2lA/formResponse",
 
-  // Google Form POST endpoint
-  FORM_POST_URL: "https://docs.google.com/forms/d/e/1FAIpQLScZfhjBTvzLh_uRaFRuyLAJtiNbMZSeMKNP7jSPghhdyH_jXw/formResponse",
+  ENTRY_IDENTIFIER_TYPE: "entry.277093114",
+  ENTRY_IDENTIFIER_VALUE: "entry.241623352",
+  ENTRY_SESSION: "entry.1305410599",
+  ENTRY_DIRECTION: "entry.729127686",
+  ENTRY_STATION: "entry.1543290454",
+  ENTRY_NOTE: "entry.1332803006",
 
-  // Form field IDs
-  ENTRY_UID: "entry.1193228466",
-  ENTRY_DIRECTION: "entry.169195161",
-  ENTRY_SESSION: "entry.889014487",
-  ENTRY_STATION: "entry.875924272",
-
-  STATION_NAME: "Club-Attendance-Page-1",
-
-  // Values must match Form options exactly:
-  SESSION_BREAKFAST: "Breakfast Club",
-  SESSION_JUNIOR: "Junior Club",
-  DIR_IN: "IN",
-  DIR_OUT: "OUT",
-
-  // Behaviour
-  MIN_UID_LEN: 6,
-  CONFIRM_MS: 1600,
-
-  // Double-scan lockout (prevents “tap twice quickly” errors)
-  LOCKOUT_MS: 2500,
-
-  // CSV fetch caching (reduce repeated requests)
-  CACHE_TTL_MS: 1200,
-
-  // When true: no submissions are sent to the Form
-  DRY_RUN: false,
-
-  // Debug toggle hotkey: Ctrl+Shift+D
-  DEBUG_HOTKEY: true
+  STATION_NAME: "Student-Station-1"
 };
 
-/* ============================================================
-   UI ELEMENTS
-============================================================ */
-const el = {
-  schoolName: document.getElementById("schoolName"),
-  logoImg: document.getElementById("logoImg"),
-  sessionValue: document.getElementById("sessionValue"),
-  btnBreakfast: document.getElementById("btnBreakfast"),
-  btnJunior: document.getElementById("btnJunior"),
-  uidInput: document.getElementById("uidInput"),
-  submitBtn: document.getElementById("submitBtn"),
-  helpText: document.getElementById("helpText"),
-  overlay: document.getElementById("overlay"),
-  ovBig: document.getElementById("ovBig"),
-  ovMid: document.getElementById("ovMid"),
-  ovSmall: document.getElementById("ovSmall"),
-  debugBox: document.getElementById("debugBox"),
-  modeBadge: document.getElementById("modeBadge"),
-  lockoutBadge: document.getElementById("lockoutBadge"),
-  hiddenScan: document.getElementById("hiddenScan"),
-  statusText: document.getElementById("statusText"),
-  statusDot: document.getElementById("statusDot"),
-};
+let session = "";
 
-/* ============================================================
-   STATE
-============================================================ */
-let selectedSession = "";             // Breakfast Club / Junior Club
-let cachedStateMap = new Map();       // key uid|session -> direction
-let lastFetchAt = 0;
+document.getElementById("btnBreakfast").onclick = () => setSession("Breakfast Club");
+document.getElementById("btnJunior").onclick = () => setSession("Junior Club");
 
-let busy = false;
-let debugOn = false;
-
-let lastScanAt = 0;
-let lastScanUid = "";
-
-/* ============================================================
-   HELPERS
-============================================================ */
-function setSchoolBrand(){
-  el.schoolName.textContent = CONFIG.SCHOOL_NAME;
-  el.logoImg.src = CONFIG.LOGO_PRIMARY;
+function setSession(s){
+  session = s;
+  document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
+  (s==="Breakfast Club"?btnBreakfast:btnJunior).classList.add("active");
 }
 
-function setSession(session){
-  selectedSession = session;
-  el.sessionValue.textContent = session || "Not selected";
-  el.btnBreakfast.classList.toggle("active", session === CONFIG.SESSION_BREAKFAST);
-  el.btnJunior.classList.toggle("active", session === CONFIG.SESSION_JUNIOR);
-  focusInputs();
-}
+document.getElementById("submitBtn").onclick = submitScan;
 
-function focusInputs(){
-  try { el.uidInput.focus(); } catch {}
-  try { el.hiddenScan.focus(); } catch {}
-}
-
-function setStatus(text, kind){
-  el.statusText.textContent = text;
-  // Kind: ok | warn | err | neutral
-  if (kind === "ok") el.statusDot.style.background = "var(--ies-logo-blue)";
-  else if (kind === "warn") el.statusDot.style.background = "#ffd24a";
-  else if (kind === "err") el.statusDot.style.background = "#ff5a5a";
-  else el.statusDot.style.background = "var(--ies-logo-grey)";
-}
-
-function showOverlay(kind, big, mid, small){
-  el.overlay.className = "overlay show " + kind;
-  el.ovBig.textContent = big || "";
-  el.ovMid.textContent = mid || "";
-  el.ovSmall.textContent = small || "";
-}
-
-function hideOverlaySoon(){
-  setTimeout(() => {
-    el.overlay.className = "overlay";
-    el.ovBig.textContent = "";
-    el.ovMid.textContent = "";
-    el.ovSmall.textContent = "";
-    busy = false;
-    focusInputs();
-  }, CONFIG.CONFIRM_MS);
-}
-
-function normalizeUid(raw){
-  return String(raw || "").trim();
-}
-
-function isLockout(uid){
-  const now = Date.now();
-  // Only lock out identical UID scans within LOCKOUT_MS
-  return !!(uid && uid === lastScanUid && (now - lastScanAt) < CONFIG.LOCKOUT_MS);
-}
-
-function updateLockout(uid){
-  lastScanUid = uid;
-  lastScanAt = Date.now();
-}
-
-function setDebug(text){
-  if (!debugOn) return;
-  el.debugBox.textContent = text || "";
-}
-
-function toggleDebug(){
-  debugOn = !debugOn;
-  el.debugBox.classList.toggle("show", debugOn);
-  if (!debugOn) el.debugBox.textContent = "";
-}
-
-/* ============================================================
-   CSV PARSING (lightweight)
-============================================================ */
-function parseCsvLine(line){
-  const out = [];
-  let cur = "", inQ = false;
-  for (let i=0;i<line.length;i++){
-    const ch = line[i];
-    if (ch === '"'){
-      if (inQ && line[i+1] === '"'){ cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (ch === ',' && !inQ){
-      out.push(cur); cur = "";
-    } else {
-      cur += ch;
-    }
-  }
-  out.push(cur);
-  return out.map(s => s.trim());
-}
-
-function buildStateMapFromCsv(csvText){
-  const lines = csvText.split(/\r?\n/).filter(l => l.trim().length);
-  const map = new Map();
-  if (!lines.length) return map;
-
-  const first = parseCsvLine(lines[0]).map(s => s.toLowerCase());
-  const hasHeader = first.some(h => h.includes("rfid")) || first.some(h => h.includes("direction")) || first.some(h => h.includes("session"));
-  const start = hasHeader ? 1 : 0;
-
-  for (let i=start;i<lines.length;i++){
-    const cells = parseCsvLine(lines[i]);
-    let uid = "", session = "", direction = "";
-
-    for (const c of cells){
-      const v = String(c || "").trim();
-      if (!direction && (v === CONFIG.DIR_IN || v === CONFIG.DIR_OUT)) direction = v;
-      if (!session && (v === CONFIG.SESSION_BREAKFAST || v === CONFIG.SESSION_JUNIOR)) session = v;
-    }
-    for (const c of cells){
-      const v = String(c || "").trim();
-      if (!uid && /^[a-zA-Z0-9]+$/.test(v) && v.length >= CONFIG.MIN_UID_LEN &&
-          v !== CONFIG.DIR_IN && v !== CONFIG.DIR_OUT &&
-          v !== CONFIG.SESSION_BREAKFAST && v !== CONFIG.SESSION_JUNIOR){
-        uid = v; break;
-      }
-    }
-
-    if (!uid || !session || !direction) continue;
-    const key = uid + "|" + session;
-    // Live_State_Today should already be one row per UID+session (latest)
-    if (!map.has(key)) map.set(key, direction);
-  }
-  return map;
-}
-
-async function fetchStateMap(){
-  const now = Date.now();
-  if ((now - lastFetchAt) < CONFIG.CACHE_TTL_MS && cachedStateMap.size) return cachedStateMap;
-
-  lastFetchAt = now;
-  const url = CONFIG.LIVE_CSV_URL + (CONFIG.LIVE_CSV_URL.includes("?") ? "&" : "?") + "cachebust=" + now;
-
-  setStatus("Checking system…", "neutral");
-  const res = await fetch(url, { method: "GET", cache: "no-store" });
-  if (!res.ok){
-    throw new Error("Live state fetch failed (" + res.status + ")");
-  }
-  cachedStateMap = buildStateMapFromCsv(await res.text());
-  setStatus("Ready", "ok");
-  return cachedStateMap;
-}
-
-function decideNextDirection(lastDirection){
-  if (!lastDirection) return CONFIG.DIR_IN;
-  return lastDirection === CONFIG.DIR_IN ? CONFIG.DIR_OUT : CONFIG.DIR_IN;
-}
-
-/* ============================================================
-   SUBMISSION (reliable): HTML form -> hidden iframe
-============================================================ */
-function submitViaIframe(uid, direction, session){
-  if (CONFIG.DRY_RUN) return;
+function submitScan(){
+  const uid = uidInput.value.trim();
+  if(!uid || !session) return;
 
   const form = document.createElement("form");
-  form.action = CONFIG.FORM_POST_URL;
   form.method = "POST";
+  form.action = CONFIG.EVENTS_FORM_POST_URL;
   form.target = "hidden_iframe";
 
-  const add = (name, value) => {
-    const inp = document.createElement("input");
-    inp.type = "hidden";
-    inp.name = name;
-    inp.value = value;
-    form.appendChild(inp);
-  };
-
-  add(CONFIG.ENTRY_UID, uid);
-  add(CONFIG.ENTRY_DIRECTION, direction);
-  add(CONFIG.ENTRY_SESSION, session);
-  add(CONFIG.ENTRY_STATION, CONFIG.STATION_NAME);
+  add(form, CONFIG.ENTRY_IDENTIFIER_TYPE, "RFID");
+  add(form, CONFIG.ENTRY_IDENTIFIER_VALUE, uid);
+  add(form, CONFIG.ENTRY_SESSION, session);
+  add(form, CONFIG.ENTRY_DIRECTION, "IN");
+  add(form, CONFIG.ENTRY_STATION, CONFIG.STATION_NAME);
+  add(form, CONFIG.ENTRY_NOTE, "");
 
   document.body.appendChild(form);
   form.submit();
   form.remove();
+
+  showOverlay("IN");
+  uidInput.value = "";
 }
 
-/* ============================================================
-   MAIN FLOW
-============================================================ */
-async function handleSubmit(uidRaw){
-  if (busy) return;
-  busy = true;
-
-  const uid = normalizeUid(uidRaw);
-
-  if (!selectedSession){
-    showOverlay("warn", "SELECT SESSION", "", "Tap Breakfast Club or Junior Club first.");
-    setStatus("Session not selected", "warn");
-    setDebug("Blocked: no session selected.");
-    hideOverlaySoon();
-    return;
-  }
-
-  if (!uid || uid.length < CONFIG.MIN_UID_LEN){
-    showOverlay("warn", "TRY AGAIN", selectedSession, "Scan not recognised.");
-    setStatus("Invalid scan", "warn");
-    setDebug("Blocked: UID too short/empty.");
-    hideOverlaySoon();
-    return;
-  }
-
-  if (isLockout(uid)){
-    showOverlay("warn", "PLEASE WAIT", selectedSession, "Try again in a moment.");
-    setStatus("Lockout (duplicate scan)", "warn");
-    setDebug(`Lockout: UID=${uid} within ${CONFIG.LOCKOUT_MS}ms.`);
-    hideOverlaySoon();
-    return;
-  }
-
-  updateLockout(uid);
-  el.submitBtn.disabled = true;
-
-  try{
-    const map = await fetchStateMap();
-    const key = uid + "|" + selectedSession;
-    const last = map.get(key) || "";
-    const next = decideNextDirection(last);
-
-    setDebug(
-      `Attempt:\n` +
-      `UID: ${uid}\n` +
-      `Session: ${selectedSession}\n` +
-      `Last: ${last || "NONE"}\n` +
-      `Next: ${next}\n` +
-      `DRY_RUN: ${CONFIG.DRY_RUN}\n`
-    );
-
-    // Submit (best effort) then show overlay
-    submitViaIframe(uid, next, selectedSession);
-
-    showOverlay(
-      next === CONFIG.DIR_IN ? "in" : "out",
-      next === CONFIG.DIR_IN ? "YOU ARE IN" : "YOU ARE OUT",
-      selectedSession,
-      CONFIG.DRY_RUN ? "(Dry run — not submitted)" : "Recorded."
-    );
-
-    el.uidInput.value = "";
-    el.hiddenScan.value = "";
-    setStatus("Ready", "ok");
-    hideOverlaySoon();
-  } catch (e){
-    showOverlay("err", "SYSTEM UNAVAILABLE", selectedSession, "Please try again.");
-    setStatus("CSV fetch failed", "err");
-    setDebug("Error: " + ((e && e.message) ? e.message : String(e)));
-    hideOverlaySoon();
-  } finally {
-    el.submitBtn.disabled = false;
-  }
+function add(form,name,value){
+  const i=document.createElement("input");
+  i.type="hidden"; i.name=name; i.value=value;
+  form.appendChild(i);
 }
 
-/* ============================================================
-   EVENTS
-============================================================ */
-el.btnBreakfast.addEventListener("click", () => setSession(CONFIG.SESSION_BREAKFAST));
-el.btnJunior.addEventListener("click", () => setSession(CONFIG.SESSION_JUNIOR));
-
-el.submitBtn.addEventListener("click", () => handleSubmit(el.uidInput.value));
-
-el.uidInput.addEventListener("keydown", (ev) => {
-  if (ev.key === "Enter"){ ev.preventDefault(); handleSubmit(el.uidInput.value); }
-});
-
-el.hiddenScan.addEventListener("keydown", (ev) => {
-  if (ev.key === "Enter"){ ev.preventDefault(); handleSubmit(el.hiddenScan.value); }
-});
-
-// Focus recovery for scanners
-document.addEventListener("click", focusInputs);
-window.addEventListener("focus", focusInputs);
-
-// Debug toggle
-document.addEventListener("keydown", (ev) => {
-  if (!CONFIG.DEBUG_HOTKEY) return;
-  if (ev.ctrlKey && ev.shiftKey && (ev.key === "D" || ev.key === "d")){
-    ev.preventDefault();
-    toggleDebug();
-  }
-});
-
-/* ============================================================
-   INIT
-============================================================ */
-(function init(){
-  setSchoolBrand();
-
-  // Ensure logo uses configured path (root logos)
-  el.logoImg.src = CONFIG.LOGO_PRIMARY;
-  el.logoImg.onerror = () => { el.logoImg.src = CONFIG.LOGO_NEGATIVE; };
-
-  el.modeBadge.textContent = CONFIG.DRY_RUN ? "Mode: DRY RUN" : "Mode: LIVE";
-  el.lockoutBadge.textContent = "Lockout: " + Math.round(CONFIG.LOCKOUT_MS/100)/10 + "s";
-  setStatus("Ready", "ok");
-  focusInputs();
-
-  // Optional: preload state so first scan is faster
-  fetchStateMap().catch(() => {
-    setStatus("System unavailable", "err");
-  });
-})();
+function showOverlay(text){
+  overlay.className="overlay show in";
+  overlayText.textContent="YOU ARE IN";
+  setTimeout(()=>overlay.className="overlay",1500);
+}
 </script>
 </body>
 </html>
