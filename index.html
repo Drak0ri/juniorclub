@@ -108,7 +108,7 @@
 const ATT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
-// Attendance entry IDs (from your prefilled link)
+// Attendance entry IDs
 const ATT = {
   card_uid:       "entry.1104238975",
   event:          "entry.1735508359",
@@ -168,54 +168,56 @@ function showState(state, msg){
 }
 
 function parseCSVLine(line){
-  // Minimal CSV parser (handles quotes/commas)
-  const out = [];
-  let cur = "";
-  let inQuotes = false;
-  for (let i=0;i<line.length;i++){
-    const ch = line[i];
-    if (ch === '"'){
-      if (inQuotes && line[i+1] === '"'){ cur += '"'; i++; }
-      else inQuotes = !inQuotes;
-    } else if (ch === ',' && !inQuotes){
-      out.push(cur);
-      cur = "";
-    } else {
-      cur += ch;
-    }
+  const out=[]; let cur=""; let q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(q && line[i+1]==='"'){ cur+='"'; i++; }
+      else q=!q;
+    } else if(c===',' && !q){
+      out.push(cur); cur="";
+    } else cur+=c;
   }
   out.push(cur);
-  return out.map(s => s.trim());
+  return out.map(s=>s.trim());
+}
+
+function parseCSV(text){
+  const lines=text.trim().split("\n");
+  const headers=parseCSVLine(lines[0]);
+  const rows=[];
+  for(const l of lines.slice(1)){
+    if(!l.trim()) continue;
+    const vals=parseCSVLine(l);
+    const obj={};
+    headers.forEach((h,i)=> obj[h]=vals[i]||"");
+    rows.push(obj);
+  }
+  return rows;
 }
 
 async function loadMapping(){
   try{
     const csv = await fetch(MAPPING_CSV_URL, { cache: "no-store" }).then(r=>r.text());
-    const lines = csv.trim().split("\n");
-    const rows = lines.slice(1);
+    const rows = parseCSV(csv);
 
-    // Last row wins per card_uid
-    const latestByCard = {};
-    for (const line of rows){
-      if(!line.trim()) continue;
-      const cols = parseCSVLine(line);
-      // Expected order in mapping sheet:
-      // Timestamp, card_uid, student_email, student_name, class, status, pin, note, mapped_by, schema_version
-      // But we only depend on card_uid + status here. We use index lookups defensively.
-      const card_uid = cols[1] || "";
-      const status = (cols[5] || "").toLowerCase();
-      if(card_uid) latestByCard[card_uid] = { status };
+    // last row wins per card_uid
+    const latest = {};
+    for(const r of rows){
+      const card = (r.card_uid || "").trim();
+      if(!card) continue;
+      latest[card] = r;
     }
 
     knownActiveCards = new Set(
-      Object.entries(latestByCard)
-        .filter(([_, v]) => v.status === "active")
-        .map(([k]) => k)
+      Object.values(latest)
+        .filter(r => (r.status || "").toLowerCase() === "active")
+        .map(r => r.card_uid.trim())
     );
 
     mappingLoaded = true;
     resetUI();
-  } catch (e){
+  }catch(e){
     mappingLoaded = false;
     setPill("Error");
     setStatus("ERROR");
@@ -282,7 +284,7 @@ document.addEventListener("keydown", (e)=>{
       card_uid: card,
       event: next,
       method: "RFID",
-      operator: "",     // student operated
+      operator: "",
       note: ""
     });
 
