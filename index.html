@@ -1,473 +1,249 @@
-<!-- =========================================================
-     FILE: student-scan.html
-     PURPOSE: Student-operated scan page (web-page first, kiosk-ready)
-     ========================================================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Junior Club — Scan</title>
-  <link rel="icon" href="./favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Junior Club Attendance</title>
 
-  <!-- IES primary font -->
+  <!-- Open Sans (IES primary font) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root{
-      /* IES palette (per Graphic Manual) */
+    :root {
       --navy: #102d69;
       --ies-blue: #00a0df;
       --white: #ffffff;
-      --light-grey: #dbdad8;
-
-      /* Design colours */
       --light-blue: #bce4fa;
-      --light-yellow: #fff7b2;
       --light-green: #d9e6b1;
-
-      /* UI neutrals */
-      --panel: rgba(255,255,255,0.08);
-      --panel-border: rgba(255,255,255,0.18);
-
-      /* Status text colours */
+      --light-yellow: #fff7b2;
+      --error: #b00020;
       --text-dark: #102d69;
-      --error-text: #b00020;
     }
 
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
+
+    body {
       margin: 0;
-      font-family: "Open Sans", Arial, sans-serif;
+      height: 100vh;
       background: var(--navy);
       color: var(--white);
+      font-family: "Open Sans", Arial, sans-serif;
       display: grid;
       grid-template-rows: auto 1fr auto;
     }
 
-    /* Header */
-    .topbar{
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
+    header {
+      display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 18px 22px;
     }
 
-    .brand{
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
+    header img {
+      height: 40px;
     }
 
-    .brand img{
-      height: 42px;
-      width: auto;
-      display: block;
-    }
-
-    .brand-text{
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .brand-title{
-      font-weight: 800;
-      letter-spacing: 0.2px;
-      font-size: 18px;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .brand-subtitle{
-      font-weight: 600;
-      font-size: 13px;
-      color: rgba(255,255,255,0.78);
-      margin-top: 2px;
-    }
-
-    .clock{
-      text-align: right;
-    }
-
-    .clock-time{
+    .clock {
       font-weight: 800;
       font-size: 20px;
       letter-spacing: 0.3px;
     }
 
-    .clock-date{
-      font-weight: 600;
-      font-size: 12px;
-      color: rgba(255,255,255,0.72);
-      margin-top: 2px;
-    }
-
-    /* Main */
-    .main{
+    main {
       display: grid;
       place-items: center;
-      padding: 18px 22px;
+      padding: 20px;
     }
 
-    .status-card{
-      width: min(880px, 96vw);
-      border: 1px solid var(--panel-border);
-      background: var(--panel);
-      padding: clamp(22px, 4vw, 42px);
+    .card {
+      width: min(900px, 96vw);
       border-radius: 16px;
+      padding: clamp(26px, 4vw, 48px);
       text-align: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
     }
 
-    .status-pill{
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 14px;
+    .pill {
+      display: inline-block;
+      padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.20);
-      font-weight: 700;
+      font-weight: 800;
       font-size: 12px;
-      letter-spacing: 0.7px;
-      text-transform: uppercase;
+      letter-spacing: 0.8px;
       margin-bottom: 18px;
+      border: 1px solid rgba(255,255,255,0.3);
+      text-transform: uppercase;
     }
 
-    .big-status{
+    .status {
+      font-size: clamp(64px, 9vw, 110px);
       font-weight: 800;
-      font-size: clamp(64px, 8vw, 110px);
+      margin: 0 0 10px;
       line-height: 1;
-      letter-spacing: 1px;
-      margin: 0 0 14px 0;
     }
 
-    .meta{
-      display: grid;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .name{
-      font-weight: 800;
-      font-size: clamp(20px, 2.8vw, 34px);
-      letter-spacing: 0.2px;
-    }
-
-    .classline{
+    .sub {
+      font-size: 16px;
       font-weight: 700;
-      font-size: clamp(16px, 2.2vw, 24px);
-      color: rgba(255,255,255,0.90);
+      opacity: 0.85;
     }
 
-    .stamp{
-      font-weight: 600;
-      font-size: 14px;
-      color: rgba(255,255,255,0.82);
-      margin-top: 10px;
-    }
-
-    .hint{
-      margin-top: 18px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.78);
-      font-size: 14px;
-      letter-spacing: 0.2px;
-    }
-
-    /* Footer */
-    .footer{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 22px 18px;
-      color: rgba(255,255,255,0.72);
+    footer {
+      padding: 14px 22px;
       font-size: 12px;
+      opacity: 0.75;
+      display: flex;
+      justify-content: space-between;
     }
 
-    .footer strong{ color: rgba(255,255,255,0.92); }
+    /* STATES */
+    body.waiting .status { color: var(--white); }
+    body.waiting .pill { background: rgba(255,255,255,0.15); }
 
-    /* Status themes (colour only, minimal motion) */
-    .theme-waiting .big-status{ color: var(--white); }
-    .theme-waiting .status-card{ background: var(--panel); }
-
-    .theme-in .status-card{
+    body.in .card {
       background: var(--light-green);
-      border-color: rgba(0,0,0,0.10);
       color: var(--text-dark);
     }
-    .theme-in .status-pill{
-      background: rgba(16,45,105,0.10);
-      border-color: rgba(16,45,105,0.18);
-      color: var(--text-dark);
-    }
-    .theme-in .classline, .theme-in .stamp, .theme-in .hint{ color: rgba(16,45,105,0.90); }
 
-    .theme-out .status-card{
+    body.out .card {
       background: var(--light-blue);
-      border-color: rgba(0,0,0,0.10);
       color: var(--text-dark);
     }
-    .theme-out .status-pill{
-      background: rgba(16,45,105,0.10);
-      border-color: rgba(16,45,105,0.18);
-      color: var(--text-dark);
-    }
-    .theme-out .classline, .theme-out .stamp, .theme-out .hint{ color: rgba(16,45,105,0.90); }
 
-    .theme-unknown .status-card{
+    body.unknown .card {
       background: var(--light-yellow);
-      border-color: rgba(0,0,0,0.10);
       color: var(--text-dark);
     }
-    .theme-unknown .status-pill{
-      background: rgba(16,45,105,0.10);
-      border-color: rgba(16,45,105,0.18);
-      color: var(--text-dark);
-    }
-    .theme-unknown .big-status{ color: var(--error-text); }
-    .theme-unknown .classline, .theme-unknown .stamp, .theme-unknown .hint{ color: rgba(16,45,105,0.90); }
 
-    /* Mobile tweaks */
-    @media (max-width: 520px){
-      .topbar{
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      .clock{
-        text-align: left;
-      }
-      .brand img{
-        height: 38px;
-      }
-      .footer{
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      * { scroll-behavior: auto !important; }
+    body.unknown .status {
+      color: var(--error);
     }
   </style>
 </head>
 
-<body class="theme-waiting">
-  <header class="topbar" aria-label="Header">
-    <div class="brand">
-      <img src="./ies-logo-white.png" alt="Internationella Engelska Skolan" />
-      <div class="brand-text">
-        <div class="brand-title">Junior Club Attendance</div>
-        <div class="brand-subtitle">Scan your card when entering and leaving</div>
-      </div>
-    </div>
+<body class="waiting">
 
-    <div class="clock" aria-label="Clock">
-      <div class="clock-time" id="clockTime">--:--</div>
-      <div class="clock-date" id="clockDate">----</div>
-    </div>
+  <header>
+    <img src="./ies-logo-white.png" alt="IES Logo">
+    <div class="clock" id="clock">--:--</div>
   </header>
 
-  <main class="main" aria-label="Main content">
-    <section class="status-card" aria-live="polite" aria-atomic="true">
-      <div class="status-pill" id="statusPill">Ready</div>
-      <h1 class="big-status" id="bigStatus">READY</h1>
-
-      <div class="meta">
-        <div class="name" id="studentName" style="display:none;">Firstname Lastname</div>
-        <div class="classline" id="studentClass" style="display:none;">Class 5A</div>
-        <div class="stamp" id="loggedAt" style="display:none;">Logged 15:42:10</div>
-      </div>
-
-      <div class="hint" id="hintText">Hold card near the reader</div>
-    </section>
+  <main>
+    <div class="card">
+      <div class="pill" id="pill">Ready</div>
+      <h1 class="status" id="status">READY</h1>
+      <div class="sub" id="message">Hold card near the reader</div>
+    </div>
   </main>
 
-  <footer class="footer" aria-label="Footer">
-    <div>System: <strong>V3</strong> (design-locked)</div>
-    <div>Staff: admin tools are not available on this page</div>
+  <footer>
+    <div>Junior Club Attendance</div>
+    <div>V3.0</div>
   </footer>
 
-  <script>
-    "use strict";
+<script>
+/* =========================================================
+   CONFIG — LOCKED TO YOUR FORM
+========================================================= */
 
-    // ---------------------------------------------------------
-    // Student Scan Page (UI only, wiring comes later)
-    // This page is designed to accept RFID readers that type
-    // card UIDs as keyboard input, ending with Enter.
-    // ---------------------------------------------------------
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
-    const DEBOUNCE_MS = 5000;
-    let lastScan = { value: null, at: 0 };
+const ENTRY_TIMESTAMP = "entry.499034327";
+const ENTRY_CARD_UID  = "entry.1104238975";
+const ENTRY_EVENT     = "entry.1735508359";
+const ENTRY_DEVICE_ID = "entry.452811867";
 
-    // Demo-only local state (for UI preview)
-    // In V3, the server/logic determines current state; this is a placeholder.
-    const demoState = new Map(); // card_uid -> "IN" | "OUT"
+const DEVICE_ID = "Door-1";
+const DEBOUNCE_MS = 5000;
+const RESET_MS = 2500;
 
-    function pad2(n){ return String(n).padStart(2, "0"); }
+/* ========================================================= */
 
-    function updateClock(){
-      const now = new Date();
-      const hh = pad2(now.getHours());
-      const mm = pad2(now.getMinutes());
-      const ss = pad2(now.getSeconds());
-      const yyyy = now.getFullYear();
-      const mo = pad2(now.getMonth() + 1);
-      const dd = pad2(now.getDate());
-      document.getElementById("clockTime").textContent = `${hh}:${mm}:${ss}`;
-      document.getElementById("clockDate").textContent = `${yyyy}-${mo}-${dd}`;
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
+let buffer = "";
+let lastKeyTime = 0;
+let lastScan = { card: null, time: 0 };
+let localState = {}; // card_uid -> IN | OUT
 
-    const el = {
-      statusPill: document.getElementById("statusPill"),
-      bigStatus: document.getElementById("bigStatus"),
-      studentName: document.getElementById("studentName"),
-      studentClass: document.getElementById("studentClass"),
-      loggedAt: document.getElementById("loggedAt"),
-      hintText: document.getElementById("hintText")
-    };
+function nowTime() {
+  const d = new Date();
+  return d.toISOString();
+}
 
-    function setTheme(theme){
-      document.body.classList.remove("theme-waiting","theme-in","theme-out","theme-unknown");
-      document.body.classList.add(theme);
-    }
+function updateClock() {
+  const d = new Date();
+  document.getElementById("clock").textContent =
+    d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-    function resetToReady(){
-      setTheme("theme-waiting");
-      el.statusPill.textContent = "Ready";
-      el.bigStatus.textContent = "READY";
-      el.hintText.textContent = "Hold card near the reader";
+function setState(state, text) {
+  document.body.className = state;
+  document.getElementById("status").textContent = state.toUpperCase();
+  document.getElementById("pill").textContent = "Logged";
+  document.getElementById("message").textContent = text;
+}
 
-      el.studentName.style.display = "none";
-      el.studentClass.style.display = "none";
-      el.loggedAt.style.display = "none";
-    }
+function resetUI() {
+  document.body.className = "waiting";
+  document.getElementById("status").textContent = "READY";
+  document.getElementById("pill").textContent = "Ready";
+  document.getElementById("message").textContent = "Hold card near the reader";
+}
 
-    function showResult({ status, name, clazz, message }){
-      // status: "IN" | "OUT" | "UNKNOWN" | "WAIT"
-      const now = new Date();
-      const time = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+function submitToForm(cardUid, event) {
+  const data = new URLSearchParams();
+  data.append(ENTRY_TIMESTAMP, nowTime());
+  data.append(ENTRY_CARD_UID, cardUid);
+  data.append(ENTRY_EVENT, event);
+  data.append(ENTRY_DEVICE_ID, DEVICE_ID);
 
-      if (status === "IN"){
-        setTheme("theme-in");
-        el.statusPill.textContent = "Logged";
-        el.bigStatus.textContent = "IN";
-        el.hintText.textContent = message || "You may enter";
+  fetch(FORM_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: data.toString()
+  });
+}
 
-      } else if (status === "OUT"){
-        setTheme("theme-out");
-        el.statusPill.textContent = "Logged";
-        el.bigStatus.textContent = "OUT";
-        el.hintText.textContent = message || "You may leave";
+document.addEventListener("keydown", (e) => {
+  const now = Date.now();
 
-      } else if (status === "UNKNOWN"){
-        setTheme("theme-unknown");
-        el.statusPill.textContent = "Attention";
-        el.bigStatus.textContent = "UNKNOWN";
-        el.hintText.textContent = message || "Unknown card — see staff";
+  if (e.key.length === 1) {
+    if (now - lastKeyTime > 80) buffer = "";
+    buffer += e.key;
+    lastKeyTime = now;
+    return;
+  }
 
-      } else {
-        setTheme("theme-waiting");
-        el.statusPill.textContent = "Ready";
-        el.bigStatus.textContent = "READY";
-        el.hintText.textContent = message || "Hold card near the reader";
-      }
+  if (e.key === "Enter") {
+    const cardUid = buffer.trim();
+    buffer = "";
 
-      if (name){
-        el.studentName.textContent = name;
-        el.studentName.style.display = "block";
-      } else {
-        el.studentName.style.display = "none";
-      }
+    if (!cardUid) return;
 
-      if (clazz){
-        el.studentClass.textContent = clazz;
-        el.studentClass.style.display = "block";
-      } else {
-        el.studentClass.style.display = "none";
-      }
-
-      el.loggedAt.textContent = `Logged ${time}`;
-      el.loggedAt.style.display = "block";
+    if (lastScan.card === cardUid && now - lastScan.time < DEBOUNCE_MS) {
+      document.getElementById("message").textContent = "Already scanned — please wait";
+      return;
     }
 
-    // Capture typed input from USB RFID readers that behave like a keyboard.
-    let buffer = "";
-    let lastKeyAt = 0;
-    const BUFFER_TIMEOUT_MS = 80; // if gap is longer, assume new scan
+    lastScan = { card: cardUid, time: now };
 
-    document.addEventListener("keydown", (e) => {
-      const now = Date.now();
+    const prev = localState[cardUid] || "OUT";
+    const next = prev === "IN" ? "OUT" : "IN";
+    localState[cardUid] = next;
 
-      // Ignore modifier keys
-      if (e.key === "Shift" || e.key === "Alt" || e.key === "Control" || e.key === "Meta") return;
+    submitToForm(cardUid, next);
+    setState(next.toLowerCase(), next === "IN" ? "You may enter" : "You may leave");
 
-      // If there's been a pause, reset the buffer
-      if (now - lastKeyAt > BUFFER_TIMEOUT_MS) buffer = "";
-      lastKeyAt = now;
+    setTimeout(resetUI, RESET_MS);
+  }
+});
 
-      if (e.key === "Enter"){
-        const cardUid = buffer.trim();
-        buffer = "";
-        if (!cardUid) return;
-
-        // Debounce same card
-        if (lastScan.value === cardUid && (now - lastScan.at) < DEBOUNCE_MS){
-          // Neutral notice; keep current theme
-          el.statusPill.textContent = "Notice";
-          el.hintText.textContent = "Already scanned — please wait";
-          return;
-        }
-
-        lastScan = { value: cardUid, at: now };
-
-        // ---------------------------------------------------------
-        // DEMO UI ONLY:
-        // In the real system, you will call your backend/logging flow
-        // which returns resolved status + name/class if known.
-        // ---------------------------------------------------------
-        const current = demoState.get(cardUid) || "OUT";
-        const next = (current === "IN") ? "OUT" : "IN";
-        demoState.set(cardUid, next);
-
-        // Fake: treat short IDs as unknown for preview
-        const isUnknown = cardUid.length < 6;
-        if (isUnknown){
-          showResult({ status: "UNKNOWN", message: "Unknown card — see staff" });
-        } else {
-          // Fake identity preview
-          showResult({
-            status: next,
-            name: "Student Name",
-            clazz: "Class (e.g. 5A)",
-            message: next === "IN" ? "Welcome" : "Goodbye"
-          });
-        }
-
-        // Auto reset
-        setTimeout(resetToReady, 2500);
-        return;
-      }
-
-      // Add characters to buffer (letters/numbers)
-      if (e.key.length === 1){
-        buffer += e.key;
-      }
-    });
-
-    // Start ready
-    resetToReady();
-  </script>
+resetUI();
+</script>
 </body>
 </html>
