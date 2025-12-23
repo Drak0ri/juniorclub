@@ -20,89 +20,44 @@
   --danger:#b00020;
   --ok:#0b6b2f;
 }
-
 body{
   margin:0;
   font-family:"Open Sans",Arial,sans-serif;
   background:var(--bg);
   color:#102d69;
 }
-
 header{
   background:var(--navy);
   color:#fff;
   padding:14px 18px;
   display:flex;
-  gap:12px;
-  align-items:center;
   justify-content:space-between;
-}
-
-.header-left{
-  font-weight:800;
-  font-size:18px;
-}
-
-.header-right{
-  display:flex;
-  gap:10px;
   align-items:center;
-  flex-wrap:wrap;
 }
-
-input, select{
-  padding:8px 10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  font-size:14px;
-  min-width:220px;
+header input{
+  padding:6px 8px;
+  border-radius:6px;
+  border:none;
 }
-
-.small-input{ min-width:180px; }
-
 button{
   background:var(--navy);
   color:#fff;
   border:none;
-  padding:8px 12px;
-  border-radius:8px;
+  padding:6px 10px;
+  border-radius:6px;
   font-weight:700;
   cursor:pointer;
 }
-
 button.secondary{
-  background:#ffffff;
-  color:var(--navy);
-  border:1px solid var(--border);
-}
-
-main{
-  max-width:1300px;
-  margin:18px auto 28px;
-  padding:0 18px;
-}
-
-.tabs{
-  display:flex;
-  gap:10px;
-  margin:12px 0 16px;
-  flex-wrap:wrap;
-}
-
-.tabs button{
-  border-radius:999px;
-  padding:8px 14px;
-  border:1px solid var(--border);
   background:#fff;
   color:var(--navy);
+  border:1px solid var(--border);
 }
-
-.tabs button.active{
-  background:var(--navy);
-  color:#fff;
-  border-color:var(--navy);
+main{
+  max-width:1200px;
+  margin:20px auto;
+  padding:0 16px;
 }
-
 .card{
   background:#fff;
   border:1px solid var(--border);
@@ -110,946 +65,184 @@ main{
   padding:16px;
   margin-bottom:16px;
 }
-
-h2{ margin:0 0 12px; font-size:18px; }
-
-.grid{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:16px;
-}
-
-@media (min-width: 980px){
-  .grid.two{ grid-template-columns: 1fr 1fr; }
-}
-
-.big-number{
-  font-size:46px;
-  font-weight:800;
-}
-
+h2{ margin:0 0 12px; }
+.big{ font-size:44px; font-weight:800; }
 table{
   width:100%;
   border-collapse:collapse;
   font-size:14px;
 }
-
 th,td{
   padding:10px;
   border-bottom:1px solid var(--border);
   text-align:left;
-  vertical-align:top;
 }
-
-th{
-  font-size:12px;
-  text-transform:uppercase;
-  letter-spacing:.4px;
-}
-
 tr.unknown{ background:var(--warn); }
-tr.inactive{ background:var(--muted); }
-
 .badge{
   display:inline-block;
   padding:2px 8px;
   border-radius:999px;
   font-size:12px;
   font-weight:800;
-  border:1px solid var(--border);
 }
-
 .badge.ok{ color:var(--ok); }
 .badge.bad{ color:var(--danger); }
-
-.note{
-  font-size:12px;
-  opacity:.8;
-}
-
-hr.sep{
-  border:none;
-  border-top:1px solid var(--border);
-  margin:14px 0;
-}
-
-/* Modal */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-}
-
-.modal-content{
-  width:min(560px, 100%);
-  background:#fff;
-  border-radius:12px;
-  padding:18px;
-  border:1px solid var(--border);
-}
-
-.modal-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-bottom:8px;
-}
-
-.modal-title h3{
-  margin:0;
-  font-size:18px;
-}
-
-.modal-grid{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:10px;
-}
-
-@media(min-width: 520px){
-  .modal-grid.two{
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.field label{
-  display:block;
-  font-size:12px;
-  font-weight:800;
-  margin-bottom:4px;
-}
-
-.field input, .field select{
-  width:100%;
-  min-width:0;
-}
-
-.modal-actions{
-  display:flex;
-  justify-content:flex-end;
-  gap:10px;
-  margin-top:14px;
-}
-
-.error{
-  color:var(--danger);
-  font-weight:700;
-  font-size:13px;
-  margin-top:8px;
-  min-height:18px;
-}
-.success{
-  color:var(--ok);
-  font-weight:800;
-  font-size:13px;
-  margin-top:8px;
-  min-height:18px;
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div class="header-left">Junior Club – Staff</div>
-  <div class="header-right">
-    <input id="operatorInput" class="small-input" placeholder="Operator email (staff)" />
-    <button class="secondary" onclick="saveOperator()">Save Operator</button>
-    <button onclick="reloadAll()">Refresh</button>
+  <strong>Junior Club – Staff</strong>
+  <div>
+    <input id="operator" placeholder="staff email">
+    <button onclick="saveOperator()">Save</button>
+    <button class="secondary" onclick="reloadAll()">Refresh</button>
   </div>
 </header>
 
 <main>
-  <div class="tabs">
-    <button class="active" data-tab="present" onclick="switchTab('present')">Who’s Here</button>
-    <button data-tab="unknown" onclick="switchTab('unknown')">Unknown</button>
-    <button data-tab="mapping" onclick="switchTab('mapping')">Mapping</button>
-    <button data-tab="pin" onclick="switchTab('pin')">PIN / Manual</button>
-    <button data-tab="report" onclick="switchTab('report')">Today</button>
-  </div>
 
-  <!-- PRESENT TAB -->
-  <div id="tab-present">
-    <div class="grid two">
-      <div class="card">
-        <h2>Currently Present</h2>
-        <div class="big-number" id="presentCount">–</div>
-        <div class="note">Resolved using latest attendance event per card.</div>
-      </div>
-
-      <div class="card">
-        <h2>Status</h2>
-        <div id="statusLine" class="note">Loading…</div>
-        <hr class="sep">
-        <div class="note">
-          Rules: attendance log is immutable; mapping is append-only; last row wins.
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Who’s Here Now</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Class</th>
-            <th>Time IN</th>
-            <th>Card UID</th>
-            <th>Device</th>
-            <th>Method</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="presentTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- UNKNOWN TAB -->
-  <div id="tab-unknown" style="display:none;">
-    <div class="card">
-      <h2>Unknown / Inactive Cards Currently IN</h2>
-      <div class="note">These cards are IN according to the log, but do not have an active mapping.</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Card UID</th>
-            <th>Time IN</th>
-            <th>Device</th>
-            <th>Method</th>
-            <th>Register / Edit</th>
-          </tr>
-        </thead>
-        <tbody id="unknownTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- MAPPING TAB -->
-  <div id="tab-mapping" style="display:none;">
-    <div class="card">
-      <h2>Student Mapping</h2>
-      <div class="note">Last row per card_uid wins. “Inactive” cards are treated as unknown.</div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 0;">
-        <input id="mapSearch" placeholder="Search name / email / class / card / pin" oninput="renderMappingTable()" />
-        <button onclick="openMappingModalForNew()">Add New Mapping</button>
-      </div>
-      <table style="margin-top:12px;">
-        <thead>
-          <tr>
-            <th>Card UID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Class</th>
-            <th>Status</th>
-            <th>PIN</th>
-            <th>Last Note</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="mappingTable"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- PIN TAB -->
-  <div id="tab-pin" style="display:none;">
-    <div class="grid two">
-      <div class="card">
-        <h2>Log Attendance by PIN</h2>
-        <div class="note">Staff-assisted fallback. Writes an attendance event with method=PIN and operator=your saved email.</div>
-        <div style="display:grid; gap:10px; margin-top:10px;">
-          <input id="pinInput" placeholder="Enter PIN (e.g., 1234)" />
-          <select id="pinEvent">
-            <option value="IN">IN</option>
-            <option value="OUT">OUT</option>
-          </select>
-          <input id="pinNote" placeholder="Optional note (e.g., forgot card)" />
-          <button onclick="logByPin()">Submit PIN Event</button>
-          <div id="pinResult" class="error"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Manual Attendance Entry (Card UID)</h2>
-        <div class="note">Use only when necessary. Writes method=MANUAL. Does not require mapping.</div>
-        <div style="display:grid; gap:10px; margin-top:10px;">
-          <input id="manualCard" placeholder="Card UID" />
-          <select id="manualEvent">
-            <option value="IN">IN</option>
-            <option value="OUT">OUT</option>
-          </select>
-          <input id="manualNote" placeholder="Optional note (e.g., card unreadable)" />
-          <button onclick="logManual()">Submit Manual Event</button>
-          <div id="manualResult" class="error"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- REPORT TAB -->
-  <div id="tab-report" style="display:none;">
-    <div class="card">
-      <h2>Today’s Events</h2>
-      <div class="note">This is a raw view (read-only). Filtering is by local date.</div>
-      <table style="margin-top:12px;">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Card UID</th>
-            <th>Event</th>
-            <th>Device</th>
-            <th>Method</th>
-            <th>Operator</th>
-            <th>Note</th>
-          </tr>
-        </thead>
-        <tbody id="todayTable"></tbody>
-      </table>
-    </div>
-  </div>
-</main>
-
-<!-- MAPPING MODAL -->
-<div class="modal" id="mappingModal">
-  <div class="modal-content">
-    <div class="modal-title">
-      <h3 id="modalTitle">Mapping</h3>
-      <button class="secondary" onclick="closeMappingModal()">Close</button>
-    </div>
-
-    <div class="modal-grid two">
-      <div class="field">
-        <label>Card UID</label>
-        <input id="m_card_uid" />
-      </div>
-      <div class="field">
-        <label>Status</label>
-        <select id="m_status">
-          <option value="active">active</option>
-          <option value="inactive">inactive</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Student Name</label>
-        <input id="m_student_name" />
-      </div>
-      <div class="field">
-        <label>Class</label>
-        <input id="m_class" />
-      </div>
-      <div class="field" style="grid-column:1/-1;">
-        <label>Student Email</label>
-        <input id="m_student_email" />
-      </div>
-      <div class="field">
-        <label>PIN (optional)</label>
-        <input id="m_pin" />
-      </div>
-      <div class="field">
-        <label>Mapped By</label>
-        <input id="m_mapped_by" />
-      </div>
-      <div class="field" style="grid-column:1/-1;">
-        <label>Note (optional)</label>
-        <input id="m_note" />
-      </div>
-    </div>
-
-    <div id="modalError" class="error"></div>
-    <div id="modalSuccess" class="success"></div>
-
-    <div class="modal-actions">
-      <button class="secondary" onclick="closeMappingModal()">Cancel</button>
-      <button onclick="submitMapping()">Save Mapping</button>
-    </div>
-  </div>
+<div class="card">
+  <h2>Currently Present</h2>
+  <div class="big" id="presentCount">–</div>
 </div>
 
+<div class="card">
+  <h2>Who’s Here Now</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Time IN</th>
+        <th>Card UID</th>
+        <th>Method</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="presentTable"></tbody>
+  </table>
+</div>
+
+</main>
+
 <script>
-/* ===================== CONFIG (FROZEN) ===================== */
+/* ================= CONFIG ================= */
 
-// Attendance CSV (read-only)
-const ATTENDANCE_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+const ATT_CSV =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
-// Mapping CSV (read-only)
-const MAPPING_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+const MAP_CSV =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
-// Attendance Form (write-only)
-const ATT_FORM_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
+/* ========================================= */
 
-const ATT = {
-  card_uid:       "entry.1104238975",
-  event:          "entry.1735508359",
-  device_id:      "entry.452811867",
-  method:         "entry.1237226768",
-  operator:       "entry.1642343573",
-  note:           "entry.1538254700",
-  club_id:        "entry.164839595",
-  schema_version: "entry.2138280654"
-};
+let mappingByCard = {};
+let attendance = [];
 
-// Mapping Form (write-only)
-const MAP_FORM_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
+function parseCSV(text){
+  const lines = text.trim().split("\n");
+  const headers = splitCSVLine(lines[0]);
+  const rows = lines.slice(1).map(l => {
+    const vals = splitCSVLine(l);
+    const obj = {};
+    headers.forEach((h,i)=> obj[h.trim()] = vals[i]?.trim() || "");
+    return obj;
+  });
+  return rows;
+}
 
-const MAP = {
-  card_uid:        "entry.1712147498",
-  student_email:   "entry.1171642279",
-  student_name:    "entry.2022534068",
-  class:           "entry.1723675198",
-  status:          "entry.1124037588",
-  pin:             "entry.352224440",
-  note:            "entry.523442266",
-  mapped_by:       "entry.1680238241",
-  schema_version:  "entry.1809813215"
-};
-
-// Identity stamps
-const CLUB_ID = "IESV_JuniorClub";
-const SCHEMA_VERSION = "v3";
-
-// Staff page identity
-const STAFF_DEVICE_ID = "Staff-Admin";
-
-/* ============================================================ */
-
-let attendanceEvents = [];
-let mappingByCard = {};   // last row wins
-let mappingList = [];     // flattened for table/search
-let activePins = new Map(); // pin -> card_uid (active only)
-
-function parseCSVLine(line){
-  const out = [];
-  let cur = "";
-  let inQuotes = false;
-  for (let i=0;i<line.length;i++){
-    const ch = line[i];
-    if (ch === '"'){
-      if (inQuotes && line[i+1] === '"'){ cur += '"'; i++; }
-      else inQuotes = !inQuotes;
-    } else if (ch === ',' && !inQuotes){
-      out.push(cur);
-      cur = "";
-    } else {
-      cur += ch;
-    }
+function splitCSVLine(line){
+  const out=[]; let cur=""; let q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(q && line[i+1]==='"'){ cur+='"'; i++; }
+      else q=!q;
+    } else if(c===',' && !q){
+      out.push(cur); cur="";
+    } else cur+=c;
   }
   out.push(cur);
-  return out.map(s => s.trim());
-}
-
-function parseSwedishTimestampToEpoch(ts){
-  // Expected examples: "23/12/2025 11:43:44" or similar
-  // Return NaN if unknown.
-  if(!ts) return NaN;
-  const parts = ts.split(" ");
-  if(parts.length < 2) return NaN;
-  const [dmy, hms] = parts;
-  const d = dmy.split("/");
-  const t = hms.split(":");
-  if(d.length !== 3 || t.length < 2) return NaN;
-  const day = parseInt(d[0],10);
-  const month = parseInt(d[1],10) - 1;
-  const year = parseInt(d[2],10);
-  const hh = parseInt(t[0],10);
-  const mm = parseInt(t[1],10);
-  const ss = parseInt(t[2] || "0",10);
-  const dt = new Date(year, month, day, hh, mm, ss);
-  return dt.getTime();
-}
-
-function getOperator(){
-  return (localStorage.getItem("jc_operator") || "").trim();
+  return out;
 }
 
 function saveOperator(){
-  const val = document.getElementById("operatorInput").value.trim();
-  localStorage.setItem("jc_operator", val);
-  setStatusLine();
+  localStorage.setItem("jc_operator",document.getElementById("operator").value.trim());
 }
 
-function setStatusLine(){
-  const op = getOperator();
-  const el = document.getElementById("statusLine");
-  el.textContent = `Operator: ${op || "not set"} | Club: ${CLUB_ID} | Schema: ${SCHEMA_VERSION}`;
-}
-
-function switchTab(tab){
-  const tabs = ["present","unknown","mapping","pin","report"];
-  for(const t of tabs){
-    document.querySelector(`button[data-tab="${t}"]`)?.classList.toggle("active", t===tab);
-    const div = document.getElementById(`tab-${t}`);
-    if(div) div.style.display = (t===tab) ? "" : "none";
-  }
+function loadOperator(){
+  document.getElementById("operator").value =
+    localStorage.getItem("jc_operator") || "";
 }
 
 async function reloadAll(){
-  document.getElementById("presentCount").textContent = "–";
-  document.getElementById("presentTable").innerHTML = "";
-  document.getElementById("unknownTable").innerHTML = "";
-  document.getElementById("mappingTable").innerHTML = "";
-  document.getElementById("todayTable").innerHTML = "";
-  setStatusLine();
+  const [attText,mapText] = await Promise.all([
+    fetch(ATT_CSV,{cache:"no-store"}).then(r=>r.text()),
+    fetch(MAP_CSV,{cache:"no-store"}).then(r=>r.text())
+  ]);
 
-  try{
-    const [attCSV, mapCSV] = await Promise.all([
-      fetch(ATTENDANCE_CSV_URL, { cache: "no-store" }).then(r=>r.text()),
-      fetch(MAPPING_CSV_URL, { cache: "no-store" }).then(r=>r.text())
-    ]);
-
-    loadMappingFromCSV(mapCSV);
-    loadAttendanceFromCSV(attCSV);
-
-    renderPresent();
-    renderUnknown();
-    renderMappingTable();
-    renderToday();
-  } catch(e){
-    document.getElementById("statusLine").textContent =
-      "Load failed. Check CSV publish permissions.";
-  }
+  loadMapping(mapText);
+  loadAttendance(attText);
+  renderPresent();
 }
 
-function loadMappingFromCSV(csv){
-  const lines = csv.trim().split("\n");
-  const rows = lines.slice(1);
-
+function loadMapping(csv){
+  const rows = parseCSV(csv);
   mappingByCard = {};
-  activePins = new Map();
-
-  for(const line of rows){
-    if(!line.trim()) continue;
-    const cols = parseCSVLine(line);
-
-    // Expected mapping sheet order (likely):
-    // Timestamp, card_uid, student_email, student_name, class, status, pin, note, mapped_by, schema_version
-    // We access defensively by index.
-    const card_uid = cols[1] || "";
-    if(!card_uid) continue;
-
-    const entry = {
-      timestamp: cols[0] || "",
-      card_uid,
-      student_email: cols[2] || "",
-      student_name: cols[3] || "",
-      class: cols[4] || "",
-      status: (cols[5] || "").toLowerCase(),
-      pin: (cols[6] || "").trim(),
-      note: cols[7] || "",
-      mapped_by: cols[8] || "",
-      schema_version: cols[9] || ""
+  rows.forEach(r=>{
+    if(!r.card_uid) return;
+    mappingByCard[r.card_uid] = {
+      name: r.student_name,
+      class: r.class,
+      status: (r.status||"").toLowerCase(),
+      pin: r.pin || ""
     };
-
-    // last row wins
-    mappingByCard[card_uid] = entry;
-  }
-
-  mappingList = Object.values(mappingByCard)
-    .sort((a,b) => (a.card_uid || "").localeCompare(b.card_uid || ""));
-
-  // active pin uniqueness index
-  for(const m of mappingList){
-    if(m.status === "active" && m.pin){
-      activePins.set(m.pin, m.card_uid);
-    }
-  }
-}
-
-function loadAttendanceFromCSV(csv){
-  const lines = csv.trim().split("\n");
-  const rows = lines.slice(1);
-  attendanceEvents = [];
-
-  for(const line of rows){
-    if(!line.trim()) continue;
-    const cols = parseCSVLine(line);
-
-    // Expected attendance sheet order (likely):
-    // Timestamp, card_uid, event, device_id, method, operator, note, club_id, schema_version
-    const entry = {
-      timestamp: cols[0] || "",
-      epoch: parseSwedishTimestampToEpoch(cols[0] || ""),
-      card_uid: cols[1] || "",
-      event: (cols[2] || "").toUpperCase(),
-      device_id: cols[3] || "",
-      method: cols[4] || "",
-      operator: cols[5] || "",
-      note: cols[6] || "",
-      club_id: cols[7] || "",
-      schema_version: cols[8] || ""
-    };
-    if(entry.card_uid) attendanceEvents.push(entry);
-  }
-}
-
-function latestByCard(){
-  // Last row usually equals latest, but we also use epoch when available.
-  const latest = {};
-  for(const e of attendanceEvents){
-    const key = e.card_uid;
-    const prev = latest[key];
-    if(!prev){
-      latest[key] = e;
-      continue;
-    }
-    if(!isNaN(e.epoch) && !isNaN(prev.epoch)){
-      if(e.epoch >= prev.epoch) latest[key] = e;
-    } else {
-      // fallback: later rows overwrite earlier
-      latest[key] = e;
-    }
-  }
-  return latest;
-}
-
-function isMappedActive(card_uid){
-  const m = mappingByCard[card_uid];
-  return !!(m && m.status === "active");
-}
-
-function resolveStudent(card_uid){
-  const m = mappingByCard[card_uid];
-  if(!m) return null;
-  if(m.status !== "active") return null;
-  return m;
-}
-
-function openMappingModal(card_uid){
-  const op = getOperator();
-  document.getElementById("modalError").textContent = "";
-  document.getElementById("modalSuccess").textContent = "";
-
-  const existing = mappingByCard[card_uid] || null;
-
-  document.getElementById("modalTitle").textContent =
-    existing ? "Edit Mapping (append-only)" : "Register Mapping";
-
-  document.getElementById("m_card_uid").value = card_uid || "";
-  document.getElementById("m_student_email").value = existing?.student_email || "";
-  document.getElementById("m_student_name").value = existing?.student_name || "";
-  document.getElementById("m_class").value = existing?.class || "";
-  document.getElementById("m_status").value = existing?.status || "active";
-  document.getElementById("m_pin").value = existing?.pin || "";
-  document.getElementById("m_note").value = "";
-  document.getElementById("m_mapped_by").value = op || existing?.mapped_by || "";
-
-  document.getElementById("mappingModal").style.display = "flex";
-}
-
-function openMappingModalForNew(){
-  openMappingModal("");
-}
-
-function closeMappingModal(){
-  document.getElementById("mappingModal").style.display = "none";
-}
-
-function validatePinUniqueness(pin, currentCard){
-  if(!pin) return true;
-  const owner = activePins.get(pin);
-  if(!owner) return true;
-  if(currentCard && owner === currentCard) return true;
-  return false;
-}
-
-function submitMapping(){
-  const card_uid = document.getElementById("m_card_uid").value.trim();
-  const student_email = document.getElementById("m_student_email").value.trim();
-  const student_name = document.getElementById("m_student_name").value.trim();
-  const cls = document.getElementById("m_class").value.trim();
-  const status = document.getElementById("m_status").value.trim();
-  const pin = document.getElementById("m_pin").value.trim();
-  const note = document.getElementById("m_note").value.trim();
-  const mapped_by = document.getElementById("m_mapped_by").value.trim();
-
-  const errEl = document.getElementById("modalError");
-  const okEl = document.getElementById("modalSuccess");
-  errEl.textContent = "";
-  okEl.textContent = "";
-
-  if(!card_uid){
-    errEl.textContent = "Card UID is required.";
-    return;
-  }
-  if(status !== "active" && status !== "inactive"){
-    errEl.textContent = "Status must be active or inactive.";
-    return;
-  }
-  if(pin && !/^\d{4}$/.test(pin)){
-    errEl.textContent = "PIN must be 4 digits (e.g., 1234).";
-    return;
-  }
-  if(pin && !validatePinUniqueness(pin, card_uid)){
-    errEl.textContent = "PIN already in use by another active student.";
-    return;
-  }
-
-  const data = new URLSearchParams();
-  data.append(MAP.card_uid, card_uid);
-  data.append(MAP.student_email, student_email);
-  data.append(MAP.student_name, student_name);
-  data.append(MAP.class, cls);
-  data.append(MAP.status, status);
-  data.append(MAP.pin, pin);
-  data.append(MAP.note, note);
-  data.append(MAP.mapped_by, mapped_by);
-  data.append(MAP.schema_version, SCHEMA_VERSION);
-
-  fetch(MAP_FORM_URL, {
-    method:"POST",
-    mode:"no-cors",
-    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-    body:data.toString()
   });
-
-  okEl.textContent = "Saved. Click Refresh to load updates.";
 }
 
-function postAttendance({ card_uid, event, device_id, method, operator, note }){
-  const data = new URLSearchParams();
-  data.append(ATT.card_uid, card_uid);
-  data.append(ATT.event, event);
-  data.append(ATT.device_id, device_id);
-  data.append(ATT.method, method);
-  data.append(ATT.operator, operator || "");
-  data.append(ATT.note, note || "");
-  data.append(ATT.club_id, CLUB_ID);
-  data.append(ATT.schema_version, SCHEMA_VERSION);
-
-  fetch(ATT_FORM_URL, {
-    method:"POST",
-    mode:"no-cors",
-    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-    body:data.toString()
-  });
+function loadAttendance(csv){
+  attendance = parseCSV(csv);
 }
 
 function renderPresent(){
-  const latest = latestByCard();
-  const present = Object.values(latest).filter(e => e.event === "IN");
+  const latest = {};
+  attendance.forEach(e=>{
+    if(!e.card_uid) return;
+    latest[e.card_uid] = e;
+  });
 
+  const present = Object.values(latest).filter(e=>e.event==="IN");
   document.getElementById("presentCount").textContent = present.length;
 
   const tbody = document.getElementById("presentTable");
   tbody.innerHTML = "";
 
-  // Sort by time IN if possible
-  present.sort((a,b) => (a.epoch||0) - (b.epoch||0));
+  present.forEach(e=>{
+    const m = mappingByCard[e.card_uid];
+    const ok = m && m.status==="active";
 
-  for(const e of present){
-    const m = resolveStudent(e.card_uid);
-    const isActive = isMappedActive(e.card_uid);
+    const tr=document.createElement("tr");
+    if(!ok) tr.className="unknown";
 
-    const tr = document.createElement("tr");
-    if(!m) tr.className = "unknown";
-
-    const badge = m
-      ? `<span class="badge ok">Mapped</span>`
-      : `<span class="badge bad">${isActive ? "Unknown details" : "Unknown / Inactive"}</span>`;
-
-    tr.innerHTML = `
-      <td>${m ? m.student_name : "UNKNOWN"} ${badge}</td>
-      <td>${m ? m.class : "-"}</td>
-      <td>${e.timestamp}</td>
+    tr.innerHTML=`
+      <td>${ok ? m.name : "UNKNOWN"}
+        <span class="badge ${ok?"ok":"bad"}">${ok?"Active":"Unknown / Inactive"}</span>
+      </td>
+      <td>${ok ? m.class : "-"}</td>
+      <td>${e.Timestamp}</td>
       <td>${e.card_uid}</td>
-      <td>${e.device_id || "-"}</td>
       <td>${e.method || "-"}</td>
-      <td><button onclick="openMappingModal('${escapeHtmlAttr(e.card_uid)}')">${m ? "Edit" : "Register"}</button></td>
+      <td><button>Register</button></td>
     `;
     tbody.appendChild(tr);
-  }
-}
-
-function renderUnknown(){
-  const latest = latestByCard();
-  const present = Object.values(latest).filter(e => e.event === "IN");
-  const unknown = present.filter(e => !resolveStudent(e.card_uid));
-
-  const tbody = document.getElementById("unknownTable");
-  tbody.innerHTML = "";
-
-  unknown.sort((a,b) => (a.epoch||0) - (b.epoch||0));
-
-  for(const e of unknown){
-    const tr = document.createElement("tr");
-    tr.className = "unknown";
-    tr.innerHTML = `
-      <td>${e.card_uid}</td>
-      <td>${e.timestamp}</td>
-      <td>${e.device_id || "-"}</td>
-      <td>${e.method || "-"}</td>
-      <td><button onclick="openMappingModal('${escapeHtmlAttr(e.card_uid)}')">Register / Edit</button></td>
-    `;
-    tbody.appendChild(tr);
-  }
-}
-
-function renderMappingTable(){
-  const q = (document.getElementById("mapSearch")?.value || "").trim().toLowerCase();
-  const tbody = document.getElementById("mappingTable");
-  tbody.innerHTML = "";
-
-  const filtered = mappingList.filter(m => {
-    if(!q) return true;
-    const blob = [
-      m.card_uid, m.student_email, m.student_name, m.class, m.status, m.pin, m.note
-    ].join(" ").toLowerCase();
-    return blob.includes(q);
   });
-
-  for(const m of filtered){
-    const tr = document.createElement("tr");
-    if(m.status !== "active") tr.className = "inactive";
-    tr.innerHTML = `
-      <td>${m.card_uid}</td>
-      <td>${m.student_name}</td>
-      <td>${m.student_email}</td>
-      <td>${m.class}</td>
-      <td>${m.status}</td>
-      <td>${m.pin || "-"}</td>
-      <td>${m.note || "-"}</td>
-      <td><button onclick="openMappingModal('${escapeHtmlAttr(m.card_uid)}')">Edit</button></td>
-    `;
-    tbody.appendChild(tr);
-  }
 }
 
-function logByPin(){
-  const pin = document.getElementById("pinInput").value.trim();
-  const event = document.getElementById("pinEvent").value;
-  const note = document.getElementById("pinNote").value.trim();
-  const res = document.getElementById("pinResult");
-  res.textContent = "";
-
-  if(!/^\d{4}$/.test(pin)){
-    res.textContent = "PIN must be 4 digits.";
-    return;
-  }
-
-  const card_uid = activePins.get(pin);
-  if(!card_uid){
-    res.textContent = "PIN not found among active students.";
-    return;
-  }
-
-  const op = getOperator();
-  if(!op){
-    res.textContent = "Set Operator email first (top right).";
-    return;
-  }
-
-  postAttendance({
-    card_uid,
-    event,
-    device_id: STAFF_DEVICE_ID,
-    method: "PIN",
-    operator: op,
-    note: note || `PIN ${event}`
-  });
-
-  res.textContent = "Submitted. Refresh to see updates.";
-  res.className = "success";
-}
-
-function logManual(){
-  const card_uid = document.getElementById("manualCard").value.trim();
-  const event = document.getElementById("manualEvent").value;
-  const note = document.getElementById("manualNote").value.trim();
-  const res = document.getElementById("manualResult");
-  res.textContent = "";
-  res.className = "error";
-
-  if(!card_uid){
-    res.textContent = "Card UID is required.";
-    return;
-  }
-
-  const op = getOperator();
-  if(!op){
-    res.textContent = "Set Operator email first (top right).";
-    return;
-  }
-
-  postAttendance({
-    card_uid,
-    event,
-    device_id: STAFF_DEVICE_ID,
-    method: "MANUAL",
-    operator: op,
-    note: note || `Manual ${event}`
-  });
-
-  res.textContent = "Submitted. Refresh to see updates.";
-  res.className = "success";
-}
-
-function renderToday(){
-  // Filter by local date (Sweden) using the parsed epoch.
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  const d = now.getDate();
-
-  const start = new Date(y,m,d,0,0,0).getTime();
-  const end = new Date(y,m,d,23,59,59).getTime();
-
-  const tbody = document.getElementById("todayTable");
-  tbody.innerHTML = "";
-
-  const todays = attendanceEvents.filter(e => {
-    if(isNaN(e.epoch)) return false;
-    return e.epoch >= start && e.epoch <= end;
-  });
-
-  // newest first
-  todays.sort((a,b) => (b.epoch||0) - (a.epoch||0));
-
-  for(const e of todays){
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${e.timestamp}</td>
-      <td>${e.card_uid}</td>
-      <td>${e.event}</td>
-      <td>${e.device_id || "-"}</td>
-      <td>${e.method || "-"}</td>
-      <td>${e.operator || "-"}</td>
-      <td>${e.note || "-"}</td>
-    `;
-    tbody.appendChild(tr);
-  }
-}
-
-function escapeHtmlAttr(s){
-  return String(s)
-    .replaceAll("&","&amp;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#39;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;");
-}
-
-// Boot
-(function init(){
-  document.getElementById("operatorInput").value = getOperator();
-  setStatusLine();
-  reloadAll();
-  // Optional: auto-refresh every 30s (QoL)
-  setInterval(() => {
-    // Only auto-refresh on present/unknown/report; mapping edits should be manual refresh.
-    const activeTab = document.querySelector(".tabs button.active")?.dataset?.tab || "present";
-    if(activeTab !== "mapping") reloadAll();
-  }, 30000);
-})();
+loadOperator();
+reloadAll();
 </script>
+
 </body>
 </html>
