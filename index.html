@@ -1,106 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Junior Club Attendance</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Junior Club Attendance</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --navy: #102d69;
-      --white: #ffffff;
-      --light-blue: #bce4fa;
-      --light-green: #d9e6b1;
-      --light-yellow: #fff7b2;
-      --error: #b00020;
-      --text-dark: #102d69;
-    }
+<style>
+:root{
+  --navy:#102d69;
+  --white:#ffffff;
+  --green:#d9e6b1;
+  --blue:#bce4fa;
+  --yellow:#fff7b2;
+  --error:#b00020;
+  --dark:#102d69;
+}
 
-    * { box-sizing: border-box; }
+*{ box-sizing:border-box; }
 
-    body {
-      margin: 0;
-      height: 100vh;
-      background: var(--navy);
-      color: var(--white);
-      font-family: "Open Sans", Arial, sans-serif;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-    }
+body{
+  margin:0;
+  height:100vh;
+  background:var(--navy);
+  color:var(--white);
+  font-family:"Open Sans",Arial,sans-serif;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 22px;
-    }
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 22px;
+}
 
-    header img {
-      height: 40px;
-    }
+header img{ height:40px; }
 
-    .clock {
-      font-weight: 800;
-      font-size: 20px;
-    }
+.clock{
+  font-weight:800;
+  font-size:20px;
+}
 
-    main {
-      display: grid;
-      place-items: center;
-      padding: 20px;
-    }
+main{
+  display:grid;
+  place-items:center;
+  padding:20px;
+}
 
-    .card {
-      width: min(900px, 96vw);
-      padding: clamp(26px, 4vw, 48px);
-      border-radius: 16px;
-      text-align: center;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
+.card{
+  width:min(900px,96vw);
+  padding:clamp(26px,4vw,48px);
+  border-radius:16px;
+  text-align:center;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.2);
+}
 
-    .pill {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 12px;
-      letter-spacing: 0.8px;
-      margin-bottom: 18px;
-      border: 1px solid rgba(255,255,255,0.3);
-      text-transform: uppercase;
-    }
+.pill{
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:.8px;
+  margin-bottom:18px;
+  border:1px solid rgba(255,255,255,0.3);
+  text-transform:uppercase;
+}
 
-    .status {
-      font-size: clamp(64px, 9vw, 110px);
-      font-weight: 800;
-      margin: 0 0 10px;
-      line-height: 1;
-    }
+.status{
+  font-size:clamp(64px,9vw,110px);
+  font-weight:800;
+  margin:0 0 10px;
+  line-height:1;
+}
 
-    .sub {
-      font-size: 16px;
-      font-weight: 700;
-      opacity: 0.85;
-    }
+.sub{
+  font-size:16px;
+  font-weight:700;
+  opacity:.85;
+}
 
-    footer {
-      padding: 14px 22px;
-      font-size: 12px;
-      opacity: 0.75;
-      display: flex;
-      justify-content: space-between;
-    }
+footer{
+  padding:14px 22px;
+  font-size:12px;
+  opacity:.75;
+  display:flex;
+  justify-content:space-between;
+}
 
-    body.in .card { background: var(--light-green); color: var(--text-dark); }
-    body.out .card { background: var(--light-blue); color: var(--text-dark); }
-    body.unknown .card { background: var(--light-yellow); color: var(--text-dark); }
-    body.unknown .status { color: var(--error); }
-  </style>
+/* States */
+body.in .card{ background:var(--green); color:var(--dark); }
+body.out .card{ background:var(--blue); color:var(--dark); }
+body.unknown .card{ background:var(--yellow); color:var(--dark); }
+body.unknown .status{ color:var(--error); }
+</style>
 </head>
 
 <body class="waiting">
@@ -120,85 +119,113 @@
 
 <footer>
   <div>Junior Club Attendance</div>
-  <div>V3.0</div>
+  <div>V3.2</div>
 </footer>
 
 <script>
-const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
+/* ================= CONFIG ================= */
 
-// ⬇️ UPDATE THESE THREE IDS AFTER FIXING THE FORM
+const FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
+
 const ENTRY_CARD_UID  = "entry.1104238975";
 const ENTRY_EVENT     = "entry.1735508359";
 const ENTRY_DEVICE_ID = "entry.452811867";
 
 const DEVICE_ID = "Door-1";
+
+const MAPPING_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1898379100&single=true&output=csv";
+
 const DEBOUNCE_MS = 5000;
 const RESET_MS = 2500;
 
+/* ========================================== */
+
 let buffer = "";
 let lastKeyTime = 0;
-let lastScan = { card: null, time: 0 };
+let lastScan = { card:null, time:0 };
 let localState = {};
+let knownCards = new Set();
 
-function updateClock() {
+/* Load student mapping */
+fetch(MAPPING_CSV_URL)
+  .then(r => r.text())
+  .then(csv => {
+    const rows = csv.trim().split("\n").slice(1);
+    rows.forEach(r => {
+      const [card_uid, , , , status] = r.split(",");
+      if (status === "active") knownCards.add(card_uid);
+    });
+  });
+
+function updateClock(){
   document.getElementById("clock").textContent =
-    new Date().toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updateClock,1000); updateClock();
 
-function setUI(state, text) {
-  document.body.className = state;
-  status.textContent = state.toUpperCase();
-  pill.textContent = "Logged";
-  message.textContent = text;
-}
-
-function resetUI() {
+function resetUI(){
   document.body.className = "waiting";
   status.textContent = "READY";
   pill.textContent = "Ready";
   message.textContent = "Hold card near the reader";
 }
 
-function submit(cardUid, event) {
-  const data = new URLSearchParams();
-  data.append(ENTRY_CARD_UID, cardUid);
-  data.append(ENTRY_EVENT, event);
-  data.append(ENTRY_DEVICE_ID, DEVICE_ID);
+function setUI(state,text){
+  document.body.className = state;
+  status.textContent = state.toUpperCase();
+  pill.textContent = "Logged";
+  message.textContent = text;
+}
 
-  fetch(FORM_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: data.toString()
+function submit(card,event){
+  const data = new URLSearchParams();
+  data.append(ENTRY_CARD_UID,card);
+  data.append(ENTRY_EVENT,event);
+  data.append(ENTRY_DEVICE_ID,DEVICE_ID);
+
+  fetch(FORM_URL,{
+    method:"POST",
+    mode:"no-cors",
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+    body:data.toString()
   });
 }
 
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown",e=>{
   const now = Date.now();
 
-  if (e.key.length === 1) {
-    if (now - lastKeyTime > 80) buffer = "";
-    buffer += e.key;
-    lastKeyTime = now;
+  if(e.key.length===1){
+    if(now-lastKeyTime>80) buffer="";
+    buffer+=e.key;
+    lastKeyTime=now;
     return;
   }
 
-  if (e.key === "Enter") {
+  if(e.key==="Enter"){
     const card = buffer.trim();
-    buffer = "";
-    if (!card) return;
+    buffer="";
+    if(!card) return;
 
-    if (lastScan.card === card && now - lastScan.time < DEBOUNCE_MS) return;
-    lastScan = { card, time: now };
+    if(lastScan.card===card && now-lastScan.time<DEBOUNCE_MS) return;
+    lastScan={card,time:now};
 
-    const next = (localState[card] === "IN") ? "OUT" : "IN";
-    localState[card] = next;
+    if(!knownCards.has(card)){
+      document.body.className="unknown";
+      status.textContent="UNKNOWN";
+      pill.textContent="Attention";
+      message.textContent="Unknown card — see staff";
+      setTimeout(resetUI,RESET_MS);
+      return;
+    }
 
-    submit(card, next);
-    setUI(next.toLowerCase(), next === "IN" ? "You may enter" : "You may leave");
-    setTimeout(resetUI, RESET_MS);
+    const next = (localState[card]==="IN") ? "OUT" : "IN";
+    localState[card]=next;
+
+    submit(card,next);
+    setUI(next.toLowerCase(), next==="IN" ? "You may enter" : "You may leave");
+    setTimeout(resetUI,RESET_MS);
   }
 });
 
