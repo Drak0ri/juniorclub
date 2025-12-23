@@ -37,6 +37,12 @@ main{ display:grid; place-items:center; padding:20px; }
 .status{ font-size:clamp(64px,9vw,110px); font-weight:800; margin:0 0 10px; line-height:1; }
 .sub{ font-size:16px; font-weight:700; opacity:.85; }
 footer{ padding:14px 22px; font-size:12px; opacity:.75; display:flex; justify-content:space-between; }
+.banner{
+  position:fixed; left:12px; right:12px; bottom:12px;
+  background:rgba(176,0,32,.92); color:#fff; padding:10px 12px;
+  border-radius:12px; display:none; font-size:13px; font-weight:800;
+}
+
 body.in .card{ background:var(--green); color:var(--dark); }
 body.out .card{ background:var(--blue); color:var(--dark); }
 body.unknown .card{ background:var(--yellow); color:var(--dark); }
@@ -60,11 +66,13 @@ body.unknown .status{ color:var(--error); }
 
 <footer>
   <div>Junior Club Attendance</div>
-  <div>V3.1</div>
+  <div>V3.2</div>
 </footer>
 
+<div id="banner" class="banner"></div>
+
 <script>
-/* ========== CONFIG (FROZEN) ========== */
+/* ===================== CONFIG (FROZEN) ===================== */
 const ATT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
@@ -82,17 +90,33 @@ const ATT = {
 const MAPPING_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
+const ATT_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+
 const DEVICE_ID = "Door-1";
 const CLUB_ID = "IESV_JuniorClub";
 const SCHEMA_VERSION = "v3";
+
 const DEBOUNCE_MS = 5000;
 const RESET_MS = 2500;
-/* ==================================== */
+/* ============================================================ */
 
 let knownActiveCards = new Set();
 let mappingLoaded = false;
-let buffer="", lastKeyTime=0, lastScan={card:null,time:0};
-let localState={};
+
+let buffer = "";
+let lastKeyTime = 0;
+let lastScan = { card:null, time:0 };
+
+// server-informed state at load; then local toggles
+let stateByCard = {}; // card_uid -> "IN"|"OUT"|undefined
+
+const banner = document.getElementById("banner");
+function showBanner(msg){
+  banner.textContent = msg;
+  banner.style.display = "block";
+  setTimeout(()=> banner.style.display="none", 5000);
+}
 
 function updateClock(){
   document.getElementById("clock").textContent =
@@ -100,109 +124,184 @@ function updateClock(){
 }
 setInterval(updateClock,1000); updateClock();
 
-function setPill(t){ pill.textContent=t; }
-function setStatus(t){ status.textContent=t; }
-function setMsg(t){ message.textContent=t; }
+function setPill(text){ document.getElementById("pill").textContent = text; }
+function setStatus(text){ document.getElementById("status").textContent = text; }
+function setMsg(text){ document.getElementById("message").textContent = text; }
+
 function resetUI(){
-  document.body.className="waiting";
-  setPill(mappingLoaded?"Ready":"Loading…");
+  document.body.className = "waiting";
+  setPill(mappingLoaded ? "Ready" : "Loading…");
   setStatus("READY");
-  setMsg(mappingLoaded?"Hold card near the reader":"Loading student mapping…");
+  setMsg(mappingLoaded ? "Hold card near the reader" : "Loading student mapping…");
 }
-function showState(state,msg){
-  document.body.className=state;
+
+function showState(state, msg){
+  document.body.className = state;
   setPill("Logged");
   setStatus(state.toUpperCase());
   setMsg(msg);
 }
 
 function splitCSVLine(line){
-  const out=[]; let cur="", q=false;
+  const out=[]; let cur=""; let q=false;
   for(let i=0;i<line.length;i++){
     const c=line[i];
-    if(c==='"'){ if(q && line[i+1]==='"'){cur+='"'; i++;} else q=!q; }
-    else if(c===',' && !q){ out.push(cur); cur=""; }
-    else cur+=c;
+    if(c==='"'){
+      if(q && line[i+1]==='"'){ cur+='"'; i++; }
+      else q=!q;
+    } else if(c===',' && !q){
+      out.push(cur); cur="";
+    } else cur+=c;
   }
-  out.push(cur); return out.map(s=>s.trim());
+  out.push(cur);
+  return out.map(s=>s.trim());
 }
+
 function parseCSV(text){
-  const lines=text.trim().split("\n");
-  const headers=splitCSVLine(lines[0]);
-  return lines.slice(1).filter(l=>l.trim()).map(l=>{
-    const v=splitCSVLine(l); const o={};
-    headers.forEach((h,i)=>o[h]=v[i]||""); return o;
-  });
+  const lines = text.trim().split("\n");
+  const headers = splitCSVLine(lines[0]);
+  const rows = [];
+  for(const l of lines.slice(1)){
+    if(!l.trim()) continue;
+    const vals = splitCSVLine(l);
+    const obj = {};
+    headers.forEach((h,i)=> obj[h] = (vals[i] || "").trim());
+    rows.push(obj);
+  }
+  return rows;
 }
 
 async function loadMapping(){
   try{
-    const csv=await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
-    const rows=parseCSV(csv);
-    const latest={};
-    rows.forEach(r=>{
-      const card=(r.card_uid||"").trim();
-      if(card) latest[card]=r;
-    });
-    knownActiveCards=new Set(
-      Object.values(latest)
-        .filter(r=>(r.status||"").toLowerCase()==="active")
-        .map(r=>r.card_uid.trim())
-    );
-    mappingLoaded=true; resetUI();
-  }catch{
-    mappingLoaded=false; setPill("Error"); setStatus("ERROR");
-    setMsg("Mapping load failed. Check publish settings.");
-  }
-}
+    const csv = await fetch(MAPPING_CSV_URL, { cache: "no-store" }).then(r=>r.text());
+    const rows = parseCSV(csv);
 
-function postAttendance({card_uid,event,method,operator,note}){
-  const d=new URLSearchParams();
-  d.append(ATT.card_uid,card_uid);
-  d.append(ATT.event,event);
-  d.append(ATT.device_id,DEVICE_ID);
-  d.append(ATT.method,method);
-  d.append(ATT.operator,operator||"");
-  d.append(ATT.note,note||"");
-  d.append(ATT.club_id,CLUB_ID);
-  d.append(ATT.schema_version,SCHEMA_VERSION);
-  fetch(ATT_FORM_URL,{method:"POST",mode:"no-cors",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"}, body:d.toString()});
-}
-
-document.addEventListener("keydown",(e)=>{
-  const now=Date.now();
-  if(e.key.length===1){
-    if(now-lastKeyTime>80) buffer="";
-    buffer+=e.key; lastKeyTime=now; return;
-  }
-  if(e.key==="Enter"){
-    const card=buffer.trim(); buffer="";
-    if(!card) return;
-    if(!mappingLoaded){ setPill("Loading…"); setMsg("Please wait…"); return; }
-    if(lastScan.card===card && now-lastScan.time<DEBOUNCE_MS) return;
-    lastScan={card,time:now};
-
-    if(!knownActiveCards.has(card)){
-      // LOG UNKNOWN (does NOT count as IN)
-      postAttendance({
-        card_uid:card, event:"UNKNOWN", method:"RFID",
-        operator:"", note:"Unknown card presented"
-      });
-      document.body.className="unknown";
-      setPill("Attention"); setStatus("UNKNOWN"); setMsg("Unknown card — see staff");
-      setTimeout(resetUI,RESET_MS); return;
+    const latest = {};
+    for(const r of rows){
+      const card = (r.card_uid || "").trim();
+      if(!card) continue;
+      latest[card] = r;
     }
 
-    const next=(localState[card]==="IN")?"OUT":"IN";
-    localState[card]=next;
-    postAttendance({card_uid:card,event:next,method:"RFID",operator:"",note:""});
-    showState(next.toLowerCase(), next==="IN"?"You may enter":"You may leave");
-    setTimeout(resetUI,RESET_MS);
+    knownActiveCards = new Set(
+      Object.values(latest)
+        .filter(r => (r.status || "").toLowerCase() === "active")
+        .map(r => (r.card_uid || "").trim())
+        .filter(Boolean)
+    );
+
+    mappingLoaded = true;
+    resetUI();
+  }catch(e){
+    mappingLoaded = false;
+    showBanner("Mapping load failed. Check mapping sheet publish settings.");
+    setPill("Error");
+    setStatus("ERROR");
+    setMsg("Mapping load failed.");
+  }
+}
+
+async function loadLatestInOutState(){
+  try{
+    const csv = await fetch(ATT_CSV_URL, { cache: "no-store" }).then(r=>r.text());
+    const rows = parseCSV(csv);
+
+    const latestInOut = {};
+    for(const e of rows){
+      const card = (e.card_uid || "").trim();
+      if(!card) continue;
+      const ev = (e.event || "").trim().toUpperCase();
+      if(ev !== "IN" && ev !== "OUT") continue; // IGNORE UNKNOWN
+      latestInOut[card] = ev;
+    }
+    stateByCard = latestInOut;
+  }catch(e){
+    // non-fatal; we still work with local toggling
+    showBanner("Attendance state preload failed. Scans will still work.");
+  }
+}
+
+function postAttendance({ card_uid, event, method, operator, note }){
+  const data = new URLSearchParams();
+  data.append(ATT.card_uid, card_uid);
+  data.append(ATT.event, event);
+  data.append(ATT.device_id, DEVICE_ID);
+  data.append(ATT.method, method);
+  data.append(ATT.operator, operator || "");
+  data.append(ATT.note, note || "");
+  data.append(ATT.club_id, CLUB_ID);
+  data.append(ATT.schema_version, SCHEMA_VERSION);
+
+  fetch(ATT_FORM_URL, {
+    method:"POST",
+    mode:"no-cors",
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+    body:data.toString()
+  });
+}
+
+document.addEventListener("keydown", (e)=>{
+  const now = Date.now();
+
+  if (e.key.length === 1){
+    if (now - lastKeyTime > 80) buffer = "";
+    buffer += e.key;
+    lastKeyTime = now;
+    return;
+  }
+
+  if (e.key === "Enter"){
+    const card = buffer.trim();
+    buffer = "";
+    if(!card) return;
+
+    if(!mappingLoaded){
+      setPill("Loading…");
+      setMsg("Please wait…");
+      return;
+    }
+
+    if(lastScan.card === card && now - lastScan.time < DEBOUNCE_MS) return;
+    lastScan = { card, time: now };
+
+    if(!knownActiveCards.has(card)){
+      // LOG UNKNOWN (does NOT count as present)
+      postAttendance({
+        card_uid: card,
+        event: "UNKNOWN",
+        method: "RFID",
+        operator: "",
+        note: "Unknown card presented"
+      });
+
+      document.body.className = "unknown";
+      setPill("Attention");
+      setStatus("UNKNOWN");
+      setMsg("Unknown card — see staff");
+      setTimeout(resetUI, RESET_MS);
+      return;
+    }
+
+    const prev = stateByCard[card];
+    const next = (prev === "IN") ? "OUT" : "IN";
+    stateByCard[card] = next;
+
+    postAttendance({
+      card_uid: card,
+      event: next,
+      method: "RFID",
+      operator: "",
+      note: ""
+    });
+
+    showState(next.toLowerCase(), next === "IN" ? "You may enter" : "You may leave");
+    setTimeout(resetUI, RESET_MS);
   }
 });
 
-resetUI(); loadMapping();
+resetUI();
+loadMapping();
+loadLatestInOutState();
 </script>
 </body>
 </html>
