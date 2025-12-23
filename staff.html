@@ -16,7 +16,7 @@
   --white:#ffffff;
   --border:#d0d7e2;
   --warn:#fff7b2;
-  --btn:#102d69;
+  --muted:#e9edf4;
 }
 
 body{
@@ -35,9 +35,29 @@ header{
 }
 
 main{
-  max-width:1100px;
+  max-width:1200px;
   margin:24px auto;
   padding:0 20px;
+}
+
+.tabs{
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.tabs button{
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.tabs button.active{
+  background:var(--navy);
+  color:#fff;
 }
 
 .card{
@@ -70,116 +90,178 @@ th,td{
 th{
   font-size:12px;
   text-transform:uppercase;
-  letter-spacing:.4px;
 }
 
 tr.unknown{ background:var(--warn); }
+tr.inactive{ background:var(--muted); }
 
-button{
-  background:var(--btn);
-  color:#fff;
-  border:none;
+.action-btn{
   padding:6px 10px;
   border-radius:6px;
   font-weight:700;
+  border:none;
   cursor:pointer;
+  background:var(--navy);
+  color:#fff;
 }
 </style>
 </head>
 
 <body>
 
-<header>Junior Club – Staff View</header>
+<header>Junior Club – Staff</header>
 
 <main>
 
-<div class="card">
-  <h2>Currently Present</h2>
-  <div class="count" id="presentCount">–</div>
+<div class="tabs">
+  <button class="active" data-tab="present">Who’s Here</button>
+  <button data-tab="mapping">Student Mapping</button>
 </div>
 
-<div class="card">
-  <h2>Who’s Here Now</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Class</th>
-        <th>Time IN</th>
-        <th>Card UID</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="presentTable"></tbody>
-  </table>
+<!-- PRESENT TAB -->
+<div class="tab" id="presentTab">
+
+  <div class="card">
+    <h2>Currently Present</h2>
+    <div class="count" id="presentCount">–</div>
+  </div>
+
+  <div class="card">
+    <h2>Who’s Here Now</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Time IN</th>
+          <th>Card UID</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="presentTable"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MAPPING TAB -->
+<div class="tab" id="mappingTab" style="display:none;">
+
+  <div class="card">
+    <h2>Student Card Mapping</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Card UID</th>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="mappingTable"></tbody>
+    </table>
+  </div>
+
 </div>
 
 </main>
 
 <script>
-/* ===================== CONFIG ===================== */
+/* ================= CONFIG ================= */
 
-const ATTENDANCE_CSV_URL =
+const ATTENDANCE_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?output=csv";
 
-const MAPPING_CSV_URL =
+const MAPPING_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1898379100&single=true&output=csv";
 
-/* Mapping form */
-const MAPPING_FORM_BASE =
+const MAPPING_FORM =
   "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/viewform";
 
 const ENTRY_CARD_UID = "entry.1712147498";
+const ENTRY_STATUS   = "entry.1124037588";
 
-/* ================================================== */
+/* ========================================== */
 
 Promise.all([
-  fetch(ATTENDANCE_CSV_URL).then(r=>r.text()),
-  fetch(MAPPING_CSV_URL).then(r=>r.text())
-]).then(([attendanceCSV, mappingCSV])=>{
+  fetch(ATTENDANCE_CSV).then(r=>r.text()),
+  fetch(MAPPING_CSV).then(r=>r.text())
+]).then(([attendanceCSV,mappingCSV])=>{
 
-  /* Build mapping lookup */
-  const mapRows = mappingCSV.trim().split("\n").slice(1);
+  /* Parse mapping – last row wins */
+  const mappingRows = mappingCSV.trim().split("\n").slice(1);
   const mapping = {};
-  mapRows.forEach(r=>{
+  mappingRows.forEach(r=>{
     const [card,email,name,cls,status] = r.split(",");
-    if(status==="active"){
-      mapping[card]={ name, cls };
-    }
+    mapping[card] = { email,name,cls,status };
   });
 
-  /* Build latest attendance state */
+  /* Build present list */
   const logRows = attendanceCSV.trim().split("\n").slice(1);
   const latest = {};
   logRows.forEach(r=>{
     const [ts,card,event] = r.split(",");
-    latest[card]={ ts,card,event };
+    latest[card] = { ts,card,event };
   });
 
   const present = Object.values(latest).filter(e=>e.event==="IN");
   document.getElementById("presentCount").textContent = present.length;
 
-  const tbody = document.getElementById("presentTable");
-  tbody.innerHTML="";
-
+  const presentTable = document.getElementById("presentTable");
   present.forEach(e=>{
     const m = mapping[e.card];
     const tr = document.createElement("tr");
-    if(!m) tr.className="unknown";
+    if(!m || m.status!=="active") tr.className="unknown";
 
-    const registerUrl =
-      `${MAPPING_FORM_BASE}?usp=pp_url&${ENTRY_CARD_UID}=${encodeURIComponent(e.card)}`;
+    const regUrl =
+      `${MAPPING_FORM}?usp=pp_url&${ENTRY_CARD_UID}=${encodeURIComponent(e.card)}`;
 
     tr.innerHTML = `
       <td>${m ? m.name : "UNKNOWN"}</td>
       <td>${m ? m.cls : "-"}</td>
       <td>${e.ts}</td>
       <td>${e.card}</td>
+      <td>${!m || m.status!=="active" ? `<button class="action-btn" onclick="window.open('${regUrl}','_blank')">Register</button>` : ""}</td>
+    `;
+    presentTable.appendChild(tr);
+  });
+
+  /* Mapping table */
+  const mapTable = document.getElementById("mappingTable");
+  Object.entries(mapping).forEach(([card,m])=>{
+    const tr = document.createElement("tr");
+    if(m.status!=="active") tr.className="inactive";
+
+    const deactivateUrl =
+      `${MAPPING_FORM}?usp=pp_url&${ENTRY_CARD_UID}=${encodeURIComponent(card)}&${ENTRY_STATUS}=inactive`;
+
+    tr.innerHTML = `
+      <td>${card}</td>
+      <td>${m.name}</td>
+      <td>${m.cls}</td>
+      <td>${m.status}</td>
       <td>
-        ${m ? "" : `<button onclick="window.open('${registerUrl}','_blank')">Register</button>`}
+        ${m.status==="active"
+          ? `<button class="action-btn" onclick="window.open('${deactivateUrl}','_blank')">Deactivate</button>`
+          : ""
+        }
       </td>
     `;
-    tbody.appendChild(tr);
+    mapTable.appendChild(tr);
+  });
+});
+
+/* Tabs */
+document.querySelectorAll(".tabs button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+
+    document.getElementById("presentTab").style.display =
+      btn.dataset.tab==="present" ? "" : "none";
+    document.getElementById("mappingTab").style.display =
+      btn.dataset.tab==="mapping" ? "" : "none";
   });
 });
 </script>
