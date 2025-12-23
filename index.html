@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Junior Club Attendance</title>
 
-  <!-- Open Sans (IES primary font) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
@@ -13,7 +12,6 @@
   <style>
     :root {
       --navy: #102d69;
-      --ies-blue: #00a0df;
       --white: #ffffff;
       --light-blue: #bce4fa;
       --light-green: #d9e6b1;
@@ -36,8 +34,8 @@
 
     header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       padding: 18px 22px;
     }
 
@@ -48,7 +46,6 @@
     .clock {
       font-weight: 800;
       font-size: 20px;
-      letter-spacing: 0.3px;
     }
 
     main {
@@ -59,8 +56,8 @@
 
     .card {
       width: min(900px, 96vw);
-      border-radius: 16px;
       padding: clamp(26px, 4vw, 48px);
+      border-radius: 16px;
       text-align: center;
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.2);
@@ -99,104 +96,73 @@
       justify-content: space-between;
     }
 
-    /* STATES */
-    body.waiting .status { color: var(--white); }
-    body.waiting .pill { background: rgba(255,255,255,0.15); }
-
-    body.in .card {
-      background: var(--light-green);
-      color: var(--text-dark);
-    }
-
-    body.out .card {
-      background: var(--light-blue);
-      color: var(--text-dark);
-    }
-
-    body.unknown .card {
-      background: var(--light-yellow);
-      color: var(--text-dark);
-    }
-
-    body.unknown .status {
-      color: var(--error);
-    }
+    body.in .card { background: var(--light-green); color: var(--text-dark); }
+    body.out .card { background: var(--light-blue); color: var(--text-dark); }
+    body.unknown .card { background: var(--light-yellow); color: var(--text-dark); }
+    body.unknown .status { color: var(--error); }
   </style>
 </head>
 
 <body class="waiting">
 
-  <header>
-    <img src="./ies-logo-white.png" alt="IES Logo">
-    <div class="clock" id="clock">--:--</div>
-  </header>
+<header>
+  <img src="./ies-logo-white.png" alt="IES Logo">
+  <div class="clock" id="clock">--:--</div>
+</header>
 
-  <main>
-    <div class="card">
-      <div class="pill" id="pill">Ready</div>
-      <h1 class="status" id="status">READY</h1>
-      <div class="sub" id="message">Hold card near the reader</div>
-    </div>
-  </main>
+<main>
+  <div class="card">
+    <div class="pill" id="pill">Ready</div>
+    <h1 class="status" id="status">READY</h1>
+    <div class="sub" id="message">Hold card near the reader</div>
+  </div>
+</main>
 
-  <footer>
-    <div>Junior Club Attendance</div>
-    <div>V3.0</div>
-  </footer>
+<footer>
+  <div>Junior Club Attendance</div>
+  <div>V3.0</div>
+</footer>
 
 <script>
-/* =========================================================
-   CONFIG — LOCKED TO YOUR FORM
-========================================================= */
-
 const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
-const ENTRY_TIMESTAMP = "entry.499034327";
-const ENTRY_CARD_UID  = "entry.1104238975";
-const ENTRY_EVENT     = "entry.1735508359";
-const ENTRY_DEVICE_ID = "entry.452811867";
+// ⬇️ UPDATE THESE THREE IDS AFTER FIXING THE FORM
+const ENTRY_CARD_UID  = "entry.REPLACE_ME_1";
+const ENTRY_EVENT     = "entry.REPLACE_ME_2";
+const ENTRY_DEVICE_ID = "entry.REPLACE_ME_3";
 
 const DEVICE_ID = "Door-1";
 const DEBOUNCE_MS = 5000;
 const RESET_MS = 2500;
 
-/* ========================================================= */
-
 let buffer = "";
 let lastKeyTime = 0;
 let lastScan = { card: null, time: 0 };
-let localState = {}; // card_uid -> IN | OUT
-
-function nowTime() {
-  const d = new Date();
-  return d.toISOString();
-}
+let localState = {};
 
 function updateClock() {
-  const d = new Date();
   document.getElementById("clock").textContent =
-    d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    new Date().toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-function setState(state, text) {
+function setUI(state, text) {
   document.body.className = state;
-  document.getElementById("status").textContent = state.toUpperCase();
-  document.getElementById("pill").textContent = "Logged";
-  document.getElementById("message").textContent = text;
+  status.textContent = state.toUpperCase();
+  pill.textContent = "Logged";
+  message.textContent = text;
 }
 
 function resetUI() {
   document.body.className = "waiting";
-  document.getElementById("status").textContent = "READY";
-  document.getElementById("pill").textContent = "Ready";
-  document.getElementById("message").textContent = "Hold card near the reader";
+  status.textContent = "READY";
+  pill.textContent = "Ready";
+  message.textContent = "Hold card near the reader";
 }
 
-function submitToForm(cardUid, event) {
+function submit(cardUid, event) {
   const data = new URLSearchParams();
-  data.append(ENTRY_TIMESTAMP, nowTime());
   data.append(ENTRY_CARD_UID, cardUid);
   data.append(ENTRY_EVENT, event);
   data.append(ENTRY_DEVICE_ID, DEVICE_ID);
@@ -209,7 +175,7 @@ function submitToForm(cardUid, event) {
   });
 }
 
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", e => {
   const now = Date.now();
 
   if (e.key.length === 1) {
@@ -220,25 +186,18 @@ document.addEventListener("keydown", (e) => {
   }
 
   if (e.key === "Enter") {
-    const cardUid = buffer.trim();
+    const card = buffer.trim();
     buffer = "";
+    if (!card) return;
 
-    if (!cardUid) return;
+    if (lastScan.card === card && now - lastScan.time < DEBOUNCE_MS) return;
+    lastScan = { card, time: now };
 
-    if (lastScan.card === cardUid && now - lastScan.time < DEBOUNCE_MS) {
-      document.getElementById("message").textContent = "Already scanned — please wait";
-      return;
-    }
+    const next = (localState[card] === "IN") ? "OUT" : "IN";
+    localState[card] = next;
 
-    lastScan = { card: cardUid, time: now };
-
-    const prev = localState[cardUid] || "OUT";
-    const next = prev === "IN" ? "OUT" : "IN";
-    localState[cardUid] = next;
-
-    submitToForm(cardUid, next);
-    setState(next.toLowerCase(), next === "IN" ? "You may enter" : "You may leave");
-
+    submit(card, next);
+    setUI(next.toLowerCase(), next === "IN" ? "You may enter" : "You may leave");
     setTimeout(resetUI, RESET_MS);
   }
 });
