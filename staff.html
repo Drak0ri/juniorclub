@@ -1,298 +1,164 @@
-<!-- =========================================================
-     FILE: staff-board.html
-     PURPOSE: Staff "Who's Here" live board (read-only display)
-     ========================================================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Junior Club — Who’s Here</title>
-  <link rel="icon" href="./favicon.ico" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Junior Club – Staff</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --navy: #102d69;
-      --ies-blue: #00a0df;
-      --white: #ffffff;
-      --light-grey: #dbdad8;
+<style>
+:root{
+  --navy:#102d69;
+  --white:#ffffff;
+  --border:#d0d7e2;
+  --bg:#f6f8fb;
+}
 
-      --light-blue: #bce4fa;
-      --light-yellow: #fff7b2;
-      --light-green: #d9e6b1;
+body{
+  margin:0;
+  font-family:"Open Sans",Arial,sans-serif;
+  background:var(--bg);
+  color:#102d69;
+}
 
-      --bg: #ffffff;
-      --text: #102d69;
-      --muted: rgba(16,45,105,0.68);
-      --border: rgba(16,45,105,0.18);
-      --panel: rgba(16,45,105,0.04);
-    }
+header{
+  background:var(--navy);
+  color:#fff;
+  padding:16px 22px;
+  font-weight:800;
+  font-size:18px;
+}
 
-    *{ box-sizing: border-box; }
-    body{
-      margin: 0;
-      font-family: "Open Sans", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+main{
+  max-width:1100px;
+  margin:24px auto;
+  padding:0 20px;
+}
 
-    header{
-      background: var(--navy);
-      color: var(--white);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:20px;
+}
 
-    .brand{
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
+h2{
+  margin:0 0 12px;
+  font-size:18px;
+}
 
-    .brand img{
-      height: 38px;
-      width: auto;
-      display: block;
-    }
+.count{
+  font-size:48px;
+  font-weight:800;
+}
 
-    .titlewrap{
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
 
-    .titlewrap .title{
-      font-weight: 800;
-      font-size: 16px;
-      margin: 0;
-      letter-spacing: 0.2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+th,td{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
 
-    .titlewrap .sub{
-      margin-top: 2px;
-      font-weight: 600;
-      font-size: 12px;
-      color: rgba(255,255,255,0.78);
-    }
-
-    .clock{
-      text-align: right;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .clock .date{
-      font-weight: 600;
-      font-size: 12px;
-      opacity: 0.85;
-      margin-top: 2px;
-    }
-
-    .container{
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 18px 18px 40px;
-    }
-
-    .top{
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: end;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 14px;
-    }
-
-    .count{
-      font-size: 44px;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-      line-height: 1;
-    }
-    .count small{
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--muted);
-      margin-top: 8px;
-    }
-
-    .filters{
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-end;
-    }
-    .chip{
-      border: 1px solid var(--border);
-      background: var(--white);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .chip.active{
-      border-color: var(--ies-blue);
-      outline: 2px solid rgba(0,160,223,0.20);
-    }
-
-    .panel{
-      border: 1px solid var(--border);
-      background: var(--white);
-      border-radius: 14px;
-      overflow: hidden;
-    }
-
-    table{
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th, td{
-      padding: 12px 10px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: top;
-    }
-
-    th{
-      text-align: left;
-      font-weight: 800;
-      font-size: 12px;
-      color: rgba(16,45,105,0.80);
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-      background: rgba(16,45,105,0.03);
-    }
-
-    .tag{
-      display: inline-flex;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 12px;
-      border: 1px solid var(--border);
-      background: rgba(16,45,105,0.04);
-      color: var(--text);
-      white-space: nowrap;
-    }
-
-    .tag.exception{
-      background: var(--light-yellow);
-      border-color: rgba(0,0,0,0.12);
-    }
-
-    .muted{
-      color: var(--muted);
-      font-weight: 700;
-      font-size: 13px;
-    }
-
-    @media (max-width: 820px){
-      .top{
-        grid-template-columns: 1fr;
-        align-items: start;
-      }
-      .filters{
-        justify-content: flex-start;
-      }
-      .count{ font-size: 38px; }
-    }
-  </style>
+th{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+</style>
 </head>
 
 <body>
-  <header>
-    <div class="brand">
-      <img src="./ies-logo-white.png" alt="Internationella Engelska Skolan">
-      <div class="titlewrap">
-        <div class="title">Junior Club — Who’s Here</div>
-        <div class="sub">Read-only safeguarding view</div>
-      </div>
-    </div>
-    <div class="clock" aria-label="Clock">
-      <div id="clockTime">--:--</div>
-      <div class="date" id="clockDate">----</div>
-    </div>
-  </header>
 
-  <div class="container">
-    <div class="top">
-      <div class="count" id="presentCount">
-        37
-        <small>Currently present</small>
-      </div>
+<header>Junior Club – Staff View</header>
 
-      <div class="filters" aria-label="Filters">
-        <button class="chip active" data-filter="all" type="button">All</button>
-        <button class="chip" data-filter="class" type="button">By class</button>
-        <button class="chip" data-filter="exceptions" type="button">Exceptions only</button>
-      </div>
-    </div>
+<main>
 
-    <div class="panel">
-      <table aria-label="Currently present list">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Class</th>
-            <th>Time IN</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="rows">
-          <tr>
-            <td><strong>Student Name</strong><div class="muted">student_id (staff-only)</div></td>
-            <td>5A</td>
-            <td>15:22</td>
-            <td><span class="tag">IN</span></td>
-          </tr>
-          <tr>
-            <td><strong>Student Name</strong></td>
-            <td>4B</td>
-            <td>15:31</td>
-            <td><span class="tag exception">Exception</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="muted" style="margin-top:10px;">
-      Note: This is a UI preview. In V3, the list is derived from the append-only log; no edits occur here.
-    </div>
+  <div class="card">
+    <h2>Currently Present</h2>
+    <div class="count" id="presentCount">–</div>
   </div>
 
-  <script>
-    "use strict";
-    function pad2(n){ return String(n).padStart(2, "0"); }
-    function updateClock(){
-      const d = new Date();
-      document.getElementById("clockTime").textContent = `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
-      document.getElementById("clockDate").textContent = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
+  <div class="card">
+    <h2>Who’s Here Now</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Card UID</th>
+          <th>Time IN</th>
+          <th>Device</th>
+        </tr>
+      </thead>
+      <tbody id="presentTable"></tbody>
+    </table>
+  </div>
 
-    // Filter chips (UI only)
-    const chips = Array.from(document.querySelectorAll(".chip"));
-    chips.forEach(c => c.addEventListener("click", () => {
-      chips.forEach(x => x.classList.toggle("active", x === c));
-      // Placeholder: implement filtering once wired to data.
-    }));
-  </script>
+</main>
+
+<script>
+// 🔒 READ-ONLY CSV FEED (LOCKED)
+const CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?output=csv";
+
+fetch(CSV_URL)
+  .then(r => r.text())
+  .then(csv => {
+    const lines = csv.trim().split("\n");
+
+    // Remove header row
+    const rows = lines.slice(1);
+
+    // Parse rows safely (no assumptions beyond column order)
+    const events = rows.map(line => {
+      const cols = line.split(",");
+      return {
+        timestamp: cols[0],
+        card_uid: cols[1],
+        event: cols[2],
+        device_id: cols[3] || ""
+      };
+    });
+
+    // Determine latest event per card_uid
+    const latestByCard = {};
+    events.forEach(e => {
+      latestByCard[e.card_uid] = e;
+    });
+
+    // Filter current presence
+    const present = Object.values(latestByCard)
+      .filter(e => e.event === "IN");
+
+    // Update count
+    document.getElementById("presentCount").textContent = present.length;
+
+    // Populate table
+    const tbody = document.getElementById("presentTable");
+    tbody.innerHTML = "";
+
+    present.forEach(e => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${e.card_uid}</td>
+        <td>${e.timestamp}</td>
+        <td>${e.device_id || "-"}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  })
+  .catch(err => {
+    console.error("CSV load failed:", err);
+    document.getElementById("presentCount").textContent = "Error";
+  });
+</script>
+
 </body>
 </html>
