@@ -18,72 +18,18 @@
   --danger:#b00020;
   --ok:#0b6b2f;
 }
-body{
-  margin:0;
-  font-family:"Open Sans",Arial,sans-serif;
-  background:var(--bg);
-  color:#102d69;
-}
-header{
-  background:var(--navy);
-  color:#fff;
-  padding:14px 18px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-header input{
-  padding:6px 8px;
-  border-radius:6px;
-  border:none;
-}
-button{
-  background:var(--navy);
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  font-weight:700;
-  cursor:pointer;
-}
-button.secondary{
-  background:#fff;
-  color:var(--navy);
-  border:1px solid var(--border);
-}
-main{
-  max-width:1200px;
-  margin:20px auto;
-  padding:0 16px;
-}
-.card{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:16px;
-}
+body{ margin:0; font-family:"Open Sans",Arial,sans-serif; background:var(--bg); color:#102d69; }
+header{ background:var(--navy); color:#fff; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; }
+header input{ padding:6px 8px; border-radius:6px; border:none; }
+button{ background:var(--navy); color:#fff; border:none; padding:6px 10px; border-radius:6px; font-weight:700; cursor:pointer; }
+button.secondary{ background:#fff; color:var(--navy); border:1px solid var(--border); }
+main{ max-width:1200px; margin:20px auto; padding:0 16px; }
+.card{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
 .big{ font-size:44px; font-weight:800; }
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid var(--border);
-}
+table{ width:100%; border-collapse:collapse; }
+th,td{ padding:10px; border-bottom:1px solid var(--border); }
 tr.unknown{ background:var(--warn); }
-.badge{
-  display:inline-block;
-  padding:2px 8px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:800;
-}
-.badge.ok{ color:var(--ok); }
-.badge.bad{ color:var(--danger); }
 
-/* Tabs */
 .tabs{ display:flex; gap:10px; margin-bottom:10px; }
 .tabs button.active{
   background:#fff;
@@ -91,32 +37,10 @@ tr.unknown{ background:var(--warn); }
   border:1px solid var(--border);
 }
 
-/* Modal */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-.modal-content{
-  background:#fff;
-  width:420px;
-  padding:16px;
-  border-radius:12px;
-}
-.modal-content label{
-  display:block;
-  font-size:12px;
-  font-weight:700;
-  margin-top:10px;
-}
-.modal-content input,
-.modal-content select{
-  width:100%;
-  padding:6px;
-}
+.modal{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; }
+.modal-content{ background:#fff; width:420px; padding:16px; border-radius:12px; }
+.modal-content label{ display:block; font-size:12px; font-weight:700; margin-top:10px; }
+.modal-content input, .modal-content select{ width:100%; padding:6px; }
 .error{ color:var(--danger); font-weight:700; font-size:13px; }
 .success{ color:var(--ok); font-weight:700; font-size:13px; }
 </style>
@@ -136,7 +60,7 @@ tr.unknown{ background:var(--warn); }
 <main>
 
 <div class="tabs">
-  <button id="tabPresent" class="active">Present</button>
+  <button id="tabPresent">Present</button>
   <button id="tabUnknown">Unknown Cards</button>
 </div>
 
@@ -149,9 +73,7 @@ tr.unknown{ background:var(--warn); }
     <h2>Who’s Here Now</h2>
     <table>
       <thead>
-        <tr>
-          <th>Name</th><th>Class</th><th>Time IN</th><th>Card</th><th>Action</th>
-        </tr>
+        <tr><th>Name</th><th>Class</th><th>Time IN</th><th>Card</th><th>Action</th></tr>
       </thead>
       <tbody id="presentTable"></tbody>
     </table>
@@ -163,9 +85,7 @@ tr.unknown{ background:var(--warn); }
     <h2>Unknown Cards (Queue)</h2>
     <table>
       <thead>
-        <tr>
-          <th>Time</th><th>Card</th><th>Device</th><th>Action</th>
-        </tr>
+        <tr><th>Time</th><th>Card</th><th>Device</th><th>Action</th></tr>
       </thead>
       <tbody id="unknownTable"></tbody>
     </table>
@@ -214,150 +134,23 @@ tr.unknown{ background:var(--warn); }
 </div>
 
 <script>
-/* ===== CONFIG ===== */
-const ATT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
-const MAP_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-const MAP_FORM="https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
-const MAP={
-  card:"entry.1712147498",
-  email:"entry.1171642279",
-  name:"entry.2022534068",
-  class:"entry.1723675198",
-  status:"entry.1124037588",
-  pin:"entry.352224440",
-  note:"entry.523442266",
-  mapped_by:"entry.1680238241",
-  schema:"entry.1809813215"
-};
-/* ================= */
+const tabPresent = document.getElementById("tabPresent");
+const tabUnknown = document.getElementById("tabUnknown");
+const panelPresent = document.getElementById("panelPresent");
+const panelUnknown = document.getElementById("panelUnknown");
 
-const tabPresent=document.getElementById("tabPresent");
-const tabUnknown=document.getElementById("tabUnknown");
-const panelPresent=document.getElementById("panelPresent");
-const panelUnknown=document.getElementById("panelUnknown");
-
-let mapping={}, pins=new Set(), attendance=[];
-
-tabPresent.onclick=()=>switchTab("present");
-tabUnknown.onclick=()=>switchTab("unknown");
+tabPresent.onclick = () => switchTab("present");
+tabUnknown.onclick = () => switchTab("unknown");
 
 function switchTab(which){
-  panelPresent.style.display = which==="present" ? "" : "none";
-  panelUnknown.style.display = which==="unknown" ? "" : "none";
-  tabPresent.classList.toggle("active", which==="present");
-  tabUnknown.classList.toggle("active", which==="unknown");
+  panelPresent.style.display = which === "present" ? "" : "none";
+  panelUnknown.style.display = which === "unknown" ? "" : "none";
+  tabPresent.classList.toggle("active", which === "present");
+  tabUnknown.classList.toggle("active", which === "unknown");
 }
 
-function splitCSVLine(l){
-  const o=[]; let c="",q=false;
-  for(let i=0;i<l.length;i++){
-    const ch=l[i];
-    if(ch==='"'){ if(q&&l[i+1]==='"'){c+='"';i++;} else q=!q; }
-    else if(ch===','&&!q){ o.push(c); c=""; }
-    else c+=ch;
-  }
-  o.push(c); return o.map(s=>s.trim());
-}
-function parseCSV(t){
-  const L=t.trim().split("\n");
-  const H=splitCSVLine(L[0]);
-  return L.slice(1).filter(r=>r.trim()).map(r=>{
-    const V=splitCSVLine(r); const O={};
-    H.forEach((h,i)=>O[h]=V[i]||""); return O;
-  });
-}
-
-function saveOperator(){ localStorage.setItem("op",operator.value); }
-
-async function reloadAll(){
-  const [a,m]=await Promise.all([
-    fetch(ATT_CSV,{cache:"no-store"}).then(r=>r.text()),
-    fetch(MAP_CSV,{cache:"no-store"}).then(r=>r.text())
-  ]);
-
-  mapping={}; pins.clear();
-  parseCSV(m).forEach(r=>{
-    if(!r.card_uid) return;
-    mapping[r.card_uid]=r;
-    if(r.status==="active" && r.pin) pins.add(r.pin);
-  });
-
-  attendance=parseCSV(a);
-  render();
-}
-
-function render(){
-  const latest={};
-  attendance.forEach(e=>{ if(e.card_uid) latest[e.card_uid]=e; });
-
-  const present=Object.values(latest).filter(e=>e.event==="IN");
-  presentCount.textContent=present.length;
-  presentTable.innerHTML="";
-  present.forEach(e=>{
-    const m=mapping[e.card_uid];
-    const ok=m && m.status==="active";
-    const tr=document.createElement("tr");
-    if(!ok) tr.className="unknown";
-    tr.innerHTML=`
-      <td>${ok?m.student_name:"UNKNOWN"}</td>
-      <td>${ok?m.class:"-"}</td>
-      <td>${e.Timestamp}</td>
-      <td>${e.card_uid}</td>
-      <td><button onclick="openModal('${e.card_uid}')">Register / Edit</button></td>
-    `;
-    presentTable.appendChild(tr);
-  });
-
-  unknownTable.innerHTML="";
-  attendance.filter(e=>e.event==="UNKNOWN").slice(-50).reverse().forEach(e=>{
-    const tr=document.createElement("tr");
-    tr.className="unknown";
-    tr.innerHTML=`
-      <td>${e.Timestamp}</td>
-      <td>${e.card_uid}</td>
-      <td>${e.device_id||"-"}</td>
-      <td><button onclick="openModal('${e.card_uid}')">Register</button></td>
-    `;
-    unknownTable.appendChild(tr);
-  });
-}
-
-function openModal(card){
-  const m=mapping[card]||{};
-  modal.style.display="flex";
-  m_card.value=card;
-  m_name.value=m.student_name||"";
-  m_email.value=m.student_email||"";
-  m_class.value=m.class||"";
-  m_status.value=m.status||"active";
-  m_pin.value=m.pin||"";
-  m_note.value="";
-  modalError.textContent="";
-  modalSuccess.textContent="";
-}
-function closeModal(){ modal.style.display="none"; }
-
-function submitMapping(){
-  const pin=m_pin.value.trim();
-  if(pin && pins.has(pin) && mapping[m_card.value]?.pin!==pin){
-    modalError.textContent="PIN already in use"; return;
-  }
-  const d=new URLSearchParams();
-  d.append(MAP.card,m_card.value);
-  d.append(MAP.name,m_name.value);
-  d.append(MAP.email,m_email.value);
-  d.append(MAP.class,m_class.value);
-  d.append(MAP.status,m_status.value);
-  d.append(MAP.pin,pin);
-  d.append(MAP.note,m_note.value);
-  d.append(MAP.mapped_by,localStorage.getItem("op")||"");
-  d.append(MAP.schema,"v3");
-  fetch(MAP_FORM,{method:"POST",mode:"no-cors",body:d});
-  modalSuccess.textContent="Saved. Refresh to see update.";
-}
-
-operator.value=localStorage.getItem("op")||"";
-reloadAll();
+/* default tab */
+switchTab("present");
 </script>
 
 </body>
