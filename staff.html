@@ -11,111 +11,36 @@
 
 <style>
 :root{
-  --navy:#102d69;
-  --bg:#f6f8fb;
-  --border:#d0d7e2;
-  --warn:#fff7b2;
-  --danger:#b00020;
-  --ok:#0b6b2f;
+  --navy:#102d69; --bg:#f6f8fb; --border:#d0d7e2;
+  --warn:#fff7b2; --danger:#b00020; --ok:#0b6b2f;
 }
-body{
-  margin:0;
-  font-family:"Open Sans",Arial,sans-serif;
-  background:var(--bg);
-  color:#102d69;
-}
-header{
-  background:var(--navy);
-  color:#fff;
-  padding:14px 18px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-header input{
-  padding:6px 8px;
-  border-radius:6px;
-  border:none;
-}
-button{
-  background:var(--navy);
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  font-weight:700;
-  cursor:pointer;
-}
-button.secondary{
-  background:#fff;
-  color:var(--navy);
-  border:1px solid var(--border);
-}
-main{
-  max-width:1200px;
-  margin:20px auto;
-  padding:0 16px;
-}
-.card{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:16px;
-}
+body{ margin:0; font-family:"Open Sans",Arial,sans-serif; background:var(--bg); color:#102d69; }
+header{ background:var(--navy); color:#fff; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; }
+header input{ padding:6px 8px; border-radius:6px; border:none; }
+button{ background:var(--navy); color:#fff; border:none; padding:6px 10px; border-radius:6px; font-weight:700; cursor:pointer; }
+button.secondary{ background:#fff; color:var(--navy); border:1px solid var(--border); }
+main{ max-width:1200px; margin:20px auto; padding:0 16px; }
+.card{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px; }
 .big{ font-size:44px; font-weight:800; }
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid var(--border);
-}
+table{ width:100%; border-collapse:collapse; }
+th,td{ padding:10px; border-bottom:1px solid var(--border); }
 tr.unknown{ background:var(--warn); }
-.badge{
-  display:inline-block;
-  padding:2px 8px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:800;
-}
-.badge.ok{ color:var(--ok); }
-.badge.bad{ color:var(--danger); }
+.badge{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:800; }
+.badge.ok{ color:var(--ok); } .badge.bad{ color:var(--danger); }
 
 /* modal */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-.modal-content{
-  background:#fff;
-  width:420px;
-  padding:16px;
-  border-radius:12px;
-}
-.modal-content label{
-  display:block;
-  font-size:12px;
-  font-weight:700;
-  margin-top:10px;
-}
-.modal-content input,
-.modal-content select{
-  width:100%;
-  padding:6px;
-}
+.modal{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; }
+.modal-content{ background:#fff; width:420px; padding:16px; border-radius:12px; }
+.modal-content label{ display:block; font-size:12px; font-weight:700; margin-top:10px; }
+.modal-content input, .modal-content select{ width:100%; padding:6px; }
 .error{ color:var(--danger); font-weight:700; font-size:13px; }
 .success{ color:var(--ok); font-weight:700; font-size:13px; }
+.tabs{ display:flex; gap:10px; margin-bottom:10px; }
+.tabs button.active{ background:#fff; color:var(--navy); border:1px solid var(--border); }
 </style>
 </head>
 
 <body>
-
 <header>
   <strong>Junior Club – Staff</strong>
   <div>
@@ -126,24 +51,34 @@ tr.unknown{ background:var(--warn); }
 </header>
 
 <main>
+  <div class="tabs">
+    <button id="tab-present" class="active" onclick="showTab('present')">Present</button>
+    <button id="tab-unknown" onclick="showTab('unknown')">Unknown Cards</button>
+  </div>
 
-<div class="card">
-  <h2>Currently Present</h2>
-  <div class="big" id="presentCount">–</div>
-</div>
+  <div id="panel-present">
+    <div class="card">
+      <h2>Currently Present</h2>
+      <div class="big" id="presentCount">–</div>
+    </div>
+    <div class="card">
+      <h2>Who’s Here Now</h2>
+      <table>
+        <thead><tr><th>Name</th><th>Class</th><th>Time IN</th><th>Card</th><th>Action</th></tr></thead>
+        <tbody id="presentTable"></tbody>
+      </table>
+    </div>
+  </div>
 
-<div class="card">
-  <h2>Who’s Here Now</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th><th>Class</th><th>Time IN</th><th>Card</th><th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="presentTable"></tbody>
-  </table>
-</div>
-
+  <div id="panel-unknown" style="display:none;">
+    <div class="card">
+      <h2>Unknown Cards (Queue)</h2>
+      <table>
+        <thead><tr><th>Time</th><th>Card</th><th>Device</th><th>Action</th></tr></thead>
+        <tbody id="unknownTable"></tbody>
+      </table>
+    </div>
+  </div>
 </main>
 
 <!-- MODAL -->
@@ -186,49 +121,57 @@ tr.unknown{ background:var(--warn); }
 </div>
 
 <script>
+/* ===== CONFIG ===== */
 const ATT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 const MAP_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 const MAP_FORM="https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
-
 const MAP={
-  card:"entry.1712147498",
-  email:"entry.1171642279",
-  name:"entry.2022534068",
-  class:"entry.1723675198",
-  status:"entry.1124037588",
-  pin:"entry.352224440",
-  note:"entry.523442266",
-  mapped_by:"entry.1680238241",
-  schema:"entry.1809813215"
+  card:"entry.1712147498", email:"entry.1171642279", name:"entry.2022534068",
+  class:"entry.1723675198", status:"entry.1124037588", pin:"entry.352224440",
+  note:"entry.523442266", mapped_by:"entry.1680238241", schema:"entry.1809813215"
 };
+/* ================= */
 
-let mapping={}, pins=new Set();
+let mapping={}, pins=new Set(), attendance=[];
 
+function splitCSVLine(l){ const o=[]; let c="",q=false;
+  for(let i=0;i<l.length;i++){ const ch=l[i];
+    if(ch==='"'){ if(q&&l[i+1]==='"'){c+='"';i++;} else q=!q; }
+    else if(ch===','&&!q){ o.push(c); c=""; }
+    else c+=ch;
+  } o.push(c); return o.map(s=>s.trim());
+}
 function parseCSV(t){
-  const l=t.trim().split("\n"),h=l[0].split(",");
-  return l.slice(1).map(r=>{
-    const o={},c=r.split(",");
-    h.forEach((k,i)=>o[k.trim()]=c[i]?.trim()||"");
-    return o;
+  const L=t.trim().split("\n"); const H=splitCSVLine(L[0]);
+  return L.slice(1).filter(r=>r.trim()).map(r=>{
+    const V=splitCSVLine(r); const O={};
+    H.forEach((h,i)=>O[h]=V[i]||""); return O;
   });
 }
 
 function saveOperator(){ localStorage.setItem("op",operator.value); }
+function showTab(t){
+  panel-present.style.display = t==="present"?"":"none";
+  panel-unknown.style.display = t==="unknown"?"":"none";
+  tab-present.classList.toggle("active",t==="present");
+  tab-unknown.classList.toggle("active",t==="unknown");
+}
 
 async function reloadAll(){
-  const [a,m]=await Promise.all([fetch(ATT_CSV).then(r=>r.text()),fetch(MAP_CSV).then(r=>r.text())]);
+  const [a,m]=await Promise.all([fetch(ATT_CSV,{cache:"no-store"}).then(r=>r.text()),fetch(MAP_CSV,{cache:"no-store"}).then(r=>r.text())]);
   mapping={}; pins.clear();
   parseCSV(m).forEach(r=>{
     if(!r.card_uid) return;
     mapping[r.card_uid]=r;
     if(r.status==="active" && r.pin) pins.add(r.pin);
   });
-  render(parseCSV(a));
+  attendance=parseCSV(a);
+  render();
 }
 
-function render(att){
+function render(){
   const latest={};
-  att.forEach(e=>latest[e.card_uid]=e);
+  attendance.forEach(e=>{ if(e.card_uid) latest[e.card_uid]=e; });
   const present=Object.values(latest).filter(e=>e.event==="IN");
   presentCount.textContent=present.length;
   presentTable.innerHTML="";
@@ -237,13 +180,20 @@ function render(att){
     const ok=m && m.status==="active";
     const tr=document.createElement("tr");
     if(!ok) tr.className="unknown";
-    tr.innerHTML=`
-      <td>${ok?m.student_name:"UNKNOWN"}</td>
-      <td>${ok?m.class:"-"}</td>
-      <td>${e.Timestamp}</td>
-      <td>${e.card_uid}</td>
+    tr.innerHTML=`<td>${ok?m.student_name:"UNKNOWN"}</td><td>${ok?m.class:"-"}</td>
+      <td>${e.Timestamp}</td><td>${e.card_uid}</td>
       <td><button onclick="openModal('${e.card_uid}')">Register / Edit</button></td>`;
     presentTable.appendChild(tr);
+  });
+
+  // UNKNOWN queue
+  unknownTable.innerHTML="";
+  attendance.filter(e=>e.event==="UNKNOWN").slice(-50).reverse().forEach(e=>{
+    const tr=document.createElement("tr");
+    tr.className="unknown";
+    tr.innerHTML=`<td>${e.Timestamp}</td><td>${e.card_uid}</td><td>${e.device_id||"-"}</td>
+      <td><button onclick="openModal('${e.card_uid}')">Register</button></td>`;
+    unknownTable.appendChild(tr);
   });
 }
 
@@ -257,17 +207,14 @@ function openModal(card){
   m_status.value=m.status||"active";
   m_pin.value=m.pin||"";
   m_note.value="";
-  modalError.textContent="";
-  modalSuccess.textContent="";
+  modalError.textContent=""; modalSuccess.textContent="";
 }
-
 function closeModal(){ modal.style.display="none"; }
 
 function submitMapping(){
   const pin=m_pin.value.trim();
   if(pin && pins.has(pin) && mapping[m_card.value]?.pin!==pin){
-    modalError.textContent="PIN already in use";
-    return;
+    modalError.textContent="PIN already in use"; return;
   }
   const d=new URLSearchParams();
   d.append(MAP.card,m_card.value);
@@ -282,8 +229,9 @@ function submitMapping(){
   fetch(MAP_FORM,{method:"POST",mode:"no-cors",body:d});
   modalSuccess.textContent="Saved. Refresh to see update.";
 }
+
+operator.value=localStorage.getItem("op")||"";
 reloadAll();
 </script>
-
 </body>
 </html>
