@@ -1,163 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Junior Club Attendance</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Junior Club Attendance</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
 
-<style>
-:root{
-  --navy:#102d69;
-  --white:#ffffff;
-  --green:#d9e6b1;
-  --blue:#bce4fa;
-  --yellow:#fff7b2;
-  --error:#b00020;
-  --dark:#102d69;
-}
+  <style>
+    :root{
+      --navy:#102d69;
+      --white:#ffffff;
+      --green:#d9e6b1;
+      --blue:#bce4fa;
+      --yellow:#fff7b2;
+      --error:#b00020;
+      --dark:#102d69;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      height:100vh;
+      background:var(--navy);
+      color:var(--white);
+      font-family:"Open Sans",Arial,sans-serif;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+    }
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:18px 22px;
+    }
+    header img{ height:40px; }
+    .clock{ font-weight:800; font-size:20px; }
 
-*{ box-sizing:border-box; }
+    main{ display:grid; place-items:center; padding:20px; }
 
-body{
-  margin:0;
-  height:100vh;
-  background:var(--navy);
-  color:var(--white);
-  font-family:"Open Sans",Arial,sans-serif;
-  display:grid;
-  grid-template-rows:auto 1fr auto;
-}
+    .card{
+      width:min(900px,96vw);
+      padding:clamp(26px,4vw,48px);
+      border-radius:16px;
+      text-align:center;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.2);
+    }
+    .pill{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:12px;
+      letter-spacing:.8px;
+      margin-bottom:18px;
+      border:1px solid rgba(255,255,255,0.3);
+      text-transform:uppercase;
+    }
+    .status{
+      font-size:clamp(64px,9vw,110px);
+      font-weight:800;
+      margin:0 0 10px;
+      line-height:1;
+    }
+    .sub{ font-size:16px; font-weight:700; opacity:.85; }
 
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:18px 22px;
-}
+    footer{
+      padding:14px 22px;
+      font-size:12px;
+      opacity:.75;
+      display:flex;
+      justify-content:space-between;
+    }
 
-header img{ height:40px; }
-
-.clock{
-  font-weight:800;
-  font-size:20px;
-}
-
-main{
-  display:grid;
-  place-items:center;
-  padding:20px;
-}
-
-.card{
-  width:min(900px,96vw);
-  padding:clamp(26px,4vw,48px);
-  border-radius:16px;
-  text-align:center;
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.2);
-}
-
-.pill{
-  display:inline-block;
-  padding:8px 14px;
-  border-radius:999px;
-  font-weight:800;
-  font-size:12px;
-  letter-spacing:.8px;
-  margin-bottom:18px;
-  border:1px solid rgba(255,255,255,0.3);
-  text-transform:uppercase;
-}
-
-.status{
-  font-size:clamp(64px,9vw,110px);
-  font-weight:800;
-  margin:0 0 10px;
-  line-height:1;
-}
-
-.sub{
-  font-size:16px;
-  font-weight:700;
-  opacity:.85;
-}
-
-footer{
-  padding:14px 22px;
-  font-size:12px;
-  opacity:.75;
-  display:flex;
-  justify-content:space-between;
-}
-
-/* States */
-body.in .card{ background:var(--green); color:var(--dark); }
-body.out .card{ background:var(--blue); color:var(--dark); }
-body.unknown .card{ background:var(--yellow); color:var(--dark); }
-body.unknown .status{ color:var(--error); }
-</style>
+    body.in .card{ background:var(--green); color:var(--dark); }
+    body.out .card{ background:var(--blue); color:var(--dark); }
+    body.unknown .card{ background:var(--yellow); color:var(--dark); }
+    body.unknown .status{ color:var(--error); }
+  </style>
 </head>
 
 <body class="waiting">
+  <header>
+    <img src="./ies-logo-white.png" alt="IES Logo">
+    <div class="clock" id="clock">--:--</div>
+  </header>
 
-<header>
-  <img src="./ies-logo-white.png" alt="IES Logo">
-  <div class="clock" id="clock">--:--</div>
-</header>
+  <main>
+    <div class="card">
+      <div class="pill" id="pill">Loading…</div>
+      <h1 class="status" id="status">READY</h1>
+      <div class="sub" id="message">Hold card near the reader</div>
+    </div>
+  </main>
 
-<main>
-  <div class="card">
-    <div class="pill" id="pill">Ready</div>
-    <h1 class="status" id="status">READY</h1>
-    <div class="sub" id="message">Hold card near the reader</div>
-  </div>
-</main>
-
-<footer>
-  <div>Junior Club Attendance</div>
-  <div>V3.2</div>
-</footer>
+  <footer>
+    <div>Junior Club Attendance</div>
+    <div>V3.0</div>
+  </footer>
 
 <script>
-/* ================= CONFIG ================= */
+/* ===================== CONFIG (FROZEN) ===================== */
 
-const FORM_URL =
+// Attendance Form (write-only)
+const ATT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
-const ENTRY_CARD_UID  = "entry.1104238975";
-const ENTRY_EVENT     = "entry.1735508359";
-const ENTRY_DEVICE_ID = "entry.452811867";
+// Attendance entry IDs (from your prefilled link)
+const ATT = {
+  card_uid:       "entry.1104238975",
+  event:          "entry.1735508359",
+  device_id:      "entry.452811867",
+  method:         "entry.1237226768",
+  operator:       "entry.1642343573",
+  note:           "entry.1538254700",
+  club_id:        "entry.164839595",
+  schema_version: "entry.2138280654"
+};
 
-const DEVICE_ID = "Door-1";
-
+// Mapping CSV (read-only)
 const MAPPING_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1898379100&single=true&output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
+// Page identity
+const DEVICE_ID = "Door-1";
+const CLUB_ID = "IESV_JuniorClub";
+const SCHEMA_VERSION = "v3";
+
+// Scan behaviour
 const DEBOUNCE_MS = 5000;
 const RESET_MS = 2500;
 
-/* ========================================== */
+/* ============================================================ */
+
+let knownActiveCards = new Set();
+let mappingLoaded = false;
 
 let buffer = "";
 let lastKeyTime = 0;
 let lastScan = { card:null, time:0 };
-let localState = {};
-let knownCards = new Set();
-
-/* Load student mapping */
-fetch(MAPPING_CSV_URL)
-  .then(r => r.text())
-  .then(csv => {
-    const rows = csv.trim().split("\n").slice(1);
-    rows.forEach(r => {
-      const [card_uid, , , , status] = r.split(",");
-      if (status === "active") knownCards.add(card_uid);
-    });
-  });
+let localState = {}; // card_uid -> IN/OUT
 
 function updateClock(){
   document.getElementById("clock").textContent =
@@ -165,27 +149,92 @@ function updateClock(){
 }
 setInterval(updateClock,1000); updateClock();
 
+function setPill(text){ document.getElementById("pill").textContent = text; }
+function setStatus(text){ document.getElementById("status").textContent = text; }
+function setMsg(text){ document.getElementById("message").textContent = text; }
+
 function resetUI(){
   document.body.className = "waiting";
-  status.textContent = "READY";
-  pill.textContent = "Ready";
-  message.textContent = "Hold card near the reader";
+  setPill(mappingLoaded ? "Ready" : "Loading…");
+  setStatus("READY");
+  setMsg(mappingLoaded ? "Hold card near the reader" : "Loading student mapping…");
 }
 
-function setUI(state,text){
+function showState(state, msg){
   document.body.className = state;
-  status.textContent = state.toUpperCase();
-  pill.textContent = "Logged";
-  message.textContent = text;
+  setPill("Logged");
+  setStatus(state.toUpperCase());
+  setMsg(msg);
 }
 
-function submit(card,event){
-  const data = new URLSearchParams();
-  data.append(ENTRY_CARD_UID,card);
-  data.append(ENTRY_EVENT,event);
-  data.append(ENTRY_DEVICE_ID,DEVICE_ID);
+function parseCSVLine(line){
+  // Minimal CSV parser (handles quotes/commas)
+  const out = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i=0;i<line.length;i++){
+    const ch = line[i];
+    if (ch === '"'){
+      if (inQuotes && line[i+1] === '"'){ cur += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes){
+      out.push(cur);
+      cur = "";
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out.map(s => s.trim());
+}
 
-  fetch(FORM_URL,{
+async function loadMapping(){
+  try{
+    const csv = await fetch(MAPPING_CSV_URL, { cache: "no-store" }).then(r=>r.text());
+    const lines = csv.trim().split("\n");
+    const rows = lines.slice(1);
+
+    // Last row wins per card_uid
+    const latestByCard = {};
+    for (const line of rows){
+      if(!line.trim()) continue;
+      const cols = parseCSVLine(line);
+      // Expected order in mapping sheet:
+      // Timestamp, card_uid, student_email, student_name, class, status, pin, note, mapped_by, schema_version
+      // But we only depend on card_uid + status here. We use index lookups defensively.
+      const card_uid = cols[1] || "";
+      const status = (cols[5] || "").toLowerCase();
+      if(card_uid) latestByCard[card_uid] = { status };
+    }
+
+    knownActiveCards = new Set(
+      Object.entries(latestByCard)
+        .filter(([_, v]) => v.status === "active")
+        .map(([k]) => k)
+    );
+
+    mappingLoaded = true;
+    resetUI();
+  } catch (e){
+    mappingLoaded = false;
+    setPill("Error");
+    setStatus("ERROR");
+    setMsg("Mapping load failed. Check publish settings.");
+  }
+}
+
+function postAttendance({ card_uid, event, method, operator, note }){
+  const data = new URLSearchParams();
+  data.append(ATT.card_uid, card_uid);
+  data.append(ATT.event, event);
+  data.append(ATT.device_id, DEVICE_ID);
+  data.append(ATT.method, method);
+  data.append(ATT.operator, operator || "");
+  data.append(ATT.note, note || "");
+  data.append(ATT.club_id, CLUB_ID);
+  data.append(ATT.schema_version, SCHEMA_VERSION);
+
+  fetch(ATT_FORM_URL, {
     method:"POST",
     mode:"no-cors",
     headers:{ "Content-Type":"application/x-www-form-urlencoded" },
@@ -193,43 +242,58 @@ function submit(card,event){
   });
 }
 
-document.addEventListener("keydown",e=>{
+document.addEventListener("keydown", (e)=>{
   const now = Date.now();
 
-  if(e.key.length===1){
-    if(now-lastKeyTime>80) buffer="";
-    buffer+=e.key;
-    lastKeyTime=now;
+  if (e.key.length === 1){
+    if (now - lastKeyTime > 80) buffer = "";
+    buffer += e.key;
+    lastKeyTime = now;
     return;
   }
 
-  if(e.key==="Enter"){
+  if (e.key === "Enter"){
     const card = buffer.trim();
-    buffer="";
+    buffer = "";
     if(!card) return;
 
-    if(lastScan.card===card && now-lastScan.time<DEBOUNCE_MS) return;
-    lastScan={card,time:now};
-
-    if(!knownCards.has(card)){
-      document.body.className="unknown";
-      status.textContent="UNKNOWN";
-      pill.textContent="Attention";
-      message.textContent="Unknown card — see staff";
-      setTimeout(resetUI,RESET_MS);
+    if(!mappingLoaded){
+      setPill("Loading…");
+      setMsg("Please wait…");
       return;
     }
 
-    const next = (localState[card]==="IN") ? "OUT" : "IN";
-    localState[card]=next;
+    if(lastScan.card===card && now - lastScan.time < DEBOUNCE_MS) return;
+    lastScan = { card, time: now };
 
-    submit(card,next);
-    setUI(next.toLowerCase(), next==="IN" ? "You may enter" : "You may leave");
-    setTimeout(resetUI,RESET_MS);
+    if(!knownActiveCards.has(card)){
+      document.body.className = "unknown";
+      setPill("Attention");
+      setStatus("UNKNOWN");
+      setMsg("Unknown card — see staff");
+      setTimeout(resetUI, RESET_MS);
+      return;
+    }
+
+    const next = (localState[card] === "IN") ? "OUT" : "IN";
+    localState[card] = next;
+
+    postAttendance({
+      card_uid: card,
+      event: next,
+      method: "RFID",
+      operator: "",     // student operated
+      note: ""
+    });
+
+    showState(next.toLowerCase(), next === "IN" ? "You may enter" : "You may leave");
+    setTimeout(resetUI, RESET_MS);
   }
 });
 
+// boot
 resetUI();
+loadMapping();
 </script>
 </body>
 </html>
