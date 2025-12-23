@@ -12,9 +12,11 @@
 <style>
 :root{
   --navy:#102d69;
+  --bg:#f6f8fb;
   --white:#ffffff;
   --border:#d0d7e2;
-  --bg:#f6f8fb;
+  --warn:#fff7b2;
+  --btn:#102d69;
 }
 
 body{
@@ -46,10 +48,7 @@ main{
   margin-bottom:20px;
 }
 
-h2{
-  margin:0 0 12px;
-  font-size:18px;
-}
+h2{ margin:0 0 12px; }
 
 .count{
   font-size:48px;
@@ -73,6 +72,18 @@ th{
   text-transform:uppercase;
   letter-spacing:.4px;
 }
+
+tr.unknown{ background:var(--warn); }
+
+button{
+  background:var(--btn);
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  font-weight:700;
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -82,82 +93,95 @@ th{
 
 <main>
 
-  <div class="card">
-    <h2>Currently Present</h2>
-    <div class="count" id="presentCount">–</div>
-  </div>
+<div class="card">
+  <h2>Currently Present</h2>
+  <div class="count" id="presentCount">–</div>
+</div>
 
-  <div class="card">
-    <h2>Who’s Here Now</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Card UID</th>
-          <th>Time IN</th>
-          <th>Device</th>
-        </tr>
-      </thead>
-      <tbody id="presentTable"></tbody>
-    </table>
-  </div>
+<div class="card">
+  <h2>Who’s Here Now</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Time IN</th>
+        <th>Card UID</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="presentTable"></tbody>
+  </table>
+</div>
 
 </main>
 
 <script>
-// 🔒 READ-ONLY CSV FEED (LOCKED)
-const CSV_URL =
+/* ===================== CONFIG ===================== */
+
+const ATTENDANCE_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?output=csv";
 
-fetch(CSV_URL)
-  .then(r => r.text())
-  .then(csv => {
-    const lines = csv.trim().split("\n");
+const MAPPING_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1898379100&single=true&output=csv";
 
-    // Remove header row
-    const rows = lines.slice(1);
+/* Mapping form */
+const MAPPING_FORM_BASE =
+  "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/viewform";
 
-    // Parse rows safely (no assumptions beyond column order)
-    const events = rows.map(line => {
-      const cols = line.split(",");
-      return {
-        timestamp: cols[0],
-        card_uid: cols[1],
-        event: cols[2],
-        device_id: cols[3] || ""
-      };
-    });
+const ENTRY_CARD_UID = "entry.1712147498";
 
-    // Determine latest event per card_uid
-    const latestByCard = {};
-    events.forEach(e => {
-      latestByCard[e.card_uid] = e;
-    });
+/* ================================================== */
 
-    // Filter current presence
-    const present = Object.values(latestByCard)
-      .filter(e => e.event === "IN");
+Promise.all([
+  fetch(ATTENDANCE_CSV_URL).then(r=>r.text()),
+  fetch(MAPPING_CSV_URL).then(r=>r.text())
+]).then(([attendanceCSV, mappingCSV])=>{
 
-    // Update count
-    document.getElementById("presentCount").textContent = present.length;
-
-    // Populate table
-    const tbody = document.getElementById("presentTable");
-    tbody.innerHTML = "";
-
-    present.forEach(e => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${e.card_uid}</td>
-        <td>${e.timestamp}</td>
-        <td>${e.device_id || "-"}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  })
-  .catch(err => {
-    console.error("CSV load failed:", err);
-    document.getElementById("presentCount").textContent = "Error";
+  /* Build mapping lookup */
+  const mapRows = mappingCSV.trim().split("\n").slice(1);
+  const mapping = {};
+  mapRows.forEach(r=>{
+    const [card,email,name,cls,status] = r.split(",");
+    if(status==="active"){
+      mapping[card]={ name, cls };
+    }
   });
+
+  /* Build latest attendance state */
+  const logRows = attendanceCSV.trim().split("\n").slice(1);
+  const latest = {};
+  logRows.forEach(r=>{
+    const [ts,card,event] = r.split(",");
+    latest[card]={ ts,card,event };
+  });
+
+  const present = Object.values(latest).filter(e=>e.event==="IN");
+  document.getElementById("presentCount").textContent = present.length;
+
+  const tbody = document.getElementById("presentTable");
+  tbody.innerHTML="";
+
+  present.forEach(e=>{
+    const m = mapping[e.card];
+    const tr = document.createElement("tr");
+    if(!m) tr.className="unknown";
+
+    const registerUrl =
+      `${MAPPING_FORM_BASE}?usp=pp_url&${ENTRY_CARD_UID}=${encodeURIComponent(e.card)}`;
+
+    tr.innerHTML = `
+      <td>${m ? m.name : "UNKNOWN"}</td>
+      <td>${m ? m.cls : "-"}</td>
+      <td>${e.ts}</td>
+      <td>${e.card}</td>
+      <td>
+        ${m ? "" : `<button onclick="window.open('${registerUrl}','_blank')">Register</button>`}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+});
 </script>
 
 </body>
