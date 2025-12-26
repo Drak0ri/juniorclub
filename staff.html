@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Junior Club – Staff</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -13,6 +15,8 @@
   --bg:#f6f8fb;
   --border:#d0d7e2;
   --warn:#fff7b2;
+  --danger:#b00020;
+  --ok:#0b6b2f;
 }
 body{
   margin:0;
@@ -29,11 +33,18 @@ header .top{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:12px;
 }
 header input{
   padding:6px 8px;
   border-radius:6px;
   border:none;
+  min-width:220px;
+}
+header .meta{
+  font-size:12px;
+  opacity:.85;
+  margin-top:6px;
 }
 button{
   background:var(--navy);
@@ -48,6 +59,9 @@ button.secondary{
   background:#fff;
   color:var(--navy);
   border:1px solid var(--border);
+}
+button.danger{
+  background:#b00020;
 }
 main{
   max-width:1200px;
@@ -72,6 +86,7 @@ table{
 th,td{
   padding:10px;
   border-bottom:1px solid var(--border);
+  text-align:left;
 }
 tr.unknown{
   background:var(--warn);
@@ -84,6 +99,72 @@ tr.unknown{
 @media (min-width: 980px){
   .grid{ grid-template-columns:1fr 1fr; }
 }
+
+/* Modal */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.modal-content{
+  background:#fff;
+  width:460px;
+  max-width:100%;
+  padding:16px;
+  border-radius:12px;
+  border:1px solid var(--border);
+}
+.modal-content h3{
+  margin:0 0 8px 0;
+}
+.modal-content label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin-top:10px;
+}
+.modal-content input,
+.modal-content select{
+  width:100%;
+  padding:8px;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+.modal-actions{
+  margin-top:14px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+.error{
+  color:var(--danger);
+  font-weight:700;
+  font-size:13px;
+  margin-top:10px;
+}
+.success{
+  color:var(--ok);
+  font-weight:700;
+  font-size:13px;
+  margin-top:10px;
+}
+.pill{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.12);
+}
+.smallnote{
+  font-size:12px;
+  opacity:.85;
+}
 </style>
 </head>
 
@@ -92,11 +173,14 @@ tr.unknown{
 <header>
   <div class="top">
     <strong>Junior Club – Staff</strong>
-    <div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
       <input id="operator" placeholder="staff email">
       <button onclick="saveOperator()">Save</button>
-      <button class="secondary" onclick="reloadAll()">Refresh</button>
+      <button class="secondary" onclick="reloadAll(true)">Refresh</button>
     </div>
+  </div>
+  <div class="meta" id="updateStatus">
+    Last updated: —
   </div>
 </header>
 
@@ -105,19 +189,24 @@ tr.unknown{
 
   <div>
     <div class="card">
-      <h2>Currently Present</h2>
-      <div class="big" id="presentCount">0</div>
+      <h2 style="margin:0 0 8px 0;">Currently Present</h2>
+      <div class="big" id="presentCount">–</div>
+      <div class="smallnote" id="presentHint">Latest scan per card decides presence (IN = present, OUT = not present).</div>
     </div>
 
     <div class="card">
-      <h2>Who’s Here Now</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <h2 style="margin:0;">Who’s Here Now</h2>
+        <span class="pill" id="presentPill">—</span>
+      </div>
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Class</th>
-            <th>Time IN</th>
-            <th>Card</th>
+            <th style="width:28%;">Name</th>
+            <th style="width:12%;">Class</th>
+            <th style="width:22%;">Time (Latest IN)</th>
+            <th style="width:20%;">Card</th>
+            <th style="width:18%;">Action</th>
           </tr>
         </thead>
         <tbody id="presentTable"></tbody>
@@ -127,12 +216,16 @@ tr.unknown{
 
   <div>
     <div class="card">
-      <h2>Unknown Cards Queue</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <h2 style="margin:0;">Unknown Cards Queue</h2>
+        <span class="pill" id="unknownPill">—</span>
+      </div>
       <table>
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Card</th>
+            <th style="width:34%;">Time (Latest)</th>
+            <th style="width:36%;">Card</th>
+            <th style="width:30%;">Action</th>
           </tr>
         </thead>
         <tbody id="unknownTable"></tbody>
@@ -143,90 +236,472 @@ tr.unknown{
 </div>
 </main>
 
+<!-- MODAL -->
+<div class="modal" id="modal" onclick="modalBackdropClose(event)">
+  <div class="modal-content" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+    <h3 id="modalTitle">Register / Edit Student</h3>
+
+    <label>Card UID</label>
+    <input id="m_card" disabled>
+
+    <label>Name</label>
+    <input id="m_name" placeholder="First Last">
+
+    <label>Email</label>
+    <input id="m_email" placeholder="student email (optional)">
+
+    <label>Class</label>
+    <input id="m_class" placeholder="4A / 5B etc">
+
+    <label>Status</label>
+    <select id="m_status">
+      <option value="active">active</option>
+      <option value="inactive">inactive</option>
+    </select>
+
+    <label>PIN</label>
+    <input id="m_pin" placeholder="4-digit pin (optional)">
+
+    <label>Note</label>
+    <input id="m_note" placeholder="optional note">
+
+    <div id="modalError" class="error"></div>
+    <div id="modalSuccess" class="success"></div>
+
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeModal()">Cancel</button>
+      <button onclick="submitMapping()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ===== CONFIG ===== */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+
+const MAP_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+
+const MAP_FORM =
+  "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
+
+/*
+  These must match your actual Google Form entry IDs.
+  (These are from your earlier staff page config.)
+*/
+const MAP = {
+  card: "entry.1712147498",
+  email: "entry.1171642279",
+  name: "entry.2022534068",
+  class: "entry.1723675198",
+  status: "entry.1124037588",
+  pin: "entry.352224440",
+  note: "entry.523442266",
+  mapped_by: "entry.1680238241",
+  schema: "entry.1809813215"
+};
+
+const SCHEMA_VERSION = "jc_staff_v3";
+const AUTO_REFRESH_SECONDS = 20;
 /* ================= */
 
+let lastRefresh = null;
+let timer = null;
+
+let mappingByCard = {}; // card_uid -> mapping row object
+let modalMode = "register"; // register | edit
+let modalCard = "";
+
+/* ---------- Utilities ---------- */
+
+function startTimer(){
+  if(timer) clearInterval(timer);
+  timer = setInterval(()=>{
+    if(!lastRefresh) return;
+    const secs = Math.floor((Date.now() - lastRefresh) / 1000);
+    document.getElementById("updateStatus").textContent =
+      `Last updated: ${secs} second${secs!==1?"s":""} ago`;
+  }, 1000);
+}
+
+function safeText(s){
+  return (s ?? "").toString();
+}
+
+function toEpoch(ts){
+  const v = safeText(ts);
+  const t = Date.parse(v);
+  if(!Number.isNaN(t)) return t;
+  const maybe = new Date(v.replace(" ", "T"));
+  const t2 = maybe.getTime();
+  return Number.isNaN(t2) ? 0 : t2;
+}
+
+/*
+  Robust CSV parser (handles quoted commas).
+*/
 function parseCSV(text){
-  const rows = text.trim().split("\n").map(r=>r.split(","));
-  const headers = rows.shift();
+  const rows = [];
+  let row = [];
+  let cur = "";
+  let inQuotes = false;
+
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    const next = text[i+1];
+
+    if(ch === '"' && inQuotes && next === '"'){
+      cur += '"';
+      i++;
+      continue;
+    }
+    if(ch === '"'){
+      inQuotes = !inQuotes;
+      continue;
+    }
+    if(ch === "," && !inQuotes){
+      row.push(cur);
+      cur = "";
+      continue;
+    }
+    if((ch === "\n" || ch === "\r") && !inQuotes){
+      if(ch === "\r" && next === "\n") i++;
+      row.push(cur);
+      cur = "";
+      if(row.length > 1 || (row.length === 1 && row[0].trim() !== "")) rows.push(row);
+      row = [];
+      continue;
+    }
+    cur += ch;
+  }
+  // last cell
+  if(cur.length || row.length){
+    row.push(cur);
+    if(row.length > 1 || (row.length === 1 && row[0].trim() !== "")) rows.push(row);
+  }
+
+  if(rows.length === 0) return [];
+
+  const headers = rows.shift().map(h => h.trim());
   return rows.map(r=>{
-    const o={};
-    headers.forEach((h,i)=>o[h.trim()]=r[i]?.trim());
+    const o = {};
+    headers.forEach((h,i)=> o[h] = (r[i] ?? "").trim());
     return o;
   });
+}
+
+/*
+  Header normalisation: your CSV headers must match these keys.
+  If your sheet changes a header label, add mapping here.
+*/
+function normaliseAttendanceRow(r){
+  // Expected keys from your CSV:
+  // timestamp, card_uid, student_name, class, direction
+  // If your CSV uses different headers, map them here.
+  const out = {};
+
+  const keys = Object.keys(r);
+  const get = (...names) => {
+    for(const n of names){
+      for(const k of keys){
+        if(k.trim().toLowerCase() === n.toLowerCase()) return r[k];
+      }
+    }
+    return "";
+  };
+
+  out.timestamp = get("timestamp", "time", "datetime");
+  out.card_uid = get("card_uid", "card", "uid", "rfid", "identifier_value");
+  out.student_name = get("student_name", "name", "student");
+  out.class = get("class", "class_name", "homeroom");
+  out.direction = get("direction", "in_out", "status", "dir");
+  out.device = get("device", "station", "reader", "latest_station");
+
+  // Direction normalisation
+  const d = safeText(out.direction).toUpperCase();
+  if(d === "IN" || d === "OUT") out.direction = d;
+  else if(d === "ACTIVE") out.direction = "IN";
+  else if(d === "LEFT" || d === "INACTIVE") out.direction = "OUT";
+
+  out._epoch = toEpoch(out.timestamp);
+
+  return out;
+}
+
+function normaliseMappingRow(r){
+  // Expected keys from your mapping CSV:
+  // card_uid, name, class, email, status, pin, note
+  const out = {};
+  const keys = Object.keys(r);
+  const get = (...names) => {
+    for(const n of names){
+      for(const k of keys){
+        if(k.trim().toLowerCase() === n.toLowerCase()) return r[k];
+      }
+    }
+    return "";
+  };
+
+  out.card_uid = get("card_uid", "card", "uid");
+  out.name = get("name", "student_name", "student");
+  out.class = get("class", "class_name");
+  out.email = get("email");
+  out.status = get("status");
+  out.pin = get("pin");
+  out.note = get("note");
+  out.mapped_by = get("mapped_by", "operator");
+  out.timestamp = get("timestamp", "time");
+
+  return out;
 }
 
 function saveOperator(){
   localStorage.setItem("op", operator.value);
 }
 
-async function reloadAll(){
-  const res = await fetch(ATT_CSV + "&t=" + Date.now());
-  const text = await res.text();
-  const rows = parseCSV(text);
-
-  // --- Reduce to latest scan per card ---
-  const byCard = {};
-  rows.forEach(r=>{
-    const card = r.card_uid;
-    if(!card) return;
-    const ts = new Date(r.timestamp).getTime();
-    if(!byCard[card] || ts > byCard[card].ts){
-      byCard[card] = { ts, row:r };
-    }
-  });
-
-  const present = [];
-  const unknown = [];
-
-  Object.values(byCard).forEach(({row})=>{
-    if(row.direction === "IN" && row.student_name){
-      present.push(row);
-    }
-    if(!row.student_name){
-      unknown.push(row);
-    }
-  });
-
-  renderPresent(present);
-  renderUnknown(unknown);
+function getOperator(){
+  return safeText(document.getElementById("operator").value).trim();
 }
+
+function setPills(presentCount, unknownCount){
+  document.getElementById("presentPill").textContent = `${presentCount} present`;
+  document.getElementById("unknownPill").textContent = `${unknownCount} unknown`;
+}
+
+/* ---------- Modal ---------- */
+
+function openModalForCard(card, mode){
+  modalMode = mode || "register";
+  modalCard = safeText(card);
+
+  document.getElementById("modalTitle").textContent =
+    modalMode === "edit" ? "Edit Student Mapping" : "Register Student";
+
+  document.getElementById("modalError").textContent = "";
+  document.getElementById("modalSuccess").textContent = "";
+
+  const existing = mappingByCard[modalCard] || null;
+
+  document.getElementById("m_card").value = modalCard;
+  document.getElementById("m_name").value = existing ? safeText(existing.name) : "";
+  document.getElementById("m_email").value = existing ? safeText(existing.email) : "";
+  document.getElementById("m_class").value = existing ? safeText(existing.class) : "";
+  document.getElementById("m_status").value = existing ? (safeText(existing.status) || "active") : "active";
+  document.getElementById("m_pin").value = existing ? safeText(existing.pin) : "";
+  document.getElementById("m_note").value = existing ? safeText(existing.note) : "";
+
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display = "none";
+}
+
+function modalBackdropClose(e){
+  // click outside content closes
+  closeModal();
+}
+
+async function submitMapping(){
+  const op = getOperator();
+  if(!op){
+    document.getElementById("modalError").textContent = "Please enter and Save staff email first.";
+    return;
+  }
+
+  const card = safeText(document.getElementById("m_card").value).trim();
+  const name = safeText(document.getElementById("m_name").value).trim();
+  const email = safeText(document.getElementById("m_email").value).trim();
+  const cls = safeText(document.getElementById("m_class").value).trim();
+  const status = safeText(document.getElementById("m_status").value).trim() || "active";
+  const pin = safeText(document.getElementById("m_pin").value).trim();
+  const note = safeText(document.getElementById("m_note").value).trim();
+
+  document.getElementById("modalError").textContent = "";
+  document.getElementById("modalSuccess").textContent = "";
+
+  if(!card){
+    document.getElementById("modalError").textContent = "Card UID missing.";
+    return;
+  }
+  if(!name){
+    document.getElementById("modalError").textContent = "Name is required.";
+    return;
+  }
+  if(!cls){
+    document.getElementById("modalError").textContent = "Class is required.";
+    return;
+  }
+
+  const body = new URLSearchParams();
+  body.set(MAP.card, card);
+  body.set(MAP.name, name);
+  body.set(MAP.email, email);
+  body.set(MAP.class, cls);
+  body.set(MAP.status, status);
+  body.set(MAP.pin, pin);
+  body.set(MAP.note, note);
+  body.set(MAP.mapped_by, op);
+  body.set(MAP.schema, SCHEMA_VERSION);
+
+  try{
+    // Google Forms does not support CORS response reading reliably.
+    // We treat a network-level success as OK.
+    await fetch(MAP_FORM, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body
+    });
+
+    document.getElementById("modalSuccess").textContent = "Saved. Refreshing…";
+
+    // Give Sheets a moment to publish; then reload.
+    setTimeout(async ()=>{
+      closeModal();
+      await reloadAll(true);
+    }, 800);
+  }catch(err){
+    document.getElementById("modalError").textContent = "Failed to submit mapping. Check connectivity and try again.";
+  }
+}
+
+/* ---------- Rendering ---------- */
 
 function renderPresent(list){
   const tbody = document.getElementById("presentTable");
   tbody.innerHTML = "";
-  list.forEach(r=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.student_name}</td>
-      <td>${r.class}</td>
-      <td>${r.timestamp}</td>
-      <td>${r.card_uid}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+
+  list
+    .sort((a,b)=> (b._epoch - a._epoch))
+    .forEach(r=>{
+      const tr = document.createElement("tr");
+      const card = safeText(r.card_uid);
+
+      tr.innerHTML = `
+        <td>${safeText(r.student_name)}</td>
+        <td>${safeText(r.class)}</td>
+        <td>${safeText(r.timestamp)}</td>
+        <td>${card}</td>
+        <td>
+          <button class="secondary" onclick="openModalForCard('${escapeForAttr(card)}','edit')">Edit</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
   document.getElementById("presentCount").textContent = list.length;
 }
 
 function renderUnknown(list){
   const tbody = document.getElementById("unknownTable");
   tbody.innerHTML = "";
-  list.forEach(r=>{
-    const tr = document.createElement("tr");
-    tr.className="unknown";
-    tr.innerHTML = `
-      <td>${r.timestamp}</td>
-      <td>${r.card_uid}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+
+  list
+    .sort((a,b)=> (b._epoch - a._epoch))
+    .forEach(r=>{
+      const tr = document.createElement("tr");
+      tr.className = "unknown";
+      const card = safeText(r.card_uid);
+
+      tr.innerHTML = `
+        <td>${safeText(r.timestamp)}</td>
+        <td>${card}</td>
+        <td>
+          <button onclick="openModalForCard('${escapeForAttr(card)}','register')">Register</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
 }
 
+function escapeForAttr(s){
+  return safeText(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+}
+
+/* ---------- Data Loads ---------- */
+
+async function fetchCSV(url){
+  const res = await fetch(url + "&t=" + Date.now());
+  const text = await res.text();
+  return parseCSV(text);
+}
+
+async function reloadAll(force){
+  lastRefresh = Date.now();
+  document.getElementById("updateStatus").textContent = "Last updated: just now";
+  startTimer();
+
+  // Load attendance + mapping in parallel
+  let attRaw = [];
+  let mapRaw = [];
+
+  try{
+    const [a, m] = await Promise.all([fetchCSV(ATT_CSV), fetchCSV(MAP_CSV)]);
+    attRaw = a;
+    mapRaw = m;
+  }catch(e){
+    // Partial failure handling
+    try{ attRaw = await fetchCSV(ATT_CSV); }catch(_){}
+    try{ mapRaw = await fetchCSV(MAP_CSV); }catch(_){}
+  }
+
+  // Build mappingByCard
+  mappingByCard = {};
+  mapRaw.map(normaliseMappingRow).forEach(r=>{
+    const card = safeText(r.card_uid).trim();
+    if(card) mappingByCard[card] = r;
+  });
+
+  // Normalise attendance rows
+  const att = attRaw.map(normaliseAttendanceRow).filter(r => r.card_uid);
+
+  // Latest-scan-wins per card
+  const byCard = {};
+  att.forEach(r=>{
+    const card = r.card_uid;
+    const ts = r._epoch;
+    if(!byCard[card] || ts > byCard[card]._epoch){
+      byCard[card] = r;
+    }
+  });
+
+  const present = [];
+  const unknown = [];
+
+  Object.values(byCard).forEach(r=>{
+    const hasName = !!safeText(r.student_name).trim();
+
+    // Unknown queue: latest scan exists but no resolved student_name
+    if(!hasName){
+      unknown.push(r);
+      return;
+    }
+
+    // Present: ONLY if latest direction is IN
+    if(safeText(r.direction).toUpperCase() === "IN"){
+      present.push(r);
+    }
+  });
+
+  renderPresent(present);
+  renderUnknown(unknown);
+  setPills(present.length, unknown.length);
+}
+
+/* ---------- Auto refresh ---------- */
+function startAutoRefresh(){
+  const tick = async ()=>{
+    try{ await reloadAll(false); }catch(_){}
+  };
+  setInterval(tick, AUTO_REFRESH_SECONDS * 1000);
+}
+
+/* Initial load */
 operator.value = localStorage.getItem("op") || "";
-reloadAll();
+reloadAll(true);
+startAutoRefresh();
 </script>
 
 </body>
