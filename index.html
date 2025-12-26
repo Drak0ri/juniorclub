@@ -11,37 +11,102 @@
 
 <style>
 :root{
-  --navy:#102d69; --white:#fff; --green:#d9e6b1; --blue:#bce4fa;
-  --yellow:#fff7b2; --error:#b00020; --dark:#102d69;
+  --navy:#102d69;
+  --white:#fff;
+  --green-bg:#d9e6b1;
+  --blue-bg:#bce4fa;
+  --yellow-bg:#fff7b2;
+  --green-text:#0b6b2f;
+  --red-text:#b00020;
+  --dark:#102d69;
 }
 *{ box-sizing:border-box; }
 body{
-  margin:0; height:100vh; background:var(--navy); color:var(--white);
+  margin:0;
+  height:100vh;
+  background:var(--navy);
+  color:var(--white);
   font-family:"Open Sans",Arial,sans-serif;
-  display:grid; grid-template-rows:auto 1fr auto;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
 }
-header{ display:flex; justify-content:space-between; align-items:center; padding:18px 22px; }
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 22px;
+}
 header img{ height:40px; }
 .clock{ font-weight:800; font-size:20px; }
-main{ display:grid; place-items:center; padding:20px; }
-.card{
-  width:min(900px,96vw); padding:clamp(26px,4vw,48px);
-  border-radius:16px; text-align:center;
-  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2);
-}
-.pill{
-  display:inline-block; padding:8px 14px; border-radius:999px;
-  font-weight:800; font-size:12px; letter-spacing:.8px; margin-bottom:18px;
-  border:1px solid rgba(255,255,255,0.3); text-transform:uppercase;
-}
-.status{ font-size:clamp(64px,9vw,110px); font-weight:800; margin:0 0 10px; line-height:1; }
-.sub{ font-size:16px; font-weight:700; opacity:.85; }
-footer{ padding:14px 22px; font-size:12px; opacity:.75; display:flex; justify-content:space-between; }
 
-body.in .card{ background:var(--green); color:var(--dark); }
-body.out .card{ background:var(--blue); color:var(--dark); }
-body.unknown .card{ background:var(--yellow); color:var(--dark); }
-body.unknown .status{ color:var(--error); }
+main{ display:grid; place-items:center; padding:20px; }
+
+.card{
+  width:min(900px,96vw);
+  padding:clamp(26px,4vw,48px);
+  border-radius:16px;
+  text-align:center;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.2);
+}
+
+.pill{
+  display:inline-block;
+  padding:8px 14px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:12px;
+  letter-spacing:.8px;
+  margin-bottom:18px;
+  border:1px solid rgba(255,255,255,0.3);
+  text-transform:uppercase;
+}
+
+.status{
+  font-size:clamp(64px,9vw,110px);
+  font-weight:800;
+  margin:0 0 10px;
+  line-height:1;
+}
+
+.sub{
+  font-size:16px;
+  font-weight:700;
+  opacity:.85;
+}
+
+footer{
+  padding:14px 22px;
+  font-size:12px;
+  opacity:.75;
+  display:flex;
+  justify-content:space-between;
+}
+
+/* STATE STYLES */
+body.in .card{
+  background:var(--green-bg);
+  color:var(--dark);
+}
+body.in .status{
+  color:var(--green-text);
+}
+
+body.out .card{
+  background:var(--blue-bg);
+  color:var(--dark);
+}
+body.out .status{
+  color:var(--red-text);
+}
+
+body.unknown .card{
+  background:var(--yellow-bg);
+  color:var(--dark);
+}
+body.unknown .status{
+  color:var(--red-text);
+}
 </style>
 </head>
 
@@ -61,11 +126,11 @@ body.unknown .status{ color:var(--error); }
 
 <footer>
   <div>Junior Club Attendance</div>
-  <div>V3.3</div>
+  <div>V3.4</div>
 </footer>
 
 <script>
-/* ===================== CONFIG (UNCHANGED) ===================== */
+/* ===================== CONFIG ===================== */
 const ATT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
@@ -92,7 +157,7 @@ const SCHEMA_VERSION = "v3";
 
 const DEBOUNCE_MS = 5000;
 const RESET_MS = 2500;
-/* =============================================================== */
+/* ================================================ */
 
 let knownActiveCards = new Set();
 let mappingLoaded = false;
