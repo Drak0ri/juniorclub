@@ -13,8 +13,6 @@
   --bg:#f6f8fb;
   --border:#d0d7e2;
   --warn:#fff7b2;
-  --danger:#b00020;
-  --ok:#0b6b2f;
 }
 body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--bg);color:#102d69;}
 header{background:var(--navy);color:#fff;padding:14px 18px;}
@@ -67,7 +65,6 @@ tr.unknown{background:var(--warn);}
             <th>Class</th>
             <th>Time (Latest IN)</th>
             <th>Card</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody id="presentTable"></tbody>
@@ -83,7 +80,6 @@ tr.unknown{background:var(--warn);}
           <tr>
             <th>Time (Latest)</th>
             <th>Card</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody id="unknownTable"></tbody>
@@ -93,9 +89,6 @@ tr.unknown{background:var(--warn);}
 
 </div>
 </main>
-
-<!-- MODAL -->
-<div class="modal" id="modal" onclick="closeModal()"></div>
 
 <script>
 /* ===== CONFIG ===== */
@@ -146,30 +139,67 @@ function parseCSV(text){
   });
 }
 
-/* -------- Header tolerant normalisation -------- */
+/* -------- FIXED HEADER-TOLERANT NORMALISATION -------- */
 
 function normAttendance(r){
-  const get=(...k)=>k.map(x=>r[x]).find(v=>v!==undefined)||"";
+  const get = (...keys) => {
+    for(const k of keys){
+      if(r[k] !== undefined && r[k] !== "") return r[k];
+    }
+    return "";
+  };
+
+  const ts = get(
+    "latest_timestamp",
+    "timestamp",
+    "time",
+    "date",
+    "datetime"
+  );
+
+  let dir = get(
+    "latest_direction",
+    "direction",
+    "status",
+    "in_out",
+    "dir"
+  ).toUpperCase();
+
+  if(dir === "ACTIVE") dir = "IN";
+  if(dir === "LEFT" || dir === "INACTIVE") dir = "OUT";
+
   return {
-    card: get("card_uid","card","rfid","identifier_value"),
-    name: get("student_name","name","student"),
-    class: get("class","class_name"),
-    direction: get("direction","status","in_out","dir").toUpperCase(),
-    timestamp: get("timestamp","time","date","datetime"),
-    _t: Date.parse(get("timestamp","time","date","datetime"))||0
+    card: get(
+      "card_uid",
+      "card",
+      "rfid",
+      "identifier_value"
+    ),
+    name: get(
+      "student_name",
+      "name",
+      "student"
+    ),
+    class: get(
+      "class",
+      "class_name"
+    ),
+    direction: dir,
+    timestamp: ts,
+    _t: Date.parse(ts) || 0
   };
 }
 
 function normMapping(r){
   const get=(...k)=>k.map(x=>r[x]).find(v=>v!==undefined)||"";
   return {
-    card: get("card_uid","card","rfid"),
-    name: get("name","student","student_name"),
-    class: get("class","class_name")
+    card:get("card_uid","card","rfid"),
+    name:get("name","student","student_name"),
+    class:get("class","class_name")
   };
 }
 
-/* -------- UI rendering -------- */
+/* -------- UI -------- */
 
 function renderPresent(list){
   presentTable.innerHTML="";
@@ -180,7 +210,6 @@ function renderPresent(list){
         <td>${r.class}</td>
         <td>${r.timestamp}</td>
         <td>${r.card}</td>
-        <td><button class="secondary">Edit</button></td>
       </tr>
     `);
   });
@@ -194,13 +223,12 @@ function renderUnknown(list){
       <tr class="unknown">
         <td>${r.timestamp}</td>
         <td>${r.card}</td>
-        <td><button>Register</button></td>
       </tr>
     `);
   });
 }
 
-/* -------- Main reload -------- */
+/* -------- MAIN -------- */
 
 async function reloadAll(){
   lastRefresh=Date.now();
