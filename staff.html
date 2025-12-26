@@ -13,8 +13,6 @@
   --bg:#f6f8fb;
   --border:#d0d7e2;
   --warn:#fff7b2;
-  --danger:#b00020;
-  --ok:#0b6b2f;
 }
 body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--bg);color:#102d69;}
 header{background:var(--navy);color:#fff;padding:14px 18px;}
@@ -31,11 +29,6 @@ th,td{padding:10px;border-bottom:1px solid var(--border);}
 tr.unknown{background:var(--warn);}
 .grid{display:grid;grid-template-columns:1fr;gap:16px;}
 @media (min-width:980px){.grid{grid-template-columns:1fr 1fr;}}
-.kv{display:grid;grid-template-columns:180px 1fr;gap:8px 12px;font-size:13px;}
-.bad{color:var(--danger);font-weight:800;}
-.good{color:var(--ok);font-weight:800;}
-.mono{font-family:monospace;}
-.small{font-size:12px;opacity:.85;}
 </style>
 </head>
 
@@ -57,12 +50,12 @@ tr.unknown{background:var(--warn);}
 
 <div class="card">
   <h2>Data Status</h2>
-  <div class="kv">
-    <div>Attendance rows</div><div id="dbgAttRows">—</div>
-    <div>Mapping rows</div><div id="dbgMapRows">—</div>
-    <div>Attendance headers</div><div id="dbgAttHeaders" class="mono">—</div>
-    <div>Mapping headers</div><div id="dbgMapHeaders" class="mono">—</div>
-    <div>Last error</div><div id="dbgError" class="bad">—</div>
+  <div>
+    Attendance rows: <span id="dbgAttRows">—</span><br>
+    Mapping rows: <span id="dbgMapRows">—</span><br>
+    Attendance headers: <span id="dbgAttHeaders"></span><br>
+    Mapping headers: <span id="dbgMapHeaders"></span><br>
+    Last error: <span id="dbgError"></span>
   </div>
 </div>
 
@@ -72,6 +65,9 @@ tr.unknown{background:var(--warn);}
     <div class="card">
       <h2>Currently Present</h2>
       <div class="big" id="presentCount">0</div>
+      <div style="font-size:12px;opacity:.8">
+        Latest scan per card decides presence (event = IN).
+      </div>
     </div>
 
     <div class="card">
@@ -109,11 +105,13 @@ tr.unknown{background:var(--warn);}
 </main>
 
 <script>
+/* ===== CONFIG (YOUR REAL SHEETS) ===== */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+/* =================================== */
 
 function saveOperator(){
   localStorage.setItem("op", operator.value);
@@ -128,6 +126,21 @@ function parseCSV(text){
     headers.forEach((h,i)=>o[h.trim()]=r[i]?.trim());
     return o;
   });
+}
+
+/* EU timestamp parser: DD/MM/YYYY HH:MM:SS */
+function parseEU(ts){
+  if(!ts) return 0;
+  const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
+  if(!m) return 0;
+  return new Date(
+    Number(m[3]),
+    Number(m[2]) - 1,
+    Number(m[1]),
+    Number(m[4]),
+    Number(m[5]),
+    Number(m[6])
+  ).getTime();
 }
 
 async function reloadAll(){
@@ -146,16 +159,21 @@ async function reloadAll(){
     dbgMapHeaders.textContent = Object.keys(map[0]||{}).join(" | ");
     dbgError.textContent = "—";
 
+    /* Latest mapping per card */
     const mapping = {};
     map.forEach(r=>{
-      mapping[r.card_uid] = r;
+      const t = parseEU(r.Timestamp);
+      if(!mapping[r.card_uid] || t > mapping[r.card_uid]._t){
+        mapping[r.card_uid] = { ...r, _t:t };
+      }
     });
 
+    /* Latest scan per card */
     const latest = {};
     att.forEach(r=>{
-      const t = Date.parse(r.Timestamp) || 0;
-      if(!latest[r.card_uid] || t > latest[r.card_uid].t){
-        latest[r.card_uid] = { ...r, t };
+      const t = parseEU(r.Timestamp);
+      if(!latest[r.card_uid] || t > latest[r.card_uid]._t){
+        latest[r.card_uid] = { ...r, _t:t };
       }
     });
 
@@ -174,18 +192,26 @@ async function reloadAll(){
       }
     });
 
-    presentTable.innerHTML = "";
+    presentTable.innerHTML="";
     present.forEach(p=>{
       presentTable.insertAdjacentHTML("beforeend",`
-        <tr><td>${p.name}</td><td>${p.class}</td><td>${p.time}</td><td>${p.card}</td></tr>
+        <tr>
+          <td>${p.name}</td>
+          <td>${p.class}</td>
+          <td>${p.time}</td>
+          <td>${p.card}</td>
+        </tr>
       `);
     });
     presentCount.textContent = present.length;
 
-    unknownTable.innerHTML = "";
+    unknownTable.innerHTML="";
     unknown.forEach(u=>{
       unknownTable.insertAdjacentHTML("beforeend",`
-        <tr class="unknown"><td>${u.time}</td><td>${u.card}</td></tr>
+        <tr class="unknown">
+          <td>${u.time}</td>
+          <td>${u.card}</td>
+        </tr>
       `);
     });
 
@@ -196,6 +222,7 @@ async function reloadAll(){
 }
 
 reloadAll();
+setInterval(reloadAll, 20000);
 </script>
 
 </body>
