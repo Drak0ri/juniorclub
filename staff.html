@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Junior Club – Staff</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -15,7 +13,6 @@
   --bg:#f6f8fb;
   --border:#d0d7e2;
   --warn:#fff7b2;
-  --danger:#b00020;
 }
 body{
   margin:0;
@@ -37,11 +34,6 @@ header input{
   padding:6px 8px;
   border-radius:6px;
   border:none;
-}
-header .meta{
-  font-size:12px;
-  opacity:.85;
-  margin-top:4px;
 }
 button{
   background:var(--navy);
@@ -84,43 +76,6 @@ th,td{
 tr.unknown{
   background:var(--warn);
 }
-
-/* Modal */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-.modal-content{
-  background:#fff;
-  width:420px;
-  padding:16px;
-  border-radius:12px;
-}
-.modal-content label{
-  display:block;
-  font-size:12px;
-  font-weight:700;
-  margin-top:10px;
-}
-.modal-content input,
-.modal-content select{
-  width:100%;
-  padding:6px;
-}
-.error{
-  color:var(--danger);
-  font-weight:700;
-  font-size:13px;
-}
-.success{
-  color:#0b6b2f;
-  font-weight:700;
-  font-size:13px;
-}
 .grid{
   display:grid;
   grid-template-columns:1fr;
@@ -143,19 +98,15 @@ tr.unknown{
       <button class="secondary" onclick="reloadAll()">Refresh</button>
     </div>
   </div>
-  <div class="meta" id="updateStatus">
-    Last updated: —
-  </div>
 </header>
 
 <main>
-
 <div class="grid">
 
   <div>
     <div class="card">
       <h2>Currently Present</h2>
-      <div class="big" id="presentCount">–</div>
+      <div class="big" id="presentCount">0</div>
     </div>
 
     <div class="card">
@@ -167,7 +118,6 @@ tr.unknown{
             <th>Class</th>
             <th>Time IN</th>
             <th>Card</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody id="presentTable"></tbody>
@@ -183,8 +133,6 @@ tr.unknown{
           <tr>
             <th>Time</th>
             <th>Card</th>
-            <th>Device</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody id="unknownTable"></tbody>
@@ -195,92 +143,88 @@ tr.unknown{
 </div>
 </main>
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h3>Register / Edit Student</h3>
-
-    <label>Card UID</label>
-    <input id="m_card" disabled>
-
-    <label>Name</label>
-    <input id="m_name">
-
-    <label>Email</label>
-    <input id="m_email">
-
-    <label>Class</label>
-    <input id="m_class">
-
-    <label>Status</label>
-    <select id="m_status">
-      <option value="active">active</option>
-      <option value="inactive">inactive</option>
-    </select>
-
-    <label>PIN</label>
-    <input id="m_pin">
-
-    <label>Note</label>
-    <input id="m_note">
-
-    <div id="modalError" class="error"></div>
-    <div id="modalSuccess" class="success"></div>
-
-    <div style="margin-top:12px;text-align:right">
-      <button class="secondary" onclick="closeModal()">Cancel</button>
-      <button onclick="submitMapping()">Save</button>
-    </div>
-  </div>
-</div>
-
 <script>
 /* ===== CONFIG ===== */
-const ATT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
-const MAP_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-const MAP_FORM="https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
-const MAP={
-  card:"entry.1712147498",
-  email:"entry.1171642279",
-  name:"entry.2022534068",
-  class:"entry.1723675198",
-  status:"entry.1124037588",
-  pin:"entry.352224440",
-  note:"entry.523442266",
-  mapped_by:"entry.1680238241",
-  schema:"entry.1809813215"
-};
+const ATT_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 /* ================= */
 
-let lastRefresh = null;
-let timer = null;
-
-function startTimer(){
-  if(timer) clearInterval(timer);
-  timer = setInterval(()=>{
-    if(!lastRefresh) return;
-    const secs = Math.floor((Date.now() - lastRefresh) / 1000);
-    document.getElementById("updateStatus").textContent =
-      `Last updated: ${secs} second${secs!==1?"s":""} ago`;
-  },1000);
+function parseCSV(text){
+  const rows = text.trim().split("\n").map(r=>r.split(","));
+  const headers = rows.shift();
+  return rows.map(r=>{
+    const o={};
+    headers.forEach((h,i)=>o[h.trim()]=r[i]?.trim());
+    return o;
+  });
 }
-
-/* Existing parsing + rendering logic unchanged */
-/* ... (uses your current stable renderPresent / renderUnknownQueue etc) ... */
 
 function saveOperator(){
   localStorage.setItem("op", operator.value);
 }
 
 async function reloadAll(){
-  lastRefresh = Date.now();
-  document.getElementById("updateStatus").textContent = "Last updated: just now";
-  startTimer();
+  const res = await fetch(ATT_CSV + "&t=" + Date.now());
+  const text = await res.text();
+  const rows = parseCSV(text);
 
-  /* keep your existing reloadAll logic here */
+  // --- Reduce to latest scan per card ---
+  const byCard = {};
+  rows.forEach(r=>{
+    const card = r.card_uid;
+    if(!card) return;
+    const ts = new Date(r.timestamp).getTime();
+    if(!byCard[card] || ts > byCard[card].ts){
+      byCard[card] = { ts, row:r };
+    }
+  });
+
+  const present = [];
+  const unknown = [];
+
+  Object.values(byCard).forEach(({row})=>{
+    if(row.direction === "IN" && row.student_name){
+      present.push(row);
+    }
+    if(!row.student_name){
+      unknown.push(row);
+    }
+  });
+
+  renderPresent(present);
+  renderUnknown(unknown);
 }
 
-/* Initial load */
+function renderPresent(list){
+  const tbody = document.getElementById("presentTable");
+  tbody.innerHTML = "";
+  list.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.student_name}</td>
+      <td>${r.class}</td>
+      <td>${r.timestamp}</td>
+      <td>${r.card_uid}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("presentCount").textContent = list.length;
+}
+
+function renderUnknown(list){
+  const tbody = document.getElementById("unknownTable");
+  tbody.innerHTML = "";
+  list.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.className="unknown";
+    tr.innerHTML = `
+      <td>${r.timestamp}</td>
+      <td>${r.card_uid}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 operator.value = localStorage.getItem("op") || "";
 reloadAll();
 </script>
