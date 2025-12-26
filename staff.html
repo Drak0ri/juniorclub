@@ -13,82 +13,30 @@
   --bg:#f6f8fb;
   --border:#d0d7e2;
   --warn:#fff7b2;
+  --danger:#b00020;
+  --ok:#0b6b2f;
 }
-body{
-  margin:0;
-  font-family:"Open Sans",Arial,sans-serif;
-  background:var(--bg);
-  color:#102d69;
-}
-header{
-  background:var(--navy);
-  color:#fff;
-  padding:14px 18px;
-}
-header .top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-header input{
-  padding:6px 8px;
-  border-radius:6px;
-  border:none;
-}
-header .meta{
-  font-size:12px;
-  opacity:.85;
-  margin-top:6px;
-}
-button{
-  background:var(--navy);
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-  font-weight:700;
-  cursor:pointer;
-}
-button.secondary{
-  background:#fff;
-  color:var(--navy);
-  border:1px solid var(--border);
-}
-main{
-  max-width:1200px;
-  margin:20px auto;
-  padding:0 16px;
-}
-.card{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:16px;
-}
-.big{
-  font-size:44px;
-  font-weight:800;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid var(--border);
-}
-tr.unknown{
-  background:var(--warn);
-}
-.grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:16px;
-}
-@media (min-width:980px){
-  .grid{grid-template-columns:1fr 1fr;}
-}
+body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--bg);color:#102d69;}
+header{background:var(--navy);color:#fff;padding:14px 18px;}
+header .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+header input{padding:6px 8px;border-radius:6px;border:none;min-width:240px;}
+header .meta{font-size:12px;opacity:.85;margin-top:6px;}
+button{background:var(--navy);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;}
+button.secondary{background:#fff;color:var(--navy);border:1px solid var(--border);}
+main{max-width:1200px;margin:20px auto;padding:0 16px;}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.big{font-size:44px;font-weight:800;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:10px;border-bottom:1px solid var(--border);vertical-align:top;}
+tr.unknown{background:var(--warn);}
+.grid{display:grid;grid-template-columns:1fr;gap:16px;}
+@media (min-width:980px){.grid{grid-template-columns:1fr 1fr;}}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:8px 12px;font-size:13px;}
+.bad{color:var(--danger);font-weight:800;}
+.good{color:var(--ok);font-weight:800;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+.small{font-size:12px;opacity:.85;}
+hr{border:none;border-top:1px solid var(--border);margin:12px 0;}
 </style>
 </head>
 
@@ -97,25 +45,43 @@ tr.unknown{
 <header>
   <div class="top">
     <strong>Junior Club – Staff</strong>
-    <div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
       <input id="operator" placeholder="staff email">
       <button onclick="saveOperator()">Save</button>
-      <button class="secondary" onclick="reloadAll()">Refresh</button>
+      <button class="secondary" onclick="reloadAll(true)">Refresh</button>
     </div>
   </div>
   <div class="meta" id="updateStatus">Last updated: —</div>
 </header>
 
 <main>
+
+<div class="card">
+  <h2 style="margin:0 0 10px 0;">Data Status</h2>
+  <div class="kv">
+    <div>Attendance URL</div><div class="mono" id="dbgAttUrl">—</div>
+    <div>Mapping URL</div><div class="mono" id="dbgMapUrl">—</div>
+    <div>Attendance rows</div><div id="dbgAttRows">—</div>
+    <div>Mapping rows</div><div id="dbgMapRows">—</div>
+    <div>Attendance has card_uid</div><div id="dbgAttHasCard">—</div>
+    <div>Mapping has card_uid</div><div id="dbgMapHasCard">—</div>
+    <div>Attendance headers</div><div class="mono" id="dbgAttHeaders">—</div>
+    <div>Mapping headers</div><div class="mono" id="dbgMapHeaders">—</div>
+    <div>Last error</div><div id="dbgError" class="bad">—</div>
+  </div>
+  <hr>
+  <div class="small">
+    If rows show 0 and headers look like HTML (e.g. “&lt;!DOCTYPE html&gt;”), your sheet is not being served as CSV (publish/permission issue).
+  </div>
+</div>
+
 <div class="grid">
 
   <div>
     <div class="card">
       <h2>Currently Present</h2>
       <div class="big" id="presentCount">0</div>
-      <div style="font-size:12px;opacity:.8">
-        Latest scan per card decides presence (event = IN).
-      </div>
+      <div class="small">Latest scan per card decides presence (event = IN).</div>
     </div>
 
     <div class="card">
@@ -153,148 +119,301 @@ tr.unknown{
 </main>
 
 <script>
-/* ===== CONFIG – MATCHES YOUR SHEET EXACTLY ===== */
+/* ===== CONFIG (YOUR PUBLISHED CSV LINKS) =====
+   If these are correct but you still get HTML, your sheet is not published publicly. */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-/* ============================================= */
+/* =========================================== */
 
-let lastRefresh=null;
-let timer=null;
+let lastRefresh = null;
+let timer = null;
 
 function saveOperator(){
   localStorage.setItem("op", operator.value);
 }
-
 operator.addEventListener("blur", saveOperator);
 operator.addEventListener("change", saveOperator);
 
 function startTimer(){
   if(timer) clearInterval(timer);
-  timer=setInterval(()=>{
+  timer = setInterval(()=>{
     if(!lastRefresh) return;
-    const s=Math.floor((Date.now()-lastRefresh)/1000);
-    updateStatus.textContent=
-      `Last updated: ${s} second${s!==1?"s":""} ago`;
-  },1000);
+    const s = Math.floor((Date.now() - lastRefresh) / 1000);
+    updateStatus.textContent = `Last updated: ${s} second${s!==1?"s":""} ago`;
+  }, 1000);
 }
 
-/* CSV parser */
+/* Robust CSV parser (handles quotes + commas inside quoted fields) */
 function parseCSV(text){
-  const rows=[],row=[];
-  let cur="",q=false;
+  const rows = [];
+  let row = [];
+  let cur = "";
+  let inQuotes = false;
+
   for(let i=0;i<text.length;i++){
-    const c=text[i],n=text[i+1];
-    if(c=='"'&&q&&n=='"'){cur+='"';i++;continue;}
-    if(c=='"'){q=!q;continue;}
-    if(c==","&&!q){row.push(cur);cur="";continue;}
-    if((c=="\n"||c=="\r")&&!q){
-      if(c=="\r"&&n=="\n")i++;
-      row.push(cur);
-      rows.push([...row]);
-      row.length=0;
-      cur="";
+    const c = text[i];
+    const n = text[i+1];
+
+    if(c === '"'){
+      if(inQuotes && n === '"'){ cur += '"'; i++; }
+      else { inQuotes = !inQuotes; }
       continue;
     }
-    cur+=c;
+
+    if(c === ',' && !inQuotes){
+      row.push(cur);
+      cur = "";
+      continue;
+    }
+
+    if((c === '\n' || c === '\r') && !inQuotes){
+      if(c === '\r' && n === '\n') i++;
+      row.push(cur);
+      rows.push(row);
+      row = [];
+      cur = "";
+      continue;
+    }
+
+    cur += c;
   }
-  if(cur||row.length){row.push(cur);rows.push([...row]);}
-  const headers=rows.shift();
-  return rows.map(r=>{
-    const o={};
-    headers.forEach((h,i)=>o[h]=r[i]?.trim());
-    return o;
-  });
+
+  if(cur.length || row.length){
+    row.push(cur);
+    rows.push(row);
+  }
+
+  const header = (rows.shift() || []).map(h => (h || "").trim());
+  const data = rows
+    .filter(r => r.some(v => (v || "").trim() !== ""))
+    .map(r=>{
+      const o = {};
+      header.forEach((h, idx)=>{ o[h] = (r[idx] || "").trim(); });
+      return o;
+    });
+
+  return { header, data };
 }
 
-async function reloadAll(){
-  lastRefresh=Date.now();
-  updateStatus.textContent="Last updated: just now";
-  startTimer();
+async function fetchCSV(url){
+  const res = await fetch(url + "&t=" + Date.now(), { cache: "no-store" });
+  const text = await res.text();
 
-  const [att,map]=await Promise.all([
-    fetch(ATT_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV),
-    fetch(MAP_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV)
-  ]);
+  // Detect HTML instead of CSV (common when not published / permissions / redirect to login)
+  const looksLikeHtml = /<!doctype html|<html|<head|<body/i.test(text.slice(0, 500));
+  if(looksLikeHtml){
+    throw new Error("CSV fetch returned HTML. Sheet not published publicly or permission/login redirect.");
+  }
 
-  /* Latest mapping per card */
-  const mapping={};
-  map.forEach(r=>{
-    if(!r.card_uid) return;
-    const t=Date.parse(r.Timestamp)||0;
-    if(!mapping[r.card_uid] || t>mapping[r.card_uid]._t){
-      mapping[r.card_uid]={...r,_t:t};
-    }
-  });
+  return parseCSV(text);
+}
 
-  /* Latest scan per card */
-  const latestScan={};
-  att.forEach(r=>{
-    if(!r.card_uid) return;
-    const t=Date.parse(r.Timestamp)||0;
-    if(!latestScan[r.card_uid] || t>latestScan[r.card_uid]._t){
-      latestScan[r.card_uid]={...r,_t:t};
-    }
-  });
-
-  const present=[],unknown=[];
-
-  Object.values(latestScan).forEach(r=>{
-    const m=mapping[r.card_uid];
-    const name=m?.student_name || "";
-    const cls=m?.class || "";
-
-    if(!name){
-      unknown.push(r);
-      return;
-    }
-
-    if(r.event === "IN"){
-      present.push({
-        name,
-        class: cls,
-        time: r.Timestamp,
-        card: r.card_uid
-      });
-    }
-  });
-
-  renderPresent(present);
-  renderUnknown(unknown);
+function setDbg(id, value, cls){
+  const el = document.getElementById(id);
+  el.textContent = value;
+  el.className = cls || "";
 }
 
 function renderPresent(list){
-  presentTable.innerHTML="";
+  presentTable.innerHTML = "";
   list.forEach(r=>{
-    presentTable.insertAdjacentHTML("beforeend",`
+    presentTable.insertAdjacentHTML("beforeend", `
       <tr>
-        <td>${r.name}</td>
-        <td>${r.class}</td>
-        <td>${r.time}</td>
-        <td>${r.card}</td>
+        <td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(r.class)}</td>
+        <td>${escapeHtml(r.time)}</td>
+        <td class="mono">${escapeHtml(r.card)}</td>
       </tr>
     `);
   });
-  presentCount.textContent=list.length;
+  presentCount.textContent = String(list.length);
 }
 
 function renderUnknown(list){
-  unknownTable.innerHTML="";
+  unknownTable.innerHTML = "";
   list.forEach(r=>{
-    unknownTable.insertAdjacentHTML("beforeend",`
+    unknownTable.insertAdjacentHTML("beforeend", `
       <tr class="unknown">
-        <td>${r.Timestamp}</td>
-        <td>${r.card_uid}</td>
+        <td>${escapeHtml(r.time)}</td>
+        <td class="mono">${escapeHtml(r.card)}</td>
       </tr>
     `);
   });
 }
 
-operator.value=localStorage.getItem("op")||"";
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
+
+function normalizeKeyMap(headers){
+  const m = {};
+  headers.forEach(h=>{
+    const k = (h || "").trim().toLowerCase();
+    m[k] = h;
+  });
+  return m;
+}
+
+function getField(row, keyMap, ...candidates){
+  for(const c of candidates){
+    const h = keyMap[c.toLowerCase()];
+    if(h && row[h] !== undefined && row[h] !== "") return row[h];
+  }
+  return "";
+}
+
+async function reloadAll(){
+  lastRefresh = Date.now();
+  updateStatus.textContent = "Last updated: just now";
+  startTimer();
+
+  setDbg("dbgError", "—", "");
+  setDbg("dbgAttUrl", ATT_CSV, "mono");
+  setDbg("dbgMapUrl", MAP_CSV, "mono");
+
+  let att, map;
+
+  try{
+    const [attParsed, mapParsed] = await Promise.all([
+      fetchCSV(ATT_CSV),
+      fetchCSV(MAP_CSV)
+    ]);
+
+    const attHeaders = attParsed.header;
+    const mapHeaders = mapParsed.header;
+    att = attParsed.data;
+    map = mapParsed.data;
+
+    setDbg("dbgAttRows", String(att.length), att.length ? "good" : "bad");
+    setDbg("dbgMapRows", String(map.length), map.length ? "good" : "bad");
+    setDbg("dbgAttHeaders", attHeaders.join(" | ") || "—", "mono");
+    setDbg("dbgMapHeaders", mapHeaders.join(" | ") || "—", "mono");
+
+    const attKeyMap = normalizeKeyMap(attHeaders);
+    const mapKeyMap = normalizeKeyMap(mapHeaders);
+
+    const attHasCard = !!attKeyMap["card_uid"];
+    const mapHasCard = !!mapKeyMap["card_uid"];
+    setDbg("dbgAttHasCard", attHasCard ? "YES" : "NO", attHasCard ? "good" : "bad");
+    setDbg("dbgMapHasCard", mapHasCard ? "YES" : "NO", mapHasCard ? "good" : "bad");
+
+    // Build latest mapping per card_uid (Form responses 2)
+    const mapping = {};
+    for(const r of map){
+      const card = getField(r, mapKeyMap, "card_uid");
+      if(!card) continue;
+      const ts = getField(r, mapKeyMap, "timestamp");
+      const t = Date.parse(ts) || 0;
+      if(!mapping[card] || t > mapping[card]._t){
+        mapping[card] = {
+          _t: t,
+          student_name: getField(r, mapKeyMap, "student_name"),
+          class: getField(r, mapKeyMap, "class"),
+          student_email: getField(r, mapKeyMap, "student_email"),
+          status: getField(r, mapKeyMap, "status")
+        };
+      }
+    }
+
+    // Build latest scan per card_uid (Form responses 1)
+    const latestScan = {};
+    for(const r of att){
+      const card = getField(r, attKeyMap, "card_uid");
+      if(!card) continue;
+      const ts = getField(r, attKeyMap, "timestamp");
+      const t = Date.parse(ts) || 0_toggle(ts);
+      if(!latestScan[card] || t > latestScan[card]._t){
+        latestScan[card] = {
+          _t: t,
+          ts: ts,
+          card: card,
+          event: getField(r, attKeyMap, "event") // IN / OUT / UNKNOWN
+        };
+      }
+    }
+
+    const present = [];
+    const unknown = [];
+
+    for(const card in latestScan){
+      const s = latestScan[card];
+      const m = mapping[card];
+
+      const name = (m && m.student_name) ? m.student_name : "";
+      const cls = (m && m.class) ? m.class : "";
+
+      if(!name){
+        // Unknown queue: only show if latest scan event is UNKNOWN OR there is no mapping
+        // (you can tighten this later; for now show genuinely unmapped cards)
+        unknown.push({ time: s.ts, card: s.card });
+        continue;
+      }
+
+      if(String(s.event).toUpperCase() === "IN"){
+        present.push({ name, class: cls, time: s.ts, card: s.card });
+      }
+    }
+
+    // Sort for readability: newest first
+    present.sort((a,b)=> (Date.parse(b.time)||0) - (Date.parse(a.time)||0));
+    unknown.sort((a,b)=> (Date.parse(b.time)||0) - (Date.parse(a.time)||0));
+
+    renderPresent(present);
+    renderUnknown(unknown);
+
+  }catch(err){
+    // Hard fail: show why
+    setDbg("dbgError", err && err.message ? err.message : String(err), "bad");
+    setDbg("dbgAttRows", "0", "bad");
+    setDbg("dbgMapRows", "0", "bad");
+    setDbg("dbgAttHasCard", "—", "");
+    setDbg("dbgMapHasCard", "—", "");
+    setDbg("dbgAttHeaders", "—", "mono");
+    setDbg("dbgMapHeaders", "—", "mono");
+    renderPresent([]);
+    renderUnknown([]);
+  }
+}
+
+// Some timestamps in your sheet are in "dd/mm/yyyy hh:mm:ss" style.
+// Date.parse may fail depending on browser locale, so we fallback.
+function _0_toggle(ts){
+  const d = parseSwedishTimestamp(ts);
+  return d ? d.getTime() : 0;
+}
+
+function parseSwedishTimestamp(ts){
+  // Handles:
+  // "23/12/2025 18:44:08" or "26/12/2025 10:37:06"
+  // and also ISO-like
+  if(!ts) return null;
+  const s = String(ts).trim();
+  const iso = Date.parse(s);
+  if(!Number.isNaN(iso)) return new Date(iso);
+
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+  if(!m) return null;
+  const dd = Number(m[1]);
+  const mm = Number(m[2]);
+  const yyyy = Number(m[3]);
+  const hh = Number(m[4]);
+  const mi = Number(m[5]);
+  const ss = Number(m[6] || 0);
+  // Local time
+  return new Date(yyyy, mm-1, dd, hh, mi, ss);
+}
+
+operator.value = localStorage.getItem("op") || "";
 reloadAll();
-setInterval(reloadAll,20000);
+setInterval(reloadAll, 20000);
 </script>
 
 </body>
