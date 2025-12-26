@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Junior Club – Staff</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -53,7 +53,9 @@ tr.unknown{background:var(--warn);}
     <div class="card">
       <h2>Currently Present</h2>
       <div class="big" id="presentCount">0</div>
-      <div style="font-size:12px;opacity:.8">Latest scan per card decides presence</div>
+      <div style="font-size:12px;opacity:.8">
+        Latest scan per card decides presence (event = IN).
+      </div>
     </div>
 
     <div class="card">
@@ -91,31 +93,34 @@ tr.unknown{background:var(--warn);}
 </main>
 
 <script>
-/* ===== CONFIG ===== */
-const ATT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
-const MAP_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-/* ================= */
+/* ===== CONFIG – THESE ARE CORRECT FOR YOUR SHEETS ===== */
+const ATT_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=0&single=true&output=csv";
+
+const MAP_CSV =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1&single=true&output=csv";
+/* ===================================================== */
 
 let lastRefresh=null;
 let timer=null;
-let mappingByCard={};
+
+function saveOperator(){
+  localStorage.setItem("op",operator.value);
+}
 
 operator.addEventListener("blur",saveOperator);
 operator.addEventListener("change",saveOperator);
 
-function saveOperator(){localStorage.setItem("op",operator.value);}
-
 function startTimer(){
-  if(timer)clearInterval(timer);
+  if(timer) clearInterval(timer);
   timer=setInterval(()=>{
-    if(!lastRefresh)return;
+    if(!lastRefresh) return;
     const s=Math.floor((Date.now()-lastRefresh)/1000);
     updateStatus.textContent=`Last updated: ${s} second${s!==1?"s":""} ago`;
   },1000);
 }
 
-/* -------- CSV parsing -------- */
-
+/* CSV parser */
 function parseCSV(text){
   const rows=[],row=[];
   let cur="",q=false;
@@ -131,7 +136,7 @@ function parseCSV(text){
     cur+=c;
   }
   if(cur||row.length){row.push(cur);rows.push([...row]);}
-  const headers=rows.shift().map(h=>h.trim().toLowerCase());
+  const headers=rows.shift().map(h=>h.trim());
   return rows.map(r=>{
     const o={};
     headers.forEach((h,i)=>o[h]=r[i]?.trim());
@@ -139,67 +144,61 @@ function parseCSV(text){
   });
 }
 
-/* -------- FIXED HEADER-TOLERANT NORMALISATION -------- */
+async function reloadAll(){
+  lastRefresh=Date.now();
+  updateStatus.textContent="Last updated: just now";
+  startTimer();
 
-function normAttendance(r){
-  const get = (...keys) => {
-    for(const k of keys){
-      if(r[k] !== undefined && r[k] !== "") return r[k];
+  const [attRaw,mapRaw]=await Promise.all([
+    fetch(ATT_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV),
+    fetch(MAP_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV)
+  ]);
+
+  /* Latest mapping per card */
+  const mapping={};
+  mapRaw.forEach(r=>{
+    if(!r.card_uid) return;
+    const t=Date.parse(r.Timestamp)||0;
+    if(!mapping[r.card_uid] || t > mapping[r.card_uid]._t){
+      mapping[r.card_uid]={...r,_t:t};
     }
-    return "";
-  };
+  });
 
-  const ts = get(
-    "latest_timestamp",
-    "timestamp",
-    "time",
-    "date",
-    "datetime"
-  );
+  /* Latest scan per card */
+  const latestScan={};
+  attRaw.forEach(r=>{
+    if(!r.card_uid) return;
+    const t=Date.parse(r.Timestamp)||0;
+    if(!latestScan[r.card_uid] || t > latestScan[r.card_uid]._t){
+      latestScan[r.card_uid]={...r,_t:t};
+    }
+  });
 
-  let dir = get(
-    "latest_direction",
-    "direction",
-    "status",
-    "in_out",
-    "dir"
-  ).toUpperCase();
+  const present=[],unknown=[];
 
-  if(dir === "ACTIVE") dir = "IN";
-  if(dir === "LEFT" || dir === "INACTIVE") dir = "OUT";
+  Object.values(latestScan).forEach(r=>{
+    const map=mapping[r.card_uid];
+    const name=map?.student_name || "";
+    const cls=map?.class || "";
 
-  return {
-    card: get(
-      "card_uid",
-      "card",
-      "rfid",
-      "identifier_value"
-    ),
-    name: get(
-      "student_name",
-      "name",
-      "student"
-    ),
-    class: get(
-      "class",
-      "class_name"
-    ),
-    direction: dir,
-    timestamp: ts,
-    _t: Date.parse(ts) || 0
-  };
+    if(!name){
+      unknown.push(r);
+      return;
+    }
+
+    if(r.event === "IN"){
+      present.push({
+        name,
+        class:cls,
+        time:r.Timestamp,
+        card:r.card_uid
+      });
+    }
+  });
+
+  renderPresent(present);
+  renderUnknown(unknown);
 }
-
-function normMapping(r){
-  const get=(...k)=>k.map(x=>r[x]).find(v=>v!==undefined)||"";
-  return {
-    card:get("card_uid","card","rfid"),
-    name:get("name","student","student_name"),
-    class:get("class","class_name")
-  };
-}
-
-/* -------- UI -------- */
 
 function renderPresent(list){
   presentTable.innerHTML="";
@@ -208,7 +207,7 @@ function renderPresent(list){
       <tr>
         <td>${r.name}</td>
         <td>${r.class}</td>
-        <td>${r.timestamp}</td>
+        <td>${r.time}</td>
         <td>${r.card}</td>
       </tr>
     `);
@@ -221,47 +220,11 @@ function renderUnknown(list){
   list.forEach(r=>{
     unknownTable.insertAdjacentHTML("beforeend",`
       <tr class="unknown">
-        <td>${r.timestamp}</td>
-        <td>${r.card}</td>
+        <td>${r.Timestamp}</td>
+        <td>${r.card_uid}</td>
       </tr>
     `);
   });
-}
-
-/* -------- MAIN -------- */
-
-async function reloadAll(){
-  lastRefresh=Date.now();
-  updateStatus.textContent="Last updated: just now";
-  startTimer();
-
-  const [attRaw,mapRaw]=await Promise.all([
-    fetch(ATT_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV),
-    fetch(MAP_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV)
-  ]);
-
-  mappingByCard={};
-  mapRaw.map(normMapping).forEach(m=>{
-    if(m.card)mappingByCard[m.card]=m;
-  });
-
-  const latest={};
-  attRaw.map(normAttendance).forEach(r=>{
-    if(!r.card)return;
-    if(!latest[r.card]||r._t>latest[r.card]._t)latest[r.card]=r;
-  });
-
-  const present=[],unknown=[];
-  Object.values(latest).forEach(r=>{
-    const m=mappingByCard[r.card];
-    const name=r.name||m?.name;
-    const cls=r.class||m?.class;
-    if(!name){unknown.push(r);return;}
-    if(r.direction==="IN")present.push({...r,name,cls});
-  });
-
-  renderPresent(present);
-  renderUnknown(unknown);
 }
 
 operator.value=localStorage.getItem("op")||"";
