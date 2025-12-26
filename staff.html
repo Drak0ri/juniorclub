@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Junior Club – Staff</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -20,8 +18,8 @@
 }
 body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--bg);color:#102d69;}
 header{background:var(--navy);color:#fff;padding:14px 18px;}
-header .top{display:flex;justify-content:space-between;align-items:center;gap:12px;}
-header input{padding:6px 8px;border-radius:6px;border:none;min-width:220px;}
+header .top{display:flex;justify-content:space-between;align-items:center;}
+header input{padding:6px 8px;border-radius:6px;border:none;}
 header .meta{font-size:12px;opacity:.85;margin-top:6px;}
 button{background:var(--navy);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;}
 button.secondary{background:#fff;color:var(--navy);border:1px solid var(--border);}
@@ -29,21 +27,10 @@ main{max-width:1200px;margin:20px auto;padding:0 16px;}
 .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
 .big{font-size:44px;font-weight:800;}
 table{width:100%;border-collapse:collapse;}
-th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;}
+th,td{padding:10px;border-bottom:1px solid var(--border);}
 tr.unknown{background:var(--warn);}
 .grid{display:grid;grid-template-columns:1fr;gap:16px;}
 @media (min-width:980px){.grid{grid-template-columns:1fr 1fr;}}
-
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:18px;}
-.modal-content{background:#fff;width:460px;max-width:100%;padding:16px;border-radius:12px;border:1px solid var(--border);}
-.modal-content h3{margin:0 0 8px 0;}
-.modal-content label{display:block;font-size:12px;font-weight:700;margin-top:10px;}
-.modal-content input,.modal-content select{width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;}
-.modal-actions{margin-top:14px;display:flex;justify-content:flex-end;gap:10px;}
-.error{color:var(--danger);font-weight:700;font-size:13px;margin-top:10px;}
-.success{color:var(--ok);font-weight:700;font-size:13px;margin-top:10px;}
-.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:800;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);}
-.smallnote{font-size:12px;opacity:.85;}
 </style>
 </head>
 
@@ -52,10 +39,10 @@ tr.unknown{background:var(--warn);}
 <header>
   <div class="top">
     <strong>Junior Club – Staff</strong>
-    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+    <div>
       <input id="operator" placeholder="staff email">
       <button onclick="saveOperator()">Save</button>
-      <button class="secondary" onclick="reloadAll(true)">Refresh</button>
+      <button class="secondary" onclick="reloadAll()">Refresh</button>
     </div>
   </div>
   <div class="meta" id="updateStatus">Last updated: —</div>
@@ -66,16 +53,13 @@ tr.unknown{background:var(--warn);}
 
   <div>
     <div class="card">
-      <h2 style="margin:0 0 8px 0;">Currently Present</h2>
-      <div class="big" id="presentCount">–</div>
-      <div class="smallnote">Latest scan per card decides presence (IN = present, OUT = not present).</div>
+      <h2>Currently Present</h2>
+      <div class="big" id="presentCount">0</div>
+      <div style="font-size:12px;opacity:.8">Latest scan per card decides presence</div>
     </div>
 
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <h2 style="margin:0;">Who’s Here Now</h2>
-        <span class="pill" id="presentPill">—</span>
-      </div>
+      <h2>Who’s Here Now</h2>
       <table>
         <thead>
           <tr>
@@ -93,10 +77,7 @@ tr.unknown{background:var(--warn);}
 
   <div>
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <h2 style="margin:0;">Unknown Cards Queue</h2>
-        <span class="pill" id="unknownPill">—</span>
-      </div>
+      <h2>Unknown Cards Queue</h2>
       <table>
         <thead>
           <tr>
@@ -113,71 +94,24 @@ tr.unknown{background:var(--warn);}
 </div>
 </main>
 
-<div class="modal" id="modal" onclick="closeModal()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <h3 id="modalTitle">Register / Edit Student</h3>
-
-    <label>Card UID</label>
-    <input id="m_card" disabled>
-
-    <label>Name</label>
-    <input id="m_name">
-
-    <label>Email</label>
-    <input id="m_email">
-
-    <label>Class</label>
-    <input id="m_class">
-
-    <label>Status</label>
-    <select id="m_status">
-      <option value="active">active</option>
-      <option value="inactive">inactive</option>
-    </select>
-
-    <label>PIN</label>
-    <input id="m_pin">
-
-    <label>Note</label>
-    <input id="m_note">
-
-    <div id="modalError" class="error"></div>
-    <div id="modalSuccess" class="success"></div>
-
-    <div class="modal-actions">
-      <button class="secondary" onclick="closeModal()">Cancel</button>
-      <button onclick="submitMapping()">Save</button>
-    </div>
-  </div>
-</div>
+<!-- MODAL -->
+<div class="modal" id="modal" onclick="closeModal()"></div>
 
 <script>
 /* ===== CONFIG ===== */
 const ATT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 const MAP_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-const MAP_FORM="https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
-const MAP={
-  card:"entry.1712147498",
-  email:"entry.1171642279",
-  name:"entry.2022534068",
-  class:"entry.1723675198",
-  status:"entry.1124037588",
-  pin:"entry.352224440",
-  note:"entry.523442266",
-  mapped_by:"entry.1680238241",
-  schema:"entry.1809813215"
-};
-const SCHEMA_VERSION="jc_staff_v3";
-const AUTO_REFRESH_SECONDS=20;
 /* ================= */
 
-let lastRefresh=null,timer=null;
+let lastRefresh=null;
+let timer=null;
 let mappingByCard={};
 
 operator.addEventListener("blur",saveOperator);
 operator.addEventListener("change",saveOperator);
 
 function saveOperator(){localStorage.setItem("op",operator.value);}
+
 function startTimer(){
   if(timer)clearInterval(timer);
   timer=setInterval(()=>{
@@ -187,70 +121,70 @@ function startTimer(){
   },1000);
 }
 
-function parseCSV(t){
-  const r=[],row=[],h=[];
+/* -------- CSV parsing -------- */
+
+function parseCSV(text){
+  const rows=[],row=[];
   let cur="",q=false;
-  for(let i=0;i<t.length;i++){
-    const c=t[i],n=t[i+1];
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
     if(c=='"'&&q&&n=='"'){cur+='"';i++;continue;}
     if(c=='"'){q=!q;continue;}
     if(c==","&&!q){row.push(cur);cur="";continue;}
-    if((c=="\n"||c=="\r")&&!q){if(c=="\r"&&n=="\n")i++;row.push(cur);r.push([...row]);row.length=0;cur="";continue;}
+    if((c=="\n"||c=="\r")&&!q){
+      if(c=="\r"&&n=="\n")i++;
+      row.push(cur);rows.push([...row]);row.length=0;cur="";continue;
+    }
     cur+=c;
   }
-  if(cur||row.length){row.push(cur);r.push([...row]);}
-  const headers=r.shift().map(x=>x.trim());
-  return r.map(a=>{const o={};headers.forEach((k,i)=>o[k]=a[i]?.trim());return o;});
+  if(cur||row.length){row.push(cur);rows.push([...row]);}
+  const headers=rows.shift().map(h=>h.trim().toLowerCase());
+  return rows.map(r=>{
+    const o={};
+    headers.forEach((h,i)=>o[h]=r[i]?.trim());
+    return o;
+  });
 }
 
-function openModalForCard(card){
-  m_card.value=card;
-  modal.style.display="flex";
-  modalError.textContent="";
-  modalSuccess.textContent="";
-  const m=mappingByCard[card];
-  m_name.value=m?.name||"";
-  m_email.value=m?.email||"";
-  m_class.value=m?.class||"";
-  m_status.value=m?.status||"active";
-  m_pin.value=m?.pin||"";
-  m_note.value=m?.note||"";
-}
-function closeModal(){modal.style.display="none";}
+/* -------- Header tolerant normalisation -------- */
 
-async function submitMapping(){
-  const op=localStorage.getItem("op");
-  if(!op){modalError.textContent="Please enter and Save staff email first.";return;}
-  const body=new URLSearchParams();
-  body.set(MAP.card,m_card.value);
-  body.set(MAP.name,m_name.value);
-  body.set(MAP.email,m_email.value);
-  body.set(MAP.class,m_class.value);
-  body.set(MAP.status,m_status.value);
-  body.set(MAP.pin,m_pin.value);
-  body.set(MAP.note,m_note.value);
-  body.set(MAP.mapped_by,op);
-  body.set(MAP.schema,SCHEMA_VERSION);
-  await fetch(MAP_FORM,{method:"POST",mode:"no-cors",body});
-  modalSuccess.textContent="Saved. Updating…";
-  setTimeout(()=>{closeModal();reloadAll(true);},600);
+function normAttendance(r){
+  const get=(...k)=>k.map(x=>r[x]).find(v=>v!==undefined)||"";
+  return {
+    card: get("card_uid","card","rfid","identifier_value"),
+    name: get("student_name","name","student"),
+    class: get("class","class_name"),
+    direction: get("direction","status","in_out","dir").toUpperCase(),
+    timestamp: get("timestamp","time","date","datetime"),
+    _t: Date.parse(get("timestamp","time","date","datetime"))||0
+  };
 }
+
+function normMapping(r){
+  const get=(...k)=>k.map(x=>r[x]).find(v=>v!==undefined)||"";
+  return {
+    card: get("card_uid","card","rfid"),
+    name: get("name","student","student_name"),
+    class: get("class","class_name")
+  };
+}
+
+/* -------- UI rendering -------- */
 
 function renderPresent(list){
   presentTable.innerHTML="";
   list.forEach(r=>{
     presentTable.insertAdjacentHTML("beforeend",`
       <tr>
-        <td>${r.student_name}</td>
+        <td>${r.name}</td>
         <td>${r.class}</td>
         <td>${r.timestamp}</td>
-        <td>${r.card_uid}</td>
-        <td><button class="secondary" onclick="openModalForCard('${r.card_uid}')">Edit</button></td>
+        <td>${r.card}</td>
+        <td><button class="secondary">Edit</button></td>
       </tr>
     `);
   });
   presentCount.textContent=list.length;
-  presentPill.textContent=`${list.length} present`;
 }
 
 function renderUnknown(list){
@@ -259,38 +193,43 @@ function renderUnknown(list){
     unknownTable.insertAdjacentHTML("beforeend",`
       <tr class="unknown">
         <td>${r.timestamp}</td>
-        <td>${r.card_uid}</td>
-        <td><button onclick="openModalForCard('${r.card_uid}')">Register</button></td>
+        <td>${r.card}</td>
+        <td><button>Register</button></td>
       </tr>
     `);
   });
-  unknownPill.textContent=`${list.length} unknown`;
 }
 
+/* -------- Main reload -------- */
+
 async function reloadAll(){
-  lastRefresh=Date.now();updateStatus.textContent="Last updated: just now";startTimer();
-  const [att,map]=await Promise.all([
+  lastRefresh=Date.now();
+  updateStatus.textContent="Last updated: just now";
+  startTimer();
+
+  const [attRaw,mapRaw]=await Promise.all([
     fetch(ATT_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV),
     fetch(MAP_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV)
   ]);
 
   mappingByCard={};
-  map.forEach(m=>{if(m.card_uid)mappingByCard[m.card_uid]=m;});
+  mapRaw.map(normMapping).forEach(m=>{
+    if(m.card)mappingByCard[m.card]=m;
+  });
 
-  const byCard={};
-  att.forEach(r=>{
-    if(!r.card_uid)return;
-    const t=Date.parse(r.timestamp)||0;
-    if(!byCard[r.card_uid]||t>byCard[r.card_uid]._t)byCard[r.card_uid]={...r,_t:t};
+  const latest={};
+  attRaw.map(normAttendance).forEach(r=>{
+    if(!r.card)return;
+    if(!latest[r.card]||r._t>latest[r.card]._t)latest[r.card]=r;
   });
 
   const present=[],unknown=[];
-  Object.values(byCard).forEach(r=>{
-    const m=mappingByCard[r.card_uid];
-    const name=r.student_name||m?.name;
+  Object.values(latest).forEach(r=>{
+    const m=mappingByCard[r.card];
+    const name=r.name||m?.name;
     const cls=r.class||m?.class;
     if(!name){unknown.push(r);return;}
-    if(r.direction==="IN")present.push({...r,student_name:name,class:cls});
+    if(r.direction==="IN")present.push({...r,name,cls});
   });
 
   renderPresent(present);
@@ -299,7 +238,7 @@ async function reloadAll(){
 
 operator.value=localStorage.getItem("op")||"";
 reloadAll();
-setInterval(reloadAll,AUTO_REFRESH_SECONDS*1000);
+setInterval(reloadAll,20000);
 </script>
 
 </body>
