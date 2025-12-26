@@ -83,30 +83,15 @@ footer{
   justify-content:space-between;
 }
 
-/* STATE STYLES */
-body.in .card{
-  background:var(--green-bg);
-  color:var(--dark);
-}
-body.in .status{
-  color:var(--green-text);
-}
+/* STATES */
+body.in .card{ background:var(--green-bg); color:var(--dark); }
+body.in .status{ color:var(--green-text); }
 
-body.out .card{
-  background:var(--blue-bg);
-  color:var(--dark);
-}
-body.out .status{
-  color:var(--red-text);
-}
+body.out .card{ background:var(--blue-bg); color:var(--dark); }
+body.out .status{ color:var(--red-text); }
 
-body.unknown .card{
-  background:var(--yellow-bg);
-  color:var(--dark);
-}
-body.unknown .status{
-  color:var(--red-text);
-}
+body.unknown .card{ background:var(--yellow-bg); color:var(--dark); }
+body.unknown .status{ color:var(--red-text); }
 </style>
 </head>
 
@@ -126,22 +111,29 @@ body.unknown .status{
 
 <footer>
   <div>Junior Club Attendance</div>
-  <div>V3.4</div>
+  <div>V3.5</div>
 </footer>
 
 <script>
+/* ===================== DOM BINDINGS (FIX) ===================== */
+const pillEl = document.getElementById("pill");
+const statusEl = document.getElementById("status");
+const messageEl = document.getElementById("message");
+const clockEl = document.getElementById("clock");
+/* ============================================================= */
+
 /* ===================== CONFIG ===================== */
 const ATT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
 const ATT = {
-  card_uid:       "entry.1104238975",
-  event:          "entry.1735508359",
-  device_id:      "entry.452811867",
-  method:         "entry.1237226768",
-  operator:       "entry.1642343573",
-  note:           "entry.1538254700",
-  club_id:        "entry.164839595",
+  card_uid: "entry.1104238975",
+  event: "entry.1735508359",
+  device_id: "entry.452811867",
+  method: "entry.1237226768",
+  operator: "entry.1642343573",
+  note: "entry.1538254700",
+  club_id: "entry.164839595",
   schema_version: "entry.2138280654"
 };
 
@@ -162,30 +154,30 @@ const RESET_MS = 2500;
 let knownActiveCards = new Set();
 let mappingLoaded = false;
 let stateByCard = {};
-
 let buffer="", lastKeyTime=0;
 let lastScan={card:null,time:0};
 
 function updateClock(){
-  clock.textContent =
+  clockEl.textContent =
     new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 }
 setInterval(updateClock,1000); updateClock();
 
 function resetUI(){
   document.body.className="waiting";
-  pill.textContent = mappingLoaded ? "Ready" : "Loading…";
-  status.textContent="READY";
-  message.textContent = mappingLoaded ? "Hold card near the reader" : "Loading student mapping…";
+  pillEl.textContent = mappingLoaded ? "Ready" : "Loading…";
+  statusEl.textContent="READY";
+  messageEl.textContent = mappingLoaded ? "Hold card near the reader" : "Loading student mapping…";
 }
 
 function showState(css,label,msg){
   document.body.className = css;
-  pill.textContent = "Logged";
-  status.textContent = label;
-  message.textContent = msg;
+  pillEl.textContent = "Logged";
+  statusEl.textContent = label;
+  messageEl.textContent = msg;
 }
 
+/* --- CSV helpers unchanged --- */
 function splitCSVLine(line){
   const out=[]; let cur=""; let q=false;
   for(let i=0;i<line.length;i++){
@@ -271,12 +263,10 @@ function postAttendance(card,event){
 
 document.addEventListener("keydown",(e)=>{
   const now=Date.now();
-
   if(e.key.length===1){
     if(now-lastKeyTime>80) buffer="";
     buffer+=e.key; lastKeyTime=now; return;
   }
-
   if(e.key==="Enter"){
     const card=buffer.trim(); buffer="";
     if(!card || !mappingLoaded) return;
@@ -300,7 +290,6 @@ document.addEventListener("keydown",(e)=>{
     }else{
       showState("out","GOODBYE","You may leave");
     }
-
     setTimeout(resetUI,RESET_MS);
   }
 });
