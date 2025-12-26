@@ -14,21 +14,81 @@
   --border:#d0d7e2;
   --warn:#fff7b2;
 }
-body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--bg);color:#102d69;}
-header{background:var(--navy);color:#fff;padding:14px 18px;}
-header .top{display:flex;justify-content:space-between;align-items:center;}
-header input{padding:6px 8px;border-radius:6px;border:none;}
-header .meta{font-size:12px;opacity:.85;margin-top:6px;}
-button{background:var(--navy);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;}
-button.secondary{background:#fff;color:var(--navy);border:1px solid var(--border);}
-main{max-width:1200px;margin:20px auto;padding:0 16px;}
-.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
-.big{font-size:44px;font-weight:800;}
-table{width:100%;border-collapse:collapse;}
-th,td{padding:10px;border-bottom:1px solid var(--border);}
-tr.unknown{background:var(--warn);}
-.grid{display:grid;grid-template-columns:1fr;gap:16px;}
-@media (min-width:980px){.grid{grid-template-columns:1fr 1fr;}}
+body{
+  margin:0;
+  font-family:"Open Sans",Arial,sans-serif;
+  background:var(--bg);
+  color:#102d69;
+}
+header{
+  background:var(--navy);
+  color:#fff;
+  padding:14px 18px;
+}
+header .top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+header input{
+  padding:6px 8px;
+  border-radius:6px;
+  border:none;
+}
+header .meta{
+  font-size:12px;
+  opacity:.85;
+  margin-top:6px;
+}
+button{
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  font-weight:700;
+  cursor:pointer;
+}
+button.secondary{
+  background:#fff;
+  color:var(--navy);
+  border:1px solid var(--border);
+}
+main{
+  max-width:1200px;
+  margin:20px auto;
+  padding:0 16px;
+}
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:16px;
+}
+.big{
+  font-size:44px;
+  font-weight:800;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+}
+tr.unknown{
+  background:var(--warn);
+}
+.grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:16px;
+}
+@media (min-width:980px){
+  .grid{grid-template-columns:1fr 1fr;}
+}
 </style>
 </head>
 
@@ -93,30 +153,31 @@ tr.unknown{background:var(--warn);}
 </main>
 
 <script>
-/* ===== CONFIG – THESE ARE CORRECT FOR YOUR SHEETS ===== */
+/* ===== CONFIG – MATCHES YOUR SHEET EXACTLY ===== */
 const ATT_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=0&single=true&output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const MAP_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1&single=true&output=csv";
-/* ===================================================== */
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+/* ============================================= */
 
 let lastRefresh=null;
 let timer=null;
 
 function saveOperator(){
-  localStorage.setItem("op",operator.value);
+  localStorage.setItem("op", operator.value);
 }
 
-operator.addEventListener("blur",saveOperator);
-operator.addEventListener("change",saveOperator);
+operator.addEventListener("blur", saveOperator);
+operator.addEventListener("change", saveOperator);
 
 function startTimer(){
   if(timer) clearInterval(timer);
   timer=setInterval(()=>{
     if(!lastRefresh) return;
     const s=Math.floor((Date.now()-lastRefresh)/1000);
-    updateStatus.textContent=`Last updated: ${s} second${s!==1?"s":""} ago`;
+    updateStatus.textContent=
+      `Last updated: ${s} second${s!==1?"s":""} ago`;
   },1000);
 }
 
@@ -131,12 +192,16 @@ function parseCSV(text){
     if(c==","&&!q){row.push(cur);cur="";continue;}
     if((c=="\n"||c=="\r")&&!q){
       if(c=="\r"&&n=="\n")i++;
-      row.push(cur);rows.push([...row]);row.length=0;cur="";continue;
+      row.push(cur);
+      rows.push([...row]);
+      row.length=0;
+      cur="";
+      continue;
     }
     cur+=c;
   }
   if(cur||row.length){row.push(cur);rows.push([...row]);}
-  const headers=rows.shift().map(h=>h.trim());
+  const headers=rows.shift();
   return rows.map(r=>{
     const o={};
     headers.forEach((h,i)=>o[h]=r[i]?.trim());
@@ -149,27 +214,27 @@ async function reloadAll(){
   updateStatus.textContent="Last updated: just now";
   startTimer();
 
-  const [attRaw,mapRaw]=await Promise.all([
+  const [att,map]=await Promise.all([
     fetch(ATT_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV),
     fetch(MAP_CSV+"&t="+Date.now()).then(r=>r.text()).then(parseCSV)
   ]);
 
   /* Latest mapping per card */
   const mapping={};
-  mapRaw.forEach(r=>{
+  map.forEach(r=>{
     if(!r.card_uid) return;
     const t=Date.parse(r.Timestamp)||0;
-    if(!mapping[r.card_uid] || t > mapping[r.card_uid]._t){
+    if(!mapping[r.card_uid] || t>mapping[r.card_uid]._t){
       mapping[r.card_uid]={...r,_t:t};
     }
   });
 
   /* Latest scan per card */
   const latestScan={};
-  attRaw.forEach(r=>{
+  att.forEach(r=>{
     if(!r.card_uid) return;
     const t=Date.parse(r.Timestamp)||0;
-    if(!latestScan[r.card_uid] || t > latestScan[r.card_uid]._t){
+    if(!latestScan[r.card_uid] || t>latestScan[r.card_uid]._t){
       latestScan[r.card_uid]={...r,_t:t};
     }
   });
@@ -177,9 +242,9 @@ async function reloadAll(){
   const present=[],unknown=[];
 
   Object.values(latestScan).forEach(r=>{
-    const map=mapping[r.card_uid];
-    const name=map?.student_name || "";
-    const cls=map?.class || "";
+    const m=mapping[r.card_uid];
+    const name=m?.student_name || "";
+    const cls=m?.class || "";
 
     if(!name){
       unknown.push(r);
@@ -189,9 +254,9 @@ async function reloadAll(){
     if(r.event === "IN"){
       present.push({
         name,
-        class:cls,
-        time:r.Timestamp,
-        card:r.card_uid
+        class: cls,
+        time: r.Timestamp,
+        card: r.card_uid
       });
     }
   });
