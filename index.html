@@ -108,8 +108,9 @@ let stateByCard = {};
 let buffer="", lastKeyTime=0;
 let lastScan={card:null,time:0};
 
+/* ===================== UI HELPERS ===================== */
 function updateClock(){
-  clock.textContent =
+  document.getElementById("clock").textContent =
     new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 }
 setInterval(updateClock,1000); updateClock();
@@ -121,11 +122,141 @@ function resetUI(){
   message.textContent = mappingLoaded ? "Hold card near the reader" : "Loading student mapping…";
 }
 
-function showState(state, label, msg){
-  document.body.className = state;
+function showState(css,label,msg){
+  document.body.className = css;
   pill.textContent = "Logged";
-  status.textContent = label;     // 🔴 EXPLICIT IN / OUT / UNKNOWN
+  status.textContent = label;      // EXPLICIT IN / OUT / UNKNOWN
   message.textContent = msg;
 }
+/* ====================================================== */
 
-/* CSV helpers + parsing unchanged (omitted for brevity — identical to previous) */
+/* ===================== CSV HELPERS ===================== */
+function splitCSVLine(line){
+  const out=[]; let cur=""; let q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(q && line[i+1]==='"'){ cur+='"'; i++; }
+      else q=!q;
+    } else if(c===',' && !q){
+      out.push(cur); cur="";
+    } else cur+=c;
+  }
+  out.push(cur);
+  return out.map(s=>s.trim());
+}
+
+function parseCSV(text){
+  const lines = text.trim().split("\n");
+  const headers = splitCSVLine(lines[0]);
+  const rows=[];
+  for(const l of lines.slice(1)){
+    if(!l.trim()) continue;
+    const vals = splitCSVLine(l);
+    const obj={};
+    headers.forEach((h,i)=> obj[h]= (vals[i]||"").trim());
+    rows.push(obj);
+  }
+  return rows;
+}
+
+/* EU timestamp parser */
+function parseEU(ts){
+  const m = ts && ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
+  if(!m) return 0;
+  return new Date(+m[3], m[2]-1, +m[1], +m[4], +m[5], +m[6]).getTime();
+}
+/* ====================================================== */
+
+async function loadMapping(){
+  const csv = await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+  const rows = parseCSV(csv);
+  const latest={};
+  for(const r of rows){
+    if(!r.card_uid) continue;
+    latest[r.card_uid]=r;
+  }
+  knownActiveCards = new Set(
+    Object.values(latest)
+      .filter(r=>(r.status||"").toLowerCase()==="active")
+      .map(r=>r.card_uid)
+  );
+  mappingLoaded=true;
+  resetUI();
+}
+
+async function loadLatestInOutState(){
+  const csv = await fetch(ATT_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+  const rows = parseCSV(csv);
+  const latest={};
+  for(const r of rows){
+    if(!r.card_uid) continue;
+    const ev=(r.event||"").toUpperCase();
+    if(ev!=="IN" && ev!=="OUT") continue;
+    const t=parseEU(r.Timestamp);
+    if(!latest[r.card_uid] || t>latest[r.card_uid].t){
+      latest[r.card_uid]={event:ev,t};
+    }
+  }
+  stateByCard = Object.fromEntries(
+    Object.entries(latest).map(([k,v])=>[k,v.event])
+  );
+}
+
+function postAttendance(card,event){
+  const d=new URLSearchParams();
+  d.append(ATT.card_uid,card);
+  d.append(ATT.event,event);
+  d.append(ATT.device_id,DEVICE_ID);
+  d.append(ATT.method,"RFID");
+  d.append(ATT.operator,"");
+  d.append(ATT.note,"");
+  d.append(ATT.club_id,CLUB_ID);
+  d.append(ATT.schema_version,SCHEMA_VERSION);
+  fetch(ATT_FORM_URL,{method:"POST",mode:"no-cors",body:d});
+}
+
+/* ===================== SCAN HANDLER ===================== */
+document.addEventListener("keydown",(e)=>{
+  const now=Date.now();
+
+  if(e.key.length===1){
+    if(now-lastKeyTime>80) buffer="";
+    buffer+=e.key; lastKeyTime=now; return;
+  }
+
+  if(e.key==="Enter"){
+    const card=buffer.trim(); buffer="";
+    if(!card || !mappingLoaded) return;
+    if(lastScan.card===card && now-lastScan.time<DEBOUNCE_MS) return;
+    lastScan={card,time:now};
+
+    if(!knownActiveCards.has(card)){
+      postAttendance(card,"UNKNOWN");
+      showState("unknown","UNKNOWN","Unknown card — see staff");
+      return setTimeout(resetUI,RESET_MS);
+    }
+
+    const prev = stateByCard[card] || "OUT";
+    const next = prev==="IN" ? "OUT" : "IN";
+    stateByCard[card]=next;
+
+    postAttendance(card,next);
+
+    if(next==="IN"){
+      showState("in","IN","You may enter");
+    }else{
+      showState("out","OUT","You may leave");
+    }
+
+    setTimeout(resetUI,RESET_MS);
+  }
+});
+/* ====================================================== */
+
+resetUI();
+loadMapping();
+loadLatestInOutState();
+</script>
+</body>
+</html>
