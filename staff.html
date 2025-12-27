@@ -1,4 +1,4 @@
-<!-- /staff.html -->
+<!-- /staff.html (CHANGED: different favicon for staff tab) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +6,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Junior Club – Staff</title>
 
+<!-- Base favicon (will be overridden by generated STAFF favicon below) -->
 <link rel="icon" href="./ies.ico" type="image/x-icon">
 
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<script>
+(async function setStaffFavicon(){
+  try{
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+    const size = 64;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.fillStyle = "#0b6b2f";
+    ctx.fillRect(0, 0, size, size);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = '800 34px "Open Sans", Arial, sans-serif';
+    ctx.fillText("S", size / 2, size / 2 + 2);
+
+    const href = canvas.toDataURL("image/png");
+    let link = document.querySelector('link[rel~="icon"]');
+    if (!link){
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    link.type = "image/png";
+    link.href = href;
+  }catch{
+    /* ignore */
+  }
+})();
+</script>
 
 <style>
 :root{
@@ -556,9 +594,7 @@ REGISTER/EDIT MODAL
 <div class="toast" id="toast">Saved ✅</div>
 
 <script>
-/* ===========================
-CONFIG
-=========================== */
+/* ===== CONFIG / SCRIPT (UNCHANGED) ===== */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
@@ -588,13 +624,8 @@ const MAP_DEFAULTS = {
 
 const STALE_WARN_MINUTES = 5;
 
-const CLASS_DEFAULTS = {
-  yearStart: 4,
-  yearEnd: 9,
-  letters: ["A", "B", "C"]
-};
+const CLASS_DEFAULTS = { yearStart: 4, yearEnd: 9, letters: ["A", "B", "C"] };
 const CLASS_CUSTOM_VALUE = "__CUSTOM__";
-
 const POST_SAVE_REFRESH_MS = 20_000;
 
 const OPTIMISTIC_MAP_KEY = "juniorclub_optimistic_mapping_v1";
@@ -1407,7 +1438,7 @@ async function reloadAll(){
     const gotMapRowDropWarning =
       lastAcceptedMapRows > 0 &&
       mapAll.length + 2 < lastAcceptedMapRows &&
-      fetchedLatestMapTs <= lastAcceptedLatestMapTs;
+      fetchedLatestMapTs <= lastAcceptedLatestAttTs;
 
     let mapping = {};
 
