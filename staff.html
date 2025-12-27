@@ -1,7 +1,3 @@
-<!-- =========================
-File: /staff.html
-(ONLY changes: cache-bust fetches + monotonic “newest snapshot wins” guard + visible warning pill/banner)
-========================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -223,8 +219,6 @@ tr.unknown{ background:var(--warn); }
     <span class="pill" id="updateStatus">Last updated: —</span>
     <span class="pill" id="health">Data: —</span>
     <span class="pill" id="stale">Stale: —</span>
-
-    <!-- Warning banner (NEW) -->
     <span class="pill badge-warn" id="cacheWarn" style="display:none;">⚠️ Google cache served an older snapshot — showing newest known data</span>
   </div>
 
@@ -322,6 +316,7 @@ tr.unknown{ background:var(--warn); }
 <script>
 /* ===========================
 CONFIG
+(ONLY changes: mapping form prefill config filled with your 9 questions)
 =========================== */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
@@ -329,8 +324,27 @@ const ATT_CSV =
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
-const MAP_FORM_PREFILL_BASE = "";
-const MAP_ENTRY = { card_uid: "", mapped_by: "", status: "", schema: "" };
+const MAP_FORM_PREFILL_BASE =
+  "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/viewform?usp=pp_url";
+
+/*
+Your 9 questions:
+1) card_uid    -> entry.1712147498
+2) email       -> entry.1171642279
+3) student_name-> entry.2022534068
+4) class       -> entry.1723675198
+5) status      -> entry.1124037588
+6) pin         -> entry.352224440
+7) note        -> entry.523442266
+8) mapped_by   -> entry.1680238241
+9) schema      -> entry.1809813215
+*/
+const MAP_ENTRY = {
+  card_uid:  "entry.1712147498",
+  mapped_by: "entry.1680238241",
+  status:    "entry.1124037588",
+  schema:    "entry.1809813215"
+};
 const MAP_DEFAULTS = { status: "active", schema: "v3" };
 
 const STALE_WARN_MINUTES = 5;
@@ -373,7 +387,6 @@ let timer = null;
 let lastError = "—";
 let lastSyncAt = 0;
 
-/* Monotonic acceptance guards (NEW) */
 let lastAcceptedLatestAttTs = 0;
 let lastAcceptedAttRows = 0;
 
@@ -704,7 +717,6 @@ async function reloadAll(){
     showCacheWarn(false);
     setHealth(false, false);
 
-    /* cache-bust (NEW) */
     const attUrl = `${ATT_CSV}&_=${Date.now()}`;
     const mapUrl = `${MAP_CSV}&_=${Date.now()}`;
 
@@ -726,7 +738,6 @@ async function reloadAll(){
     dbgMapHeaders.textContent = Object.keys(map[0]||{}).join(" | ");
     dbgError.textContent = "—";
 
-    /* Latest attendance timestamp (all time) for stale indicator */
     let fetchedLatestAttTs = 0;
     attAll.forEach(r => {
       const t = parseEU(r.Timestamp);
@@ -764,7 +775,6 @@ async function reloadAll(){
     dbgLatestAttTs.textContent = latestAttendanceTsAllTime ? new Date(latestAttendanceTsAllTime).toLocaleString("sv-SE") : "—";
     setStale(latestAttendanceTsAllTime);
 
-    /* Latest mapping per card */
     const mapping = {};
     map.forEach(r=>{
       if(!r.card_uid) return;
@@ -774,14 +784,12 @@ async function reloadAll(){
       }
     });
 
-    /* Today-only filter (attendance only) */
     const useTodayOnly = todayOnly.checked;
     const dayStart = startOfTodayLocalTs();
     const att = useTodayOnly
       ? attAll.filter(r => parseEU(r.Timestamp) >= dayStart)
       : attAll;
 
-    /* Latest scan per card (within chosen dataset) */
     const latest = {};
     att.forEach(r=>{
       if(!r.card_uid) return;
