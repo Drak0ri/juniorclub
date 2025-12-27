@@ -177,6 +177,13 @@ tr.unknown{ background:var(--warn); }
 .badge-warn{ color:#000; background:var(--warn); border-radius:999px; padding:2px 8px; font-weight:800; }
 .badge-danger{ color:#fff; background:var(--danger); border-radius:999px; padding:2px 8px; font-weight:800; }
 
+.section-title{
+  margin:14px 0 8px;
+  font-size:14px;
+  font-weight:800;
+  color:var(--navy);
+}
+
 @media print{
   header, .toggle-debug, #debugBox, #unknownCardHelp, #mapModalOverlay, #toast { display:none !important; }
   body{ background:#fff; }
@@ -404,6 +411,8 @@ TOAST
       <div class="smallmuted" id="unknownCardHelp">
         Tip: Use <strong>Register</strong> to add the card to the mapping table.
       </div>
+
+      <div class="section-title">Unknown (unmapped)</div>
       <table>
         <thead>
           <tr>
@@ -413,6 +422,21 @@ TOAST
           </tr>
         </thead>
         <tbody id="unknownTable"></tbody>
+      </table>
+
+      <div class="section-title">Registered (awaiting rescan)</div>
+      <div class="smallmuted">After registering, the student must scan again to check in.</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Registered</th>
+            <th>Card</th>
+            <th>Name</th>
+            <th>Class</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pendingTable"></tbody>
       </table>
     </div>
   </div>
@@ -454,7 +478,6 @@ REGISTER/EDIT MODAL
 
         <div class="field">
           <label>Student email</label>
-          <!-- CHANGED: made editable (removed readonly) -->
           <input id="m_student_email" placeholder="student.vasteras@engelska.se">
         </div>
 
@@ -558,6 +581,14 @@ const CLASS_CUSTOM_VALUE = "__CUSTOM__";
 
 const POST_SAVE_REFRESH_MS = 20_000;
 
+/* Optimistic mapping so newly-registered cards don't "bounce" back into Unknown */
+const OPTIMISTIC_MAP_KEY = "juniorclub_optimistic_mapping_v1";
+const OPTIMISTIC_TTL_MS = 24 * 60 * 60 * 1000;
+
+/* NEW: pending rescan list (so registered cards are shown until they scan again) */
+const PENDING_RESCAN_KEY = "juniorclub_pending_rescan_v1";
+const PENDING_RESCAN_TTL_MS = 24 * 60 * 60 * 1000;
+
 /* ===========================
 OPERATOR
 =========================== */
@@ -598,6 +629,10 @@ let lastSyncAt = 0;
 
 let lastAcceptedLatestAttTs = 0;
 let lastAcceptedAttRows = 0;
+
+/* Mapping snapshot guard */
+let lastAcceptedLatestMapTs = 0;
+let lastAcceptedMapRows = 0;
 
 function fmtTime(ts){
   if(!ts) return "—";
@@ -707,6 +742,11 @@ function startOfTodayLocalTs(){
   return d.getTime();
 }
 
+function fmtLocal(ts){
+  if(!ts) return "";
+  return new Date(ts).toLocaleString("sv-SE");
+}
+
 /* ===========================
 SAFE RENDERING
 =========================== */
@@ -719,9 +759,136 @@ DATA + VIEW STATE
 =========================== */
 let presentAll = [];
 let unknownAll = [];
+let pendingAll = [];
 let mappingByCard = {};
 
 function normalizeStr(s){ return (s || "").toString().trim().toLowerCase(); }
+
+/* ===========================
+OPTIMISTIC MAPPING
+=========================== */
+function loadOptimisticMapping(){
+  try{
+    const raw = localStorage.getItem(OPTIMISTIC_MAP_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw);
+    if (!obj || typeof obj !== "object") return {};
+    const now = Date.now();
+    const out = {};
+    for (const [card, rec] of Object.entries(obj)){
+      if (!rec || typeof rec !== "object") continue;
+      const savedAt = Number(rec._savedAt || 0);
+      if (!savedAt) continue;
+      if (now - savedAt > OPTIMISTIC_TTL_MS) continue;
+      out[card] = rec;
+    }
+    return out;
+  }catch{
+    return {};
+  }
+}
+
+function saveOptimisticMapping(obj){
+  try{
+    localStorage.setItem(OPTIMISTIC_MAP_KEY, JSON.stringify(obj || {}));
+  }catch{
+    /* ignore */
+  }
+}
+
+function upsertOptimisticMapping(cardUid, rec){
+  const card = (cardUid || "").trim();
+  if (!card) return;
+  const all = loadOptimisticMapping();
+  all[card] = { ...rec, _savedAt: Date.now() };
+  saveOptimisticMapping(all);
+}
+
+function reconcileAndMergeOptimisticMapping(mapping){
+  const optimistic = loadOptimisticMapping();
+  let changed = false;
+
+  for (const [card] of Object.entries(optimistic)){
+    if (mapping[card]){
+      delete optimistic[card];
+      changed = true;
+    }
+  }
+  if (changed) saveOptimisticMapping(optimistic);
+
+  for (const [card, rec] of Object.entries(optimistic)){
+    if (!mapping[card]){
+      mapping[card] = { ...rec, _t: Number(rec._t || 0) };
+    }
+  }
+  return mapping;
+}
+
+/* ===========================
+PENDING RESCAN (NEW)
+=========================== */
+function loadPendingRescan(){
+  try{
+    const raw = localStorage.getItem(PENDING_RESCAN_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw);
+    if (!obj || typeof obj !== "object") return {};
+    const now = Date.now();
+    const out = {};
+    for (const [card, savedAt] of Object.entries(obj)){
+      const t = Number(savedAt || 0);
+      if (!t) continue;
+      if (now - t > PENDING_RESCAN_TTL_MS) continue;
+      out[card] = t;
+    }
+    return out;
+  }catch{
+    return {};
+  }
+}
+
+function savePendingRescan(obj){
+  try{
+    localStorage.setItem(PENDING_RESCAN_KEY, JSON.stringify(obj || {}));
+  }catch{
+    /* ignore */
+  }
+}
+
+function addPendingRescan(cardUid, savedAt){
+  const card = (cardUid || "").trim();
+  if (!card) return;
+  const all = loadPendingRescan();
+  all[card] = Number(savedAt || Date.now());
+  savePendingRescan(all);
+}
+
+function removePendingRescan(cardUid){
+  const card = (cardUid || "").trim();
+  if (!card) return;
+  const all = loadPendingRescan();
+  if (all[card]){
+    delete all[card];
+    savePendingRescan(all);
+  }
+}
+
+function prunePendingRescanAgainstAttendance(latestByCard){
+  const all = loadPendingRescan();
+  let changed = false;
+
+  for (const [card, savedAt] of Object.entries(all)){
+    const t = Number(savedAt || 0);
+    const scan = latestByCard[card];
+    if (scan && Number(scan._t || 0) > t){
+      delete all[card];
+      changed = true;
+    }
+  }
+
+  if (changed) savePendingRescan(all);
+  return all;
+}
 
 /* ===========================
 TOAST
@@ -732,7 +899,7 @@ function showToast(message){
   toast.textContent = message;
   toast.classList.add("show");
   if (toastHideTimer) clearTimeout(toastHideTimer);
-  toastHideTimer = setTimeout(()=>toast.classList.remove("show"), 2500);
+  toastHideTimer = setTimeout(()=>toast.classList.remove("show"), 3200);
 }
 
 /* ===========================
@@ -829,14 +996,10 @@ function openMapModal(cardUid, mode){
   modalTitle.textContent = (modalMode === "edit") ? "Edit mapping" : "Register card";
 
   const cur = mappingByCard[modalCardUid] || null;
-
   const mappedBy = (operator.value || "").trim();
 
   m_card_uid.value = modalCardUid;
-
-  /* CHANGED: if existing mapping has student_email, show it; else default */
   m_student_email.value = cur ? (cur.student_email || MAP_DEFAULTS.student_email) : MAP_DEFAULTS.student_email;
-
   m_student_name.value = cur ? (cur.student_name || "") : "";
   setModalClassValue(cur ? (cur.class || "") : "");
   m_status.value = cur ? (cur.status || MAP_DEFAULTS.status) : MAP_DEFAULTS.status;
@@ -919,9 +1082,30 @@ async function submitMapModal(){
   d.append(MAP_ENTRY.schema, schema || MAP_DEFAULTS.schema);
 
   try{
+    const savedAt = Date.now();
     await fetch(MAP_FORM_RESPONSE_URL, { method:"POST", mode:"no-cors", body:d });
+
+    upsertOptimisticMapping(cardUid, {
+      card_uid: cardUid,
+      student_email: studentEmail || MAP_DEFAULTS.student_email,
+      student_name: studentName,
+      class: klass,
+      status: status || MAP_DEFAULTS.status,
+      pin: pin,
+      note: note,
+      mapped_by: mappedBy,
+      schema: schema || MAP_DEFAULTS.schema,
+      _t: savedAt
+    });
+
+    /* NEW: keep visible under "Registered (awaiting rescan)" until they scan again */
+    addPendingRescan(cardUid, savedAt);
+
     closeMapModal();
-    showToast("Saved ✅");
+
+    /* NEW: reminder toast (A) */
+    showToast("Saved ✅ — now scan again to check in");
+
     reloadAll();
     schedulePostSaveRefresh();
   }catch(e){
@@ -960,6 +1144,7 @@ function applyFiltersAndRender(){
 
   let present = [...presentAll];
   let unknown = [...unknownAll];
+  let pending = [...pendingAll];
 
   if (cls){
     present = present.filter(p => p.class === cls);
@@ -968,6 +1153,7 @@ function applyFiltersAndRender(){
   if (q){
     present = present.filter(p => (`${p.name} ${p.class} ${p.card}`.toLowerCase().includes(q)));
     unknown = unknown.filter(u => (`${u.card} ${u.time}`.toLowerCase().includes(q)));
+    pending = pending.filter(p => (`${p.card} ${p.name} ${p.class}`.toLowerCase().includes(q)));
   }
 
   if (sort === "name_asc"){
@@ -1022,6 +1208,33 @@ function applyFiltersAndRender(){
     tr.appendChild(tdAct);
     unknownTable.appendChild(tr);
   });
+
+  clearNode(pendingTable);
+  pending
+    .sort((a,b)=> (b.savedAt - a.savedAt))
+    .forEach(p=>{
+      const tr = document.createElement("tr");
+
+      const tdReg = document.createElement("td"); tdReg.textContent = fmtLocal(p.savedAt);
+      const tdCard = document.createElement("td"); tdCard.textContent = p.card || "";
+      const tdName = document.createElement("td"); tdName.textContent = p.name || "";
+      const tdClass = document.createElement("td"); tdClass.textContent = p.class || "";
+      const tdAct = document.createElement("td");
+
+      const btn = document.createElement("button");
+      btn.className = "secondary small";
+      btn.textContent = "Edit";
+      btn.onclick = () => openMapModal(p.card, "edit");
+      tdAct.appendChild(btn);
+
+      tr.appendChild(tdReg);
+      tr.appendChild(tdCard);
+      tr.appendChild(tdName);
+      tr.appendChild(tdClass);
+      tr.appendChild(tdAct);
+
+      pendingTable.appendChild(tr);
+    });
 
   rebuildClassOptions(presentAll);
 }
@@ -1135,6 +1348,7 @@ async function reloadAll(){
     dbgMapHeaders.textContent = Object.keys(mapAll[0]||{}).join(" | ");
     dbgError.textContent = "—";
 
+    /* Attendance cache guard */
     let fetchedLatestAttTs = 0;
     attAll.forEach(r => {
       const t = parseEU(r.Timestamp);
@@ -1171,22 +1385,55 @@ async function reloadAll(){
     dbgLatestAttTs.textContent = fetchedLatestAttTs ? new Date(fetchedLatestAttTs).toLocaleString("sv-SE") : "—";
     setStale(fetchedLatestAttTs);
 
-    const mapping = {};
+    /* Mapping cache guard */
+    let fetchedLatestMapTs = 0;
     mapAll.forEach(r=>{
-      if(!r.card_uid) return;
       const t = parseEU(r.Timestamp);
-      if(!mapping[r.card_uid] || t >= mapping[r.card_uid]._t){
-        mapping[r.card_uid] = { ...r, _t:t };
-      }
+      if (t > fetchedLatestMapTs) fetchedLatestMapTs = t;
     });
+
+    const gotMapOlderSnapshot =
+      lastAcceptedLatestMapTs > 0 && (
+        fetchedLatestMapTs === 0 || fetchedLatestMapTs + 2000 < lastAcceptedLatestMapTs
+      );
+
+    const gotMapRowDropWarning =
+      lastAcceptedMapRows > 0 &&
+      mapAll.length + 2 < lastAcceptedMapRows &&
+      fetchedLatestMapTs <= lastAcceptedLatestMapTs;
+
+    let mapping = {};
+
+    if ((gotMapOlderSnapshot || gotMapRowDropWarning) && Object.keys(mappingByCard).length > 0){
+      lastError = "Received older published MAPPING CSV snapshot (Google cache). Keeping newest mapping view.";
+      dbgError.textContent = lastError;
+      showCacheWarn(true);
+      mapping = { ...mappingByCard };
+    } else {
+      mapAll.forEach(r=>{
+        if(!r.card_uid) return;
+        const t = parseEU(r.Timestamp);
+        if(!mapping[r.card_uid] || t >= mapping[r.card_uid]._t){
+          mapping[r.card_uid] = { ...r, _t:t };
+        }
+      });
+
+      lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, fetchedLatestMapTs);
+      lastAcceptedMapRows = mapAll.length;
+    }
+
+    /* Optimistic mapping overlay */
+    mapping = reconcileAndMergeOptimisticMapping(mapping);
     mappingByCard = mapping;
 
+    /* Today-only filter (attendance only) */
     const useTodayOnly = todayOnly.checked;
     const dayStart = startOfTodayLocalTs();
     const att = useTodayOnly
       ? attAll.filter(r => parseEU(r.Timestamp) >= dayStart)
       : attAll;
 
+    /* Latest scan per card */
     const latest = {};
     att.forEach(r=>{
       if(!r.card_uid) return;
@@ -1195,6 +1442,9 @@ async function reloadAll(){
         latest[r.card_uid] = { ...r, _t:t };
       }
     });
+
+    /* NEW: remove pending-rescan once they actually scan again */
+    const pendingRaw = prunePendingRescanAgainstAttendance(latest);
 
     const present = [];
     const unknown = [];
@@ -1218,8 +1468,21 @@ async function reloadAll(){
       }
     });
 
+    /* NEW: build pending list for UI */
+    const pending = [];
+    for (const [card, savedAt] of Object.entries(pendingRaw)){
+      const m = mapping[card] || {};
+      pending.push({
+        card,
+        savedAt: Number(savedAt || 0),
+        name: m.student_name || "",
+        class: m.class || ""
+      });
+    }
+
     presentAll = present;
     unknownAll = unknown;
+    pendingAll = pending;
 
     applyFiltersAndRender();
 
