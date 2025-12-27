@@ -296,7 +296,7 @@ MODAL
 .kv strong{ color:#102d69; }
 
 /* ===========================
-TOAST (NEW)
+TOAST
 =========================== */
 .toast{
   position:fixed;
@@ -454,7 +454,8 @@ REGISTER/EDIT MODAL
 
         <div class="field">
           <label>Student email</label>
-          <input id="m_student_email" readonly>
+          <!-- CHANGED: made editable (removed readonly) -->
+          <input id="m_student_email" placeholder="student.vasteras@engelska.se">
         </div>
 
         <div class="field">
@@ -512,13 +513,12 @@ REGISTER/EDIT MODAL
   </div>
 </div>
 
-<!-- Toast (NEW) -->
+<!-- Toast -->
 <div class="toast" id="toast">Saved ✅</div>
 
 <script>
 /* ===========================
 CONFIG
-(ONLY change/add: class dropdown + toast + timed re-refresh after save)
 =========================== */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
@@ -526,22 +526,9 @@ const ATT_CSV =
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
-/* Mapping Form (response endpoint) */
 const MAP_FORM_RESPONSE_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
 
-/*
-Your 9 questions:
-1) card_uid       -> entry.1712147498
-2) student_email  -> entry.1171642279
-3) student_name   -> entry.2022534068
-4) class          -> entry.1723675198
-5) status         -> entry.1124037588
-6) pin            -> entry.352224440
-7) note           -> entry.523442266
-8) mapped_by      -> entry.1680238241
-9) schema         -> entry.1809813215
-*/
 const MAP_ENTRY = {
   card_uid:      "entry.1712147498",
   student_email: "entry.1171642279",
@@ -562,7 +549,6 @@ const MAP_DEFAULTS = {
 
 const STALE_WARN_MINUTES = 5;
 
-/* Class dropdown defaults (NEW): 4A..9C */
 const CLASS_DEFAULTS = {
   yearStart: 4,
   yearEnd: 9,
@@ -570,7 +556,6 @@ const CLASS_DEFAULTS = {
 };
 const CLASS_CUSTOM_VALUE = "__CUSTOM__";
 
-/* Timed refresh after save (NEW) */
 const POST_SAVE_REFRESH_MS = 20_000;
 
 /* ===========================
@@ -739,7 +724,7 @@ let mappingByCard = {};
 function normalizeStr(s){ return (s || "").toString().trim().toLowerCase(); }
 
 /* ===========================
-TOAST (NEW)
+TOAST
 =========================== */
 let toastHideTimer = null;
 
@@ -751,7 +736,7 @@ function showToast(message){
 }
 
 /* ===========================
-POST-SAVE RE-REFRESH (NEW)
+POST-SAVE RE-REFRESH
 =========================== */
 let postSaveTimer = null;
 
@@ -848,7 +833,10 @@ function openMapModal(cardUid, mode){
   const mappedBy = (operator.value || "").trim();
 
   m_card_uid.value = modalCardUid;
-  m_student_email.value = MAP_DEFAULTS.student_email;
+
+  /* CHANGED: if existing mapping has student_email, show it; else default */
+  m_student_email.value = cur ? (cur.student_email || MAP_DEFAULTS.student_email) : MAP_DEFAULTS.student_email;
+
   m_student_name.value = cur ? (cur.student_name || "") : "";
   setModalClassValue(cur ? (cur.class || "") : "");
   m_status.value = cur ? (cur.status || MAP_DEFAULTS.status) : MAP_DEFAULTS.status;
@@ -1183,7 +1171,6 @@ async function reloadAll(){
     dbgLatestAttTs.textContent = fetchedLatestAttTs ? new Date(fetchedLatestAttTs).toLocaleString("sv-SE") : "—";
     setStale(fetchedLatestAttTs);
 
-    /* Latest mapping per card (stored globally for modal) */
     const mapping = {};
     mapAll.forEach(r=>{
       if(!r.card_uid) return;
@@ -1194,14 +1181,12 @@ async function reloadAll(){
     });
     mappingByCard = mapping;
 
-    /* Today-only filter (attendance only) */
     const useTodayOnly = todayOnly.checked;
     const dayStart = startOfTodayLocalTs();
     const att = useTodayOnly
       ? attAll.filter(r => parseEU(r.Timestamp) >= dayStart)
       : attAll;
 
-    /* Latest scan per card */
     const latest = {};
     att.forEach(r=>{
       if(!r.card_uid) return;
