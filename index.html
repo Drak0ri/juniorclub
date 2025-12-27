@@ -199,6 +199,9 @@ let stateByCard={};
 let buffer="",lastKeyTime=0;
 let lastScan={card:null,time:0};
 
+/* NEW: mapping lookup so we can show student names */
+let mappingByCard={};
+
 /* ================= CLOCK ================= */
 function updateClock(){
   clockEl.textContent =
@@ -219,6 +222,17 @@ function showState(css,label,msg){
   pillEl.textContent="LOGGED";
   statusEl.textContent=label;
   messageEl.textContent=msg;
+}
+
+function firstNameFromStudentName(studentName){
+  const s=(studentName||"").trim();
+  if(!s) return "";
+  return s.split(/\s+/)[0] || "";
+}
+
+function nameForCard(card){
+  const row=mappingByCard[card];
+  return firstNameFromStudentName(row?.student_name || row?.studentName || "");
 }
 
 /* ================= CSV ================= */
@@ -253,6 +267,8 @@ async function loadMapping(){
   const csv=await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
   const rows=parseCSV(csv),latest={};
   rows.forEach(r=>r.card_uid&&(latest[r.card_uid]=r));
+
+  mappingByCard=latest;
   knownActiveCards=new Set(
     Object.values(latest).filter(r=>r.status==="active").map(r=>r.card_uid)
   );
@@ -306,10 +322,12 @@ document.addEventListener("keydown",e=>{
     stateByCard[card]=next;
     postAttendance(card,next);
 
+    const fn=nameForCard(card);
+
     if(next==="IN"){
-      showState("in","WELCOME","You’re checked in");
+      showState("in","WELCOME", fn || "You’re checked in");
     }else{
-      showState("out","GOODBYE","You’re checked out");
+      showState("out","GOODBYE", fn || "You’re checked out");
     }
     setTimeout(resetUI,RESET_MS);
   }
