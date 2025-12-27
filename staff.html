@@ -1,103 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Junior Club – Staff</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Junior Club — Staff</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --navy:#102d69;
   --bg:#f6f8fb;
+  --card:#ffffff;
   --border:#d0d7e2;
-  --warn:#fff7b2;
+  --green:#0b6b2f;
+  --yellow:#fff3b0;
+  --text:#102d69;
 }
-body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--bg);color:#102d69;}
-header{background:var(--navy);color:#fff;padding:14px 18px;}
-header .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-header input{padding:6px 8px;border-radius:6px;border:none;min-width:240px;}
-header .meta{font-size:12px;opacity:.85;margin-top:6px;}
-button{background:var(--navy);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-weight:700;cursor:pointer;}
-button.secondary{background:#fff;color:var(--navy);border:1px solid var(--border);}
-main{max-width:1200px;margin:20px auto;padding:0 16px;}
-.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
-.big{font-size:44px;font-weight:800;}
-table{width:100%;border-collapse:collapse;}
-th,td{padding:10px;border-bottom:1px solid var(--border);}
-tr.unknown{background:var(--warn);}
-.grid{display:grid;grid-template-columns:1fr;gap:16px;}
-@media (min-width:980px){.grid{grid-template-columns:1fr 1fr;}}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:"Open Sans",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header{
+  background:var(--navy);
+  color:#fff;
+  padding:16px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+header strong{
+  font-size:18px;
+}
+
+header button{
+  background:#fff;
+  color:var(--navy);
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+main{
+  max-width:1200px;
+  margin:24px auto;
+  padding:0 16px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:20px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+}
+
+/* ===== HERO COUNT ===== */
+.count{
+  font-size:56px;
+  font-weight:800;
+  margin:0;
+  color:var(--green);
+}
+.count-label{
+  font-size:14px;
+  opacity:.8;
+}
+
+/* ===== TABLE ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  padding:10px 8px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+}
+th{
+  font-size:13px;
+  opacity:.8;
+  text-transform:uppercase;
+}
+tbody tr:last-child td{
+  border-bottom:none;
+}
+
+/* ===== UNKNOWN ===== */
+.unknown-card{
+  background:var(--yellow);
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:14px;
+}
+
+.unknown-card button{
+  background:var(--navy);
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .grid{ grid-template-columns:1fr; }
+}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div class="top">
-    <strong>Junior Club – Staff</strong>
-    <div>
-      <input id="operator" placeholder="staff email">
-      <button onclick="saveOperator()">Save</button>
-      <button class="secondary" onclick="reloadAll()">Refresh</button>
-    </div>
-  </div>
-  <div class="meta" id="updateStatus">Last updated: —</div>
+  <strong>Junior Club — Staff</strong>
+  <button onclick="reloadAll()">Refresh</button>
 </header>
 
 <main>
 
-<div class="card">
-  <h2>Data Status</h2>
-  <div>
-    Attendance rows: <span id="dbgAttRows">—</span><br>
-    Mapping rows: <span id="dbgMapRows">—</span><br>
-    Attendance headers: <span id="dbgAttHeaders"></span><br>
-    Mapping headers: <span id="dbgMapHeaders"></span><br>
-    Last error: <span id="dbgError"></span>
-  </div>
-</div>
-
 <div class="grid">
 
+  <!-- LEFT: PRESENT -->
   <div>
-    <div class="card">
-      <h2>Currently Present</h2>
-      <div class="big" id="presentCount">0</div>
-      <div style="font-size:12px;opacity:.8">
-        Latest scan per card decides presence (event = IN).
-      </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <div class="count" id="presentCount">0</div>
+      <div class="count-label">Students currently present</div>
     </div>
 
     <div class="card">
-      <h2>Who’s Here Now</h2>
+      <h3>Who is here</h3>
       <table>
         <thead>
           <tr>
             <th>Name</th>
             <th>Class</th>
-            <th>Time (Latest IN)</th>
-            <th>Card</th>
           </tr>
         </thead>
         <tbody id="presentTable"></tbody>
       </table>
     </div>
+
   </div>
 
+  <!-- RIGHT: UNKNOWN -->
   <div>
     <div class="card">
-      <h2>Unknown Cards Queue</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Time (Latest)</th>
-            <th>Card</th>
-          </tr>
-        </thead>
-        <tbody id="unknownTable"></tbody>
-      </table>
+      <h3>Unknown cards</h3>
+      <div id="unknownBox"></div>
+      <div id="noUnknown" style="font-size:14px;opacity:.6">No unknown cards</div>
     </div>
   </div>
 
@@ -105,124 +178,107 @@ tr.unknown{background:var(--warn);}
 </main>
 
 <script>
-/* ===== CONFIG (YOUR REAL SHEETS) ===== */
+/* ================= CONFIG (UNCHANGED DATA SOURCES) ================= */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-/* =================================== */
+/* ================================================================ */
 
-function saveOperator(){
-  localStorage.setItem("op", operator.value);
+function splitCSVLine(line){
+  const out=[]; let cur="",q=false;
+  for(const c of line){
+    if(c==='"'){ q=!q; continue; }
+    if(c===','&&!q){ out.push(cur); cur=""; continue; }
+    cur+=c;
+  }
+  out.push(cur);
+  return out.map(s=>s.trim());
 }
-operator.value = localStorage.getItem("op") || "";
 
 function parseCSV(text){
-  const rows = text.trim().split("\n").map(r=>r.split(","));
-  const headers = rows.shift();
-  return rows.map(r=>{
-    const o={};
-    headers.forEach((h,i)=>o[h.trim()]=r[i]?.trim());
+  const lines=text.trim().split("\n");
+  const headers=splitCSVLine(lines[0]);
+  return lines.slice(1).map(l=>{
+    const v=splitCSVLine(l),o={};
+    headers.forEach((h,i)=>o[h]=v[i]||"");
     return o;
   });
 }
 
-/* EU timestamp parser: DD/MM/YYYY HH:MM:SS */
-function parseEU(ts){
-  if(!ts) return 0;
-  const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
-  if(!m) return 0;
-  return new Date(
-    Number(m[3]),
-    Number(m[2]) - 1,
-    Number(m[1]),
-    Number(m[4]),
-    Number(m[5]),
-    Number(m[6])
-  ).getTime();
+async function reloadAll(){
+  const [attText,mapText]=await Promise.all([
+    fetch(ATT_CSV,{cache:"no-store"}).then(r=>r.text()),
+    fetch(MAP_CSV,{cache:"no-store"}).then(r=>r.text())
+  ]);
+
+  const att=parseCSV(attText);
+  const map=parseCSV(mapText);
+
+  const activeMap={};
+  map.forEach(r=>{
+    if(r.card_uid && r.status==="active") activeMap[r.card_uid]=r;
+  });
+
+  const latest={};
+  att.forEach(r=>{
+    if(!r.card_uid) return;
+    const t=new Date(r.timestamp||r.Timestamp).getTime();
+    if(!latest[r.card_uid]||t>latest[r.card_uid].t){
+      latest[r.card_uid]={row:r,t};
+    }
+  });
+
+  const present=[];
+  const unknown=[];
+
+  Object.values(latest).forEach(({row})=>{
+    if(row.event==="IN" && activeMap[row.card_uid]){
+      present.push(activeMap[row.card_uid]);
+    }
+    if(!activeMap[row.card_uid]){
+      unknown.push(row);
+    }
+  });
+
+  renderPresent(present);
+  renderUnknown(unknown);
 }
 
-async function reloadAll(){
-  try{
-    const [attText, mapText] = await Promise.all([
-      fetch(ATT_CSV).then(r=>r.text()),
-      fetch(MAP_CSV).then(r=>r.text())
-    ]);
+function renderPresent(list){
+  const tbody=document.getElementById("presentTable");
+  tbody.innerHTML="";
+  list.sort((a,b)=>a.name.localeCompare(b.name));
+  list.forEach(r=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${r.name}</td><td>${r.class}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("presentCount").textContent=list.length;
+}
 
-    const att = parseCSV(attText);
-    const map = parseCSV(mapText);
-
-    dbgAttRows.textContent = att.length;
-    dbgMapRows.textContent = map.length;
-    dbgAttHeaders.textContent = Object.keys(att[0]||{}).join(" | ");
-    dbgMapHeaders.textContent = Object.keys(map[0]||{}).join(" | ");
-    dbgError.textContent = "—";
-
-    /* Latest mapping per card */
-    const mapping = {};
-    map.forEach(r=>{
-      const t = parseEU(r.Timestamp);
-      if(!mapping[r.card_uid] || t > mapping[r.card_uid]._t){
-        mapping[r.card_uid] = { ...r, _t:t };
-      }
-    });
-
-    /* Latest scan per card */
-    const latest = {};
-    att.forEach(r=>{
-      const t = parseEU(r.Timestamp);
-      if(!latest[r.card_uid] || t > latest[r.card_uid]._t){
-        latest[r.card_uid] = { ...r, _t:t };
-      }
-    });
-
-    const present=[], unknown=[];
-    Object.values(latest).forEach(r=>{
-      const m = mapping[r.card_uid];
-      if(!m){
-        unknown.push({ time:r.Timestamp, card:r.card_uid });
-      } else if(r.event === "IN"){
-        present.push({
-          name:m.student_name,
-          class:m.class,
-          time:r.Timestamp,
-          card:r.card_uid
-        });
-      }
-    });
-
-    presentTable.innerHTML="";
-    present.forEach(p=>{
-      presentTable.insertAdjacentHTML("beforeend",`
-        <tr>
-          <td>${p.name}</td>
-          <td>${p.class}</td>
-          <td>${p.time}</td>
-          <td>${p.card}</td>
-        </tr>
-      `);
-    });
-    presentCount.textContent = present.length;
-
-    unknownTable.innerHTML="";
-    unknown.forEach(u=>{
-      unknownTable.insertAdjacentHTML("beforeend",`
-        <tr class="unknown">
-          <td>${u.time}</td>
-          <td>${u.card}</td>
-        </tr>
-      `);
-    });
-
-    updateStatus.textContent = "Last updated: just now";
-  }catch(e){
-    dbgError.textContent = e.message;
+function renderUnknown(list){
+  const box=document.getElementById("unknownBox");
+  const empty=document.getElementById("noUnknown");
+  box.innerHTML="";
+  if(list.length===0){
+    empty.style.display="block";
+    return;
   }
+  empty.style.display="none";
+  list.forEach(r=>{
+    const div=document.createElement("div");
+    div.className="unknown-card";
+    div.innerHTML=`
+      <span>${r.card_uid.slice(0,6)}…</span>
+      <button onclick="alert('Register flow unchanged')">Register</button>
+    `;
+    box.appendChild(div);
+  });
 }
 
 reloadAll();
-setInterval(reloadAll, 20000);
 </script>
 
 </body>
