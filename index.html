@@ -1,7 +1,3 @@
-<!-- =========================
-File: /index.html
-(ONLY changes: cache-bust fetches + monotonic “newest snapshot wins” guard + warning surfaced via existing health line)
-========================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -199,9 +195,12 @@ let lastScan = { card: null, time: 0 };
 let lastSyncAt = 0;
 let lastError = "—";
 
-/* Monotonic acceptance guards (NEW) */
+/* Monotonic acceptance guards */
 let lastAcceptedMappingTs = 0;
 let lastAcceptedAttStateTs = 0;
+
+/* Mapping lookup */
+let mappingByCard = {};
 
 /* ================= CLOCK ================= */
 function updateClock(){
@@ -318,9 +317,22 @@ function parseEU(ts){
   return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5], +m[6]).getTime();
 }
 
+/* Helpers */
+function firstNameOf(full){
+  const s = (full || "").trim();
+  if (!s) return "";
+  return s.split(/\s+/)[0];
+}
+
+function maskCardLast4(card){
+  const s = (card || "").toString().trim();
+  const last4 = s.slice(-4);
+  return `••••${last4 || ""}`;
+}
+
 /* ================= LOADERS ================= */
 async function loadMapping(){
-  const url = `${MAPPING_CSV_URL}&_=${Date.now()}`; /* cache-bust (NEW) */
+  const url = `${MAPPING_CSV_URL}&_=${Date.now()}`;
   const csv = await fetch(url,{cache:"no-store"}).then(r=>r.text());
   const rows = parseCSV(csv);
 
@@ -334,7 +346,6 @@ async function loadMapping(){
     if (!latest[r.card_uid] || t >= latest[r.card_uid]._t) latest[r.card_uid] = { ...r, _t:t };
   });
 
-  /* Monotonic guard (NEW): ignore older snapshots */
   if (lastAcceptedMappingTs > 0 && (fetchedLatestTs === 0 || fetchedLatestTs + 2000 < lastAcceptedMappingTs)) {
     lastError = "Google cache served an older snapshot — keeping newest data.";
     mappingLoaded = true;
@@ -342,6 +353,10 @@ async function loadMapping(){
   }
 
   lastAcceptedMappingTs = Math.max(lastAcceptedMappingTs, fetchedLatestTs);
+
+  mappingByCard = Object.fromEntries(
+    Object.entries(latest).map(([card, r]) => [card, r])
+  );
 
   knownActiveCards = new Set(
     Object.values(latest)
@@ -353,7 +368,7 @@ async function loadMapping(){
 }
 
 async function loadLatestInOutState(){
-  const url = `${ATT_CSV_URL}&_=${Date.now()}`; /* cache-bust (NEW) */
+  const url = `${ATT_CSV_URL}&_=${Date.now()}`;
   const csv = await fetch(url,{cache:"no-store"}).then(r=>r.text());
   const rows = parseCSV(csv);
 
@@ -368,7 +383,6 @@ async function loadLatestInOutState(){
     if(!latest[r.card_uid] || t >= latest[r.card_uid]._t) latest[r.card_uid] = { ...r, _t:t };
   });
 
-  /* Monotonic guard (NEW): ignore older snapshots */
   if (lastAcceptedAttStateTs > 0 && (fetchedLatestTs === 0 || fetchedLatestTs + 2000 < lastAcceptedAttStateTs)) {
     lastError = "Google cache served an older snapshot — keeping newest data.";
     stateLoaded = true;
@@ -408,7 +422,6 @@ async function refreshMapping(){
   try{
     await loadMapping();
     lastSyncAt = Date.now();
-    if (lastError === "—") lastError = "—";
   }catch(e){
     lastError = (e && e.message) ? e.message : String(e);
   }finally{
@@ -420,7 +433,6 @@ async function refreshState(){
   try{
     await loadLatestInOutState();
     lastSyncAt = Date.now();
-    if (lastError === "—") lastError = "—";
   }catch(e){
     lastError = (e && e.message) ? e.message : String(e);
   }finally{
@@ -468,10 +480,13 @@ document.addEventListener("keydown", e => {
 
     if (!knownActiveCards.has(card)){
       postAttendance(card, "UNKNOWN");
-      showState("unknown", "PLEASE WAIT", "Ask a staff member");
+      showState("unknown", "PLEASE WAIT", `Card ${maskCardLast4(card)} | Ask a staff member`);
       updateHealth();
       return setTimeout(resetUI, RESET_MS);
     }
+
+    const fullName = (mappingByCard[card]?.student_name || "").trim();
+    const nameForLabel = firstNameOf(fullName);
 
     const next = (stateByCard[card] === "IN") ? "OUT" : "IN";
     stateByCard[card] = next;
@@ -479,9 +494,9 @@ document.addEventListener("keydown", e => {
     postAttendance(card, next);
 
     if (next === "IN"){
-      showState("in", "WELCOME", "You’re checked in");
+      showState("in", "WELCOME", fullName || (nameForLabel ? nameForLabel : "You’re checked in"));
     }else{
-      showState("out", "GOODBYE", "You’re checked out");
+      showState("out", "GOODBYE", fullName || (nameForLabel ? nameForLabel : "You’re checked out"));
     }
 
     updateHealth();
