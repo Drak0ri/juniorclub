@@ -17,6 +17,7 @@
   --border:#d0d7e2;
   --green:#0b6b2f;
   --yellow:#fff3b0;
+  --danger:#b00020;
   --text:#102d69;
 }
 
@@ -29,17 +30,28 @@ body{
   color:var(--text);
 }
 
+/* ===== HEADER ===== */
 header{
   background:var(--navy);
   color:#fff;
   padding:16px 20px;
+}
+
+header .top{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:16px;
 }
 
 header strong{
   font-size:18px;
+}
+
+header input{
+  padding:6px 8px;
+  border-radius:6px;
+  border:none;
 }
 
 header button{
@@ -52,6 +64,13 @@ header button{
   cursor:pointer;
 }
 
+header .meta{
+  font-size:12px;
+  opacity:.85;
+  margin-top:6px;
+}
+
+/* ===== LAYOUT ===== */
 main{
   max-width:1200px;
   margin:24px auto;
@@ -64,6 +83,10 @@ main{
   gap:20px;
 }
 
+@media(max-width:900px){
+  .grid{ grid-template-columns:1fr; }
+}
+
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -71,11 +94,10 @@ main{
   padding:18px;
 }
 
-/* ===== HERO COUNT ===== */
+/* ===== COUNT ===== */
 .count{
   font-size:56px;
   font-weight:800;
-  margin:0;
   color:var(--green);
 }
 .count-label{
@@ -95,26 +117,15 @@ th,td{
 }
 th{
   font-size:13px;
-  opacity:.8;
+  opacity:.7;
   text-transform:uppercase;
-}
-tbody tr:last-child td{
-  border-bottom:none;
 }
 
 /* ===== UNKNOWN ===== */
-.unknown-card{
+.unknown-row{
   background:var(--yellow);
-  border-radius:10px;
-  padding:10px;
-  margin-bottom:8px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:14px;
 }
-
-.unknown-card button{
+.unknown-action button{
   background:var(--navy);
   color:#fff;
   border:none;
@@ -124,25 +135,56 @@ tbody tr:last-child td{
   cursor:pointer;
 }
 
-/* ===== RESPONSIVE ===== */
-@media(max-width:900px){
-  .grid{ grid-template-columns:1fr; }
+/* ===== MODAL ===== */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
 }
+.modal-content{
+  background:#fff;
+  width:420px;
+  padding:16px;
+  border-radius:12px;
+}
+.modal-content label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin-top:10px;
+}
+.modal-content input,
+.modal-content select{
+  width:100%;
+  padding:6px;
+}
+.error{ color:var(--danger); font-weight:700; font-size:13px; }
+.success{ color:var(--green); font-weight:700; font-size:13px; }
 </style>
 </head>
 
 <body>
 
 <header>
-  <strong>Junior Club — Staff</strong>
-  <button onclick="reloadAll()">Refresh</button>
+  <div class="top">
+    <strong>Junior Club — Staff</strong>
+    <div>
+      <input id="operator" placeholder="staff email">
+      <button onclick="saveOperator()">Save</button>
+      <button onclick="reloadAll()">Refresh</button>
+    </div>
+  </div>
+  <div class="meta" id="updateStatus">Last updated: —</div>
 </header>
 
 <main>
 
 <div class="grid">
 
-  <!-- LEFT: PRESENT -->
+  <!-- LEFT -->
   <div>
 
     <div class="card" style="margin-bottom:20px">
@@ -165,38 +207,104 @@ tbody tr:last-child td{
 
   </div>
 
-  <!-- RIGHT: UNKNOWN -->
+  <!-- RIGHT -->
   <div>
     <div class="card">
       <h3>Unknown cards</h3>
-      <div id="unknownBox"></div>
-      <div id="noUnknown" style="font-size:14px;opacity:.6">No unknown cards</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Card</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="unknownTable"></tbody>
+      </table>
     </div>
   </div>
 
 </div>
 </main>
 
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Register / Edit Student</h3>
+
+    <label>Card UID</label>
+    <input id="m_card" disabled>
+
+    <label>Name</label>
+    <input id="m_name">
+
+    <label>Email</label>
+    <input id="m_email">
+
+    <label>Class</label>
+    <input id="m_class">
+
+    <label>Status</label>
+    <select id="m_status">
+      <option value="active">active</option>
+      <option value="inactive">inactive</option>
+    </select>
+
+    <label>PIN</label>
+    <input id="m_pin">
+
+    <label>Note</label>
+    <input id="m_note">
+
+    <div id="modalError" class="error"></div>
+    <div id="modalSuccess" class="success"></div>
+
+    <div style="margin-top:12px;text-align:right">
+      <button onclick="closeModal()">Cancel</button>
+      <button onclick="submitMapping()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ================= CONFIG (UNCHANGED DATA SOURCES) ================= */
+/* ===== CONFIG (UNCHANGED) ===== */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-/* ================================================================ */
 
+const MAP_FORM =
+  "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
+
+const MAP={
+  card:"entry.1712147498",
+  email:"entry.1171642279",
+  name:"entry.2022534068",
+  class:"entry.1723675198",
+  status:"entry.1124037588",
+  pin:"entry.352224440",
+  note:"entry.523442266",
+  mapped_by:"entry.1680238241",
+  schema:"entry.1809813215"
+};
+/* =============================== */
+
+/* ===== CSV SAFE PARSING ===== */
 function splitCSVLine(line){
   const out=[]; let cur="",q=false;
-  for(const c of line){
-    if(c==='"'){ q=!q; continue; }
-    if(c===','&&!q){ out.push(cur); cur=""; continue; }
-    cur+=c;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){
+      if(q && line[i+1]==='"'){ cur+='"'; i++; }
+      else q=!q;
+    } else if(c===',' && !q){
+      out.push(cur); cur="";
+    } else cur+=c;
   }
   out.push(cur);
   return out.map(s=>s.trim());
 }
-
 function parseCSV(text){
   const lines=text.trim().split("\n");
   const headers=splitCSVLine(lines[0]);
@@ -206,8 +314,28 @@ function parseCSV(text){
     return o;
   });
 }
+function parseEU(ts){
+  const m=ts&&ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
+  if(!m) return 0;
+  return new Date(+m[3],m[2]-1,+m[1],+m[4],+m[5],+m[6]).getTime();
+}
+/* ============================= */
+
+/* ===== STATE ===== */
+let latestUnknown=[];
+let activeMap={};
+/* ================= */
+
+/* ===== OPERATOR ===== */
+function saveOperator(){
+  localStorage.setItem("op",operator.value);
+}
+/* =================== */
 
 async function reloadAll(){
+  const now=Date.now();
+  document.getElementById("updateStatus").textContent="Last updated: just now";
+
   const [attText,mapText]=await Promise.all([
     fetch(ATT_CSV,{cache:"no-store"}).then(r=>r.text()),
     fetch(MAP_CSV,{cache:"no-store"}).then(r=>r.text())
@@ -216,7 +344,7 @@ async function reloadAll(){
   const att=parseCSV(attText);
   const map=parseCSV(mapText);
 
-  const activeMap={};
+  activeMap={};
   map.forEach(r=>{
     if(r.card_uid && r.status==="active") activeMap[r.card_uid]=r;
   });
@@ -224,26 +352,26 @@ async function reloadAll(){
   const latest={};
   att.forEach(r=>{
     if(!r.card_uid) return;
-    const t=new Date(r.timestamp||r.Timestamp).getTime();
+    const t=parseEU(r.timestamp||r.Timestamp);
     if(!latest[r.card_uid]||t>latest[r.card_uid].t){
       latest[r.card_uid]={row:r,t};
     }
   });
 
   const present=[];
-  const unknown=[];
+  latestUnknown=[];
 
   Object.values(latest).forEach(({row})=>{
     if(row.event==="IN" && activeMap[row.card_uid]){
       present.push(activeMap[row.card_uid]);
     }
     if(!activeMap[row.card_uid]){
-      unknown.push(row);
+      latestUnknown.push(row);
     }
   });
 
   renderPresent(present);
-  renderUnknown(unknown);
+  renderUnknown(latestUnknown);
 }
 
 function renderPresent(list){
@@ -259,25 +387,53 @@ function renderPresent(list){
 }
 
 function renderUnknown(list){
-  const box=document.getElementById("unknownBox");
-  const empty=document.getElementById("noUnknown");
-  box.innerHTML="";
-  if(list.length===0){
-    empty.style.display="block";
-    return;
-  }
-  empty.style.display="none";
+  const tbody=document.getElementById("unknownTable");
+  tbody.innerHTML="";
   list.forEach(r=>{
-    const div=document.createElement("div");
-    div.className="unknown-card";
-    div.innerHTML=`
-      <span>${r.card_uid.slice(0,6)}…</span>
-      <button onclick="alert('Register flow unchanged')">Register</button>
+    const tr=document.createElement("tr");
+    tr.className="unknown-row";
+    tr.innerHTML=`
+      <td>${r.timestamp}</td>
+      <td>${r.card_uid}</td>
+      <td class="unknown-action">
+        <button onclick="openModal('${r.card_uid}')">Register</button>
+      </td>
     `;
-    box.appendChild(div);
+    tbody.appendChild(tr);
   });
 }
 
+/* ===== MODAL ===== */
+function openModal(card){
+  if(!operator.value){
+    alert("Please enter and Save staff email first.");
+    return;
+  }
+  m_card.value=card;
+  modal.style.display="flex";
+}
+function closeModal(){
+  modal.style.display="none";
+}
+function submitMapping(){
+  const data=new URLSearchParams();
+  data.append(MAP.card,m_card.value);
+  data.append(MAP.email,m_email.value);
+  data.append(MAP.name,m_name.value);
+  data.append(MAP.class,m_class.value);
+  data.append(MAP.status,m_status.value);
+  data.append(MAP.pin,m_pin.value);
+  data.append(MAP.note,m_note.value);
+  data.append(MAP.mapped_by,operator.value);
+  data.append(MAP.schema,"jc_staff_v3");
+
+  fetch(MAP_FORM,{method:"POST",mode:"no-cors",body:data});
+  modalSuccess.textContent="Saved.";
+  setTimeout(()=>{ closeModal(); reloadAll(); },1000);
+}
+/* ================= */
+
+operator.value=localStorage.getItem("op")||"";
 reloadAll();
 </script>
 
