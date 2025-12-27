@@ -1,5 +1,6 @@
 <!-- =========================
 File: /staff.html
+(ONLY changes: cache-bust fetches + monotonic “newest snapshot wins” guard + visible warning pill/banner)
 ========================= -->
 <!DOCTYPE html>
 <html lang="en">
@@ -222,6 +223,9 @@ tr.unknown{ background:var(--warn); }
     <span class="pill" id="updateStatus">Last updated: —</span>
     <span class="pill" id="health">Data: —</span>
     <span class="pill" id="stale">Stale: —</span>
+
+    <!-- Warning banner (NEW) -->
+    <span class="pill badge-warn" id="cacheWarn" style="display:none;">⚠️ Google cache served an older snapshot — showing newest known data</span>
   </div>
 
   <div class="toolbar">
@@ -325,24 +329,9 @@ const ATT_CSV =
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
-/*
-Resolve Unknown → Prefilled Mapping Form (optional)
-- In Google Form editor: Get pre-filled link
-- Fill dummy values → Get link → copy the URL up to and including "usp=pp_url"
-- Set MAP_FORM_PREFILL_BASE to that "viewform?usp=pp_url" URL
-- Set MAP_ENTRY.card_uid to the correct entry.<id> for card_uid in your mapping form.
-*/
-const MAP_FORM_PREFILL_BASE = ""; // e.g. "https://docs.google.com/forms/d/e/<FORM_ID>/viewform?usp=pp_url"
-const MAP_ENTRY = {
-  card_uid: "",   // e.g. "entry.123456789"
-  mapped_by: "",  // optional: e.g. "entry.987654321"
-  status: "",     // optional: e.g. "entry.55555555"
-  schema: ""      // optional: e.g. "entry.44444444"
-};
-const MAP_DEFAULTS = {
-  status: "active",
-  schema: "v3"
-};
+const MAP_FORM_PREFILL_BASE = "";
+const MAP_ENTRY = { card_uid: "", mapped_by: "", status: "", schema: "" };
+const MAP_DEFAULTS = { status: "active", schema: "v3" };
 
 const STALE_WARN_MINUTES = 5;
 
@@ -384,6 +373,10 @@ let timer = null;
 let lastError = "—";
 let lastSyncAt = 0;
 
+/* Monotonic acceptance guards (NEW) */
+let lastAcceptedLatestAttTs = 0;
+let lastAcceptedAttRows = 0;
+
 function fmtTime(ts){
   if(!ts) return "—";
   return new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
@@ -414,11 +407,12 @@ function setStale(latestAttTs){
   const mins = Math.max(0, Math.floor(ageMs / 60000));
   const warn = mins >= STALE_WARN_MINUTES;
 
-  stale.textContent = warn
-    ? `Stale: ${mins}m ⚠️`
-    : `Stale: ${mins}m`;
-
+  stale.textContent = warn ? `Stale: ${mins}m ⚠️` : `Stale: ${mins}m`;
   stale.className = "pill" + (warn ? " badge-warn" : "");
+}
+
+function showCacheWarn(show){
+  cacheWarn.style.display = show ? "inline-block" : "none";
 }
 
 /* ===========================
@@ -635,9 +629,7 @@ function applyFiltersAndRender(){
   rebuildClassOptions(presentAll);
 }
 
-function printPage(){
-  window.print();
-}
+function printPage(){ window.print(); }
 
 async function copyPresent(){
   const lines = [];
@@ -709,11 +701,16 @@ async function reloadAll(){
     startTimer();
 
     lastError = "—";
+    showCacheWarn(false);
     setHealth(false, false);
 
+    /* cache-bust (NEW) */
+    const attUrl = `${ATT_CSV}&_=${Date.now()}`;
+    const mapUrl = `${MAP_CSV}&_=${Date.now()}`;
+
     const [attText, mapText] = await Promise.all([
-      fetch(ATT_CSV,{cache:"no-store"}).then(r=>r.text()),
-      fetch(MAP_CSV,{cache:"no-store"}).then(r=>r.text())
+      fetch(attUrl,{cache:"no-store"}).then(r=>r.text()),
+      fetch(mapUrl,{cache:"no-store"}).then(r=>r.text())
     ]);
 
     const attAll = parseCSV(attText);
@@ -730,11 +727,40 @@ async function reloadAll(){
     dbgError.textContent = "—";
 
     /* Latest attendance timestamp (all time) for stale indicator */
-    latestAttendanceTsAllTime = 0;
+    let fetchedLatestAttTs = 0;
     attAll.forEach(r => {
       const t = parseEU(r.Timestamp);
-      if (t > latestAttendanceTsAllTime) latestAttendanceTsAllTime = t;
+      if (t > fetchedLatestAttTs) fetchedLatestAttTs = t;
     });
+
+    const gotClearlyOlderSnapshot =
+      lastAcceptedLatestAttTs > 0 && (
+        fetchedLatestAttTs === 0 || fetchedLatestAttTs + 2000 < lastAcceptedLatestAttTs
+      );
+
+    const gotRowCountDropWarning =
+      lastAcceptedAttRows > 0 &&
+      attAll.length + 2 < lastAcceptedAttRows &&
+      fetchedLatestAttTs <= lastAcceptedLatestAttTs;
+
+    if (gotClearlyOlderSnapshot || gotRowCountDropWarning) {
+      lastError = "Received older published CSV snapshot (Google cache). Keeping newest view.";
+      dbgError.textContent = lastError;
+      showCacheWarn(true);
+
+      setStale(lastAcceptedLatestAttTs);
+      dbgLatestAttTs.textContent = lastAcceptedLatestAttTs
+        ? new Date(lastAcceptedLatestAttTs).toLocaleString("sv-SE")
+        : "—";
+
+      setHealth(true, true);
+      return;
+    }
+
+    lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, fetchedLatestAttTs);
+    lastAcceptedAttRows = attAll.length;
+
+    latestAttendanceTsAllTime = fetchedLatestAttTs;
     dbgLatestAttTs.textContent = latestAttendanceTsAllTime ? new Date(latestAttendanceTsAllTime).toLocaleString("sv-SE") : "—";
     setStale(latestAttendanceTsAllTime);
 
@@ -752,10 +778,7 @@ async function reloadAll(){
     const useTodayOnly = todayOnly.checked;
     const dayStart = startOfTodayLocalTs();
     const att = useTodayOnly
-      ? attAll.filter(r => {
-          const t = parseEU(r.Timestamp);
-          return t >= dayStart;
-        })
+      ? attAll.filter(r => parseEU(r.Timestamp) >= dayStart)
       : attAll;
 
     /* Latest scan per card (within chosen dataset) */
@@ -835,6 +858,7 @@ INIT
 =========================== */
 setHealth(false, false);
 setStale(0);
+showCacheWarn(false);
 reloadAll();
 setInterval(reloadAll, 20000);
 </script>
