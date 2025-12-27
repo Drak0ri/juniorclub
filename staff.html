@@ -1,3 +1,4 @@
+<!-- /staff.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,6 +39,17 @@ header .top{
   gap:12px;
   flex-wrap:wrap;
 }
+
+/* NEW: clickable logo/brand */
+header .brandlink{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+  color:#fff;
+  font-weight:800;
+}
+header .brandlink img{ height:34px; }
 
 header input, header select{
   padding:6px 8px;
@@ -333,7 +345,11 @@ TOAST
 
 <header>
   <div class="top">
-    <strong>Junior Club – Staff</strong>
+    <a class="brandlink" href="./index.html" aria-label="Back to scan page" title="Scan page">
+      <img src="./logo-negative.png" alt="IES Logo">
+      <span>Junior Club – Staff</span>
+    </a>
+
     <div class="group">
       <input id="operator" placeholder="staff email">
       <button onclick="saveOperator()">Save</button>
@@ -425,7 +441,7 @@ TOAST
       </table>
 
       <div class="section-title">Registered (awaiting rescan)</div>
-      <div class="smallmuted">After registering, the student must scan again to check in.</div>
+      <div class="smallmuted" id="pendingHelp">After registering, the student must scan again to check in.</div>
       <table>
         <thead>
           <tr>
@@ -581,13 +597,14 @@ const CLASS_CUSTOM_VALUE = "__CUSTOM__";
 
 const POST_SAVE_REFRESH_MS = 20_000;
 
-/* Optimistic mapping so newly-registered cards don't "bounce" back into Unknown */
 const OPTIMISTIC_MAP_KEY = "juniorclub_optimistic_mapping_v1";
 const OPTIMISTIC_TTL_MS = 24 * 60 * 60 * 1000;
 
-/* NEW: pending rescan list (so registered cards are shown until they scan again) */
 const PENDING_RESCAN_KEY = "juniorclub_pending_rescan_v1";
 const PENDING_RESCAN_TTL_MS = 24 * 60 * 60 * 1000;
+
+const PENDING_AUTO_HIDE_MINUTES = 60;
+const PENDING_AUTO_HIDE_MS = PENDING_AUTO_HIDE_MINUTES * 60 * 1000;
 
 /* ===========================
 OPERATOR
@@ -630,7 +647,6 @@ let lastSyncAt = 0;
 let lastAcceptedLatestAttTs = 0;
 let lastAcceptedAttRows = 0;
 
-/* Mapping snapshot guard */
 let lastAcceptedLatestMapTs = 0;
 let lastAcceptedMapRows = 0;
 
@@ -825,7 +841,7 @@ function reconcileAndMergeOptimisticMapping(mapping){
 }
 
 /* ===========================
-PENDING RESCAN (NEW)
+PENDING RESCAN
 =========================== */
 function loadPendingRescan(){
   try{
@@ -839,6 +855,7 @@ function loadPendingRescan(){
       const t = Number(savedAt || 0);
       if (!t) continue;
       if (now - t > PENDING_RESCAN_TTL_MS) continue;
+      if (now - t > PENDING_AUTO_HIDE_MS) continue;
       out[card] = t;
     }
     return out;
@@ -861,16 +878,6 @@ function addPendingRescan(cardUid, savedAt){
   const all = loadPendingRescan();
   all[card] = Number(savedAt || Date.now());
   savePendingRescan(all);
-}
-
-function removePendingRescan(cardUid){
-  const card = (cardUid || "").trim();
-  if (!card) return;
-  const all = loadPendingRescan();
-  if (all[card]){
-    delete all[card];
-    savePendingRescan(all);
-  }
 }
 
 function prunePendingRescanAgainstAttendance(latestByCard){
@@ -1028,6 +1035,10 @@ function openMapModal(cardUid, mode){
 
   mapModalOverlay.classList.add("show");
   mapModalOverlay.setAttribute("aria-hidden","false");
+
+  if (modalMode === "register"){
+    showToast("Register the card — then scan again to check in");
+  }
 }
 
 function closeMapModal(){
@@ -1098,12 +1109,10 @@ async function submitMapModal(){
       _t: savedAt
     });
 
-    /* NEW: keep visible under "Registered (awaiting rescan)" until they scan again */
     addPendingRescan(cardUid, savedAt);
 
     closeMapModal();
 
-    /* NEW: reminder toast (A) */
     showToast("Saved ✅ — now scan again to check in");
 
     reloadAll();
@@ -1348,7 +1357,6 @@ async function reloadAll(){
     dbgMapHeaders.textContent = Object.keys(mapAll[0]||{}).join(" | ");
     dbgError.textContent = "—";
 
-    /* Attendance cache guard */
     let fetchedLatestAttTs = 0;
     attAll.forEach(r => {
       const t = parseEU(r.Timestamp);
@@ -1385,7 +1393,6 @@ async function reloadAll(){
     dbgLatestAttTs.textContent = fetchedLatestAttTs ? new Date(fetchedLatestAttTs).toLocaleString("sv-SE") : "—";
     setStale(fetchedLatestAttTs);
 
-    /* Mapping cache guard */
     let fetchedLatestMapTs = 0;
     mapAll.forEach(r=>{
       const t = parseEU(r.Timestamp);
@@ -1422,18 +1429,15 @@ async function reloadAll(){
       lastAcceptedMapRows = mapAll.length;
     }
 
-    /* Optimistic mapping overlay */
     mapping = reconcileAndMergeOptimisticMapping(mapping);
     mappingByCard = mapping;
 
-    /* Today-only filter (attendance only) */
     const useTodayOnly = todayOnly.checked;
     const dayStart = startOfTodayLocalTs();
     const att = useTodayOnly
       ? attAll.filter(r => parseEU(r.Timestamp) >= dayStart)
       : attAll;
 
-    /* Latest scan per card */
     const latest = {};
     att.forEach(r=>{
       if(!r.card_uid) return;
@@ -1443,7 +1447,6 @@ async function reloadAll(){
       }
     });
 
-    /* NEW: remove pending-rescan once they actually scan again */
     const pendingRaw = prunePendingRescanAgainstAttendance(latest);
 
     const present = [];
@@ -1468,7 +1471,6 @@ async function reloadAll(){
       }
     });
 
-    /* NEW: build pending list for UI */
     const pending = [];
     for (const [card, savedAt] of Object.entries(pendingRaw)){
       const m = mapping[card] || {};
@@ -1483,6 +1485,9 @@ async function reloadAll(){
     presentAll = present;
     unknownAll = unknown;
     pendingAll = pending;
+
+    pendingHelp.textContent =
+      `After registering, the student must scan again to check in. (Auto-clears after ${PENDING_AUTO_HIDE_MINUTES} minutes.)`;
 
     applyFiltersAndRender();
 
