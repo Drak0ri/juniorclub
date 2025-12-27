@@ -18,18 +18,22 @@ File: /staff.html
   --warn:#fff7b2;
   --green:#0b6b2f;
   --muted:#5b6b86;
+  --danger:#b00020;
 }
+
 body{
   margin:0;
   font-family:"Open Sans",Arial,sans-serif;
   background:var(--bg);
   color:#102d69;
 }
+
 header{
   background:var(--navy);
   color:#fff;
   padding:14px 18px;
 }
+
 header .top{
   display:flex;
   justify-content:space-between;
@@ -37,20 +41,24 @@ header .top{
   gap:12px;
   flex-wrap:wrap;
 }
-header input{
+
+header input, header select{
   padding:6px 8px;
   border-radius:6px;
   border:none;
-  min-width:240px;
+  min-width:220px;
 }
+
 header .meta{
   font-size:12px;
-  opacity:.9;
-  margin-top:6px;
+  opacity:.95;
+  margin-top:8px;
   display:flex;
   flex-wrap:wrap;
   gap:10px;
+  align-items:center;
 }
+
 .meta .pill{
   display:inline-block;
   background:rgba(255,255,255,0.12);
@@ -58,25 +66,81 @@ header .meta{
   border-radius:999px;
   font-weight:700;
 }
+
+.toolbar{
+  margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+
+.toolbar .group{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.toggle{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,0.10);
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:12px;
+  user-select:none;
+}
+
+.toggle input{ min-width:auto; }
+
 button{
   background:var(--navy);
   color:#fff;
   border:none;
   padding:6px 10px;
   border-radius:6px;
-  font-weight:700;
+  font-weight:800;
   cursor:pointer;
 }
+
 button.secondary{
   background:#fff;
   color:var(--navy);
   border:1px solid var(--border);
 }
+
+button.small{
+  padding:5px 8px;
+  font-size:12px;
+  border-radius:6px;
+}
+
+a.smalllink{
+  display:inline-block;
+  padding:5px 8px;
+  font-size:12px;
+  border-radius:6px;
+  font-weight:800;
+  text-decoration:none;
+  background:#fff;
+  color:var(--navy);
+  border:1px solid var(--border);
+}
+
+a.smalllink.disabled{
+  opacity:.5;
+  pointer-events:none;
+}
+
 main{
   max-width:1200px;
   margin:20px auto;
   padding:0 16px;
 }
+
 .card{
   background:#fff;
   border:1px solid var(--border);
@@ -84,30 +148,37 @@ main{
   padding:16px;
   margin-bottom:16px;
 }
+
 .big{
   font-size:48px;
   font-weight:800;
   color:var(--green);
 }
+
 table{
   width:100%;
   border-collapse:collapse;
 }
+
 th,td{
   padding:10px;
   border-bottom:1px solid var(--border);
+  vertical-align:top;
 }
-tr.unknown{
-  background:var(--warn);
-}
+
+tr.unknown{ background:var(--warn); }
+
 .grid{
   display:grid;
   grid-template-columns:1fr;
   gap:16px;
 }
+
 @media (min-width:980px){
   .grid{ grid-template-columns:1fr 1fr; }
 }
+
+/* --- Debug hidden by default --- */
 .debug{
   display:none;
   font-size:12px;
@@ -121,6 +192,17 @@ tr.unknown{
   opacity:.8;
   text-decoration:underline;
 }
+
+.smallmuted{ font-size:12px; opacity:.75; }
+
+.badge-warn{ color:#000; background:var(--warn); border-radius:999px; padding:2px 8px; font-weight:800; }
+.badge-danger{ color:#fff; background:var(--danger); border-radius:999px; padding:2px 8px; font-weight:800; }
+
+@media print{
+  header, .toggle-debug, #debugBox, #unknownCardHelp { display:none !important; }
+  body{ background:#fff; }
+  .card{ border:none; }
+}
 </style>
 </head>
 
@@ -129,15 +211,44 @@ tr.unknown{
 <header>
   <div class="top">
     <strong>Junior Club – Staff</strong>
-    <div>
+    <div class="group">
       <input id="operator" placeholder="staff email">
       <button onclick="saveOperator()">Save</button>
       <button class="secondary" onclick="reloadAll()">Refresh</button>
     </div>
   </div>
+
   <div class="meta">
     <span class="pill" id="updateStatus">Last updated: —</span>
     <span class="pill" id="health">Data: —</span>
+    <span class="pill" id="stale">Stale: —</span>
+  </div>
+
+  <div class="toolbar">
+    <div class="group">
+      <label class="toggle" title="Limits attendance view to scans from today (local time).">
+        <input type="checkbox" id="todayOnly">
+        Today-only
+      </label>
+    </div>
+
+    <div class="group">
+      <input id="search" placeholder="search name / class / card" style="min-width:260px;">
+      <select id="classFilter" title="Filter by class" style="min-width:180px;">
+        <option value="">All classes</option>
+      </select>
+      <select id="sortBy" title="Sort present list" style="min-width:200px;">
+        <option value="time_desc">Sort: Latest time</option>
+        <option value="name_asc">Sort: Name (A–Z)</option>
+        <option value="class_asc">Sort: Class (A–Z)</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <button class="secondary" onclick="printPage()">Print</button>
+      <button class="secondary" onclick="copyPresent()">Copy list</button>
+      <button class="secondary" onclick="exportPresentCsv()">Export CSV</button>
+    </div>
   </div>
 </header>
 
@@ -146,7 +257,7 @@ tr.unknown{
 <div class="card">
   <h2>Currently Present</h2>
   <div class="big" id="presentCount">0</div>
-  <div style="font-size:12px;opacity:.75">
+  <div class="smallmuted">
     Latest scan per card (event = IN, mapping status = active)
   </div>
 </div>
@@ -172,11 +283,15 @@ tr.unknown{
   <div>
     <div class="card">
       <h2>Unknown Cards</h2>
+      <div class="smallmuted" id="unknownCardHelp">
+        Tip: Use <strong>Map</strong> to open the prefilled mapping form (if configured), or <strong>Copy</strong> to paste into the Mapping Form.
+      </div>
       <table>
         <thead>
           <tr>
             <th>Time</th>
             <th>Card</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="unknownTable"></tbody>
@@ -193,6 +308,7 @@ tr.unknown{
     Mapping rows: <span id="dbgMapRows">—</span><br>
     Attendance headers: <span id="dbgAttHeaders"></span><br>
     Mapping headers: <span id="dbgMapHeaders"></span><br>
+    Latest attendance timestamp: <span id="dbgLatestAttTs">—</span><br>
     Last error: <span id="dbgError"></span>
   </div>
 </div>
@@ -200,18 +316,69 @@ tr.unknown{
 </main>
 
 <script>
-/* ===== CONFIG ===== */
+/* ===========================
+CONFIG
+=========================== */
 const ATT_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const MAP_CSV =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
-/* ===== OPERATOR ===== */
+/*
+Resolve Unknown → Prefilled Mapping Form (optional)
+- In Google Form editor: Get pre-filled link
+- Fill dummy values → Get link → copy the URL up to and including "usp=pp_url"
+- Set MAP_FORM_PREFILL_BASE to that "viewform?usp=pp_url" URL
+- Set MAP_ENTRY.card_uid to the correct entry.<id> for card_uid in your mapping form.
+*/
+const MAP_FORM_PREFILL_BASE = ""; // e.g. "https://docs.google.com/forms/d/e/<FORM_ID>/viewform?usp=pp_url"
+const MAP_ENTRY = {
+  card_uid: "",   // e.g. "entry.123456789"
+  mapped_by: "",  // optional: e.g. "entry.987654321"
+  status: "",     // optional: e.g. "entry.55555555"
+  schema: ""      // optional: e.g. "entry.44444444"
+};
+const MAP_DEFAULTS = {
+  status: "active",
+  schema: "v3"
+};
+
+const STALE_WARN_MINUTES = 5;
+
+/* ===========================
+OPERATOR
+=========================== */
 function saveOperator(){ localStorage.setItem("op", operator.value); }
 operator.value = localStorage.getItem("op") || "";
 
-/* ===== HEALTH ===== */
+/* ===========================
+PREFERENCES
+=========================== */
+function loadPrefBool(key, fallback){
+  const v = localStorage.getItem(key);
+  if (v === null) return fallback;
+  return v === "1";
+}
+function savePrefBool(key, value){
+  localStorage.setItem(key, value ? "1" : "0");
+}
+function loadPrefStr(key, fallback){
+  const v = localStorage.getItem(key);
+  return (v === null) ? fallback : v;
+}
+function savePrefStr(key, value){
+  localStorage.setItem(key, value);
+}
+
+todayOnly.checked = loadPrefBool("todayOnly", true);
+search.value = loadPrefStr("search", "");
+sortBy.value = loadPrefStr("sortBy", "time_desc");
+classFilter.value = loadPrefStr("classFilter", "");
+
+/* ===========================
+HEALTH / STATUS
+=========================== */
 let lastRefresh = 0;
 let timer = null;
 let lastError = "—";
@@ -220,13 +387,6 @@ let lastSyncAt = 0;
 function fmtTime(ts){
   if(!ts) return "—";
   return new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-}
-
-function setHealth(mappingOk, attendanceOk){
-  const m = mappingOk ? "✅" : "⏳";
-  const a = attendanceOk ? "✅" : "⏳";
-  const err = lastError && lastError !== "—" ? ` | Error: ${lastError}` : "";
-  health.textContent = `Data: mapping ${m} attendance ${a} | Last sync: ${fmtTime(lastSyncAt)}${err}`;
 }
 
 function startTimer(){
@@ -238,7 +398,32 @@ function startTimer(){
   },1000);
 }
 
-/* ===== CSV (RFC4180-ish) ===== */
+function setHealth(mappingOk, attendanceOk){
+  const m = mappingOk ? "✅" : "⏳";
+  const a = attendanceOk ? "✅" : "⏳";
+  const err = lastError && lastError !== "—" ? ` | Error: ${lastError}` : "";
+  health.textContent = `Data: mapping ${m} attendance ${a} | Last sync: ${fmtTime(lastSyncAt)}${err}`;
+}
+
+function setStale(latestAttTs){
+  if(!latestAttTs){
+    stale.textContent = "Stale: —";
+    return;
+  }
+  const ageMs = Date.now() - latestAttTs;
+  const mins = Math.max(0, Math.floor(ageMs / 60000));
+  const warn = mins >= STALE_WARN_MINUTES;
+
+  stale.textContent = warn
+    ? `Stale: ${mins}m ⚠️`
+    : `Stale: ${mins}m`;
+
+  stale.className = "pill" + (warn ? " badge-warn" : "");
+}
+
+/* ===========================
+CSV PARSER (RFC4180-ish)
+=========================== */
 function parseCSV(text){
   const rows = [];
   let row = [];
@@ -270,7 +455,6 @@ function parseCSV(text){
 
     if (!inQuotes && c === ","){ pushField(); continue; }
     if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
-
     field += c;
   }
 
@@ -287,7 +471,6 @@ function parseCSV(text){
     });
 }
 
-/* EU timestamp parser */
 function parseEU(ts){
   if(!ts) return 0;
   const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
@@ -302,7 +485,15 @@ function parseEU(ts){
   ).getTime();
 }
 
-/* ===== SAFE RENDERING ===== */
+function startOfTodayLocalTs(){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d.getTime();
+}
+
+/* ===========================
+SAFE RENDERING
+=========================== */
 function clearNode(node){
   while (node.firstChild) node.removeChild(node.firstChild);
 }
@@ -316,9 +507,198 @@ function addRow(tbody, cells, className){
     tr.appendChild(td);
   }
   tbody.appendChild(tr);
+  return tr;
 }
 
-/* ===== MAIN LOAD ===== */
+/* ===========================
+DATA + VIEW STATE
+=========================== */
+let presentAll = [];
+let unknownAll = [];
+let latestAttendanceTsAllTime = 0;
+
+function normalizeStr(s){ return (s || "").toString().trim().toLowerCase(); }
+
+function buildMappingPrefillUrl(cardUid){
+  if (!MAP_FORM_PREFILL_BASE || !MAP_ENTRY.card_uid) return null;
+  try{
+    const url = new URL(MAP_FORM_PREFILL_BASE);
+    url.searchParams.set(MAP_ENTRY.card_uid, cardUid);
+
+    if (operator.value && MAP_ENTRY.mapped_by) url.searchParams.set(MAP_ENTRY.mapped_by, operator.value);
+    if (MAP_ENTRY.status && MAP_DEFAULTS.status) url.searchParams.set(MAP_ENTRY.status, MAP_DEFAULTS.status);
+    if (MAP_ENTRY.schema && MAP_DEFAULTS.schema) url.searchParams.set(MAP_ENTRY.schema, MAP_DEFAULTS.schema);
+
+    return url.toString();
+  }catch{
+    return null;
+  }
+}
+
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch{
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  }
+}
+
+/* ===========================
+FILTERS / SORT / EXPORT
+=========================== */
+function rebuildClassOptions(present){
+  const wanted = classFilter.value;
+  const classes = Array.from(new Set(present.map(p => p.class).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+  clearNode(classFilter);
+  const optAll = document.createElement("option");
+  optAll.value = "";
+  optAll.textContent = "All classes";
+  classFilter.appendChild(optAll);
+
+  classes.forEach(c=>{
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    classFilter.appendChild(opt);
+  });
+
+  classFilter.value = classes.includes(wanted) ? wanted : "";
+  savePrefStr("classFilter", classFilter.value);
+}
+
+function applyFiltersAndRender(){
+  const q = normalizeStr(search.value);
+  const cls = classFilter.value;
+  const sort = sortBy.value;
+
+  let present = [...presentAll];
+  let unknown = [...unknownAll];
+
+  if (cls){
+    present = present.filter(p => p.class === cls);
+  }
+
+  if (q){
+    present = present.filter(p => {
+      const hay = `${p.name} ${p.class} ${p.card}`.toLowerCase();
+      return hay.includes(q);
+    });
+    unknown = unknown.filter(u => {
+      const hay = `${u.card} ${u.time}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
+  if (sort === "name_asc"){
+    present.sort((a,b)=>a.name.localeCompare(b.name));
+  } else if (sort === "class_asc"){
+    present.sort((a,b)=>(a.class||"").localeCompare(b.class||"") || a.name.localeCompare(b.name));
+  } else {
+    present.sort((a,b)=> (b._t - a._t));
+  }
+
+  clearNode(presentTable);
+  present.forEach(p => addRow(presentTable, [p.name, p.class, p.time]));
+
+  presentCount.textContent = String(present.length);
+
+  clearNode(unknownTable);
+  unknown.forEach(u=>{
+    const tr = addRow(unknownTable, [u.time, u.card, ""], "unknown");
+
+    const actionsTd = tr.lastChild;
+    actionsTd.textContent = "";
+
+    const mapUrl = buildMappingPrefillUrl(u.card);
+
+    const mapA = document.createElement("a");
+    mapA.className = "smalllink" + (mapUrl ? "" : " disabled");
+    mapA.textContent = "Map";
+    mapA.href = mapUrl || "#";
+    mapA.target = "_blank";
+    mapA.rel = "noopener";
+    actionsTd.appendChild(mapA);
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "secondary small";
+    copyBtn.style.marginLeft = "8px";
+    copyBtn.textContent = "Copy";
+    copyBtn.onclick = () => copyText(u.card);
+    actionsTd.appendChild(copyBtn);
+  });
+
+  rebuildClassOptions(presentAll);
+}
+
+function printPage(){
+  window.print();
+}
+
+async function copyPresent(){
+  const lines = [];
+  const q = normalizeStr(search.value);
+  const cls = classFilter.value;
+
+  let present = [...presentAll];
+  if (cls) present = present.filter(p => p.class === cls);
+  if (q) present = present.filter(p => (`${p.name} ${p.class} ${p.card}`.toLowerCase().includes(q)));
+  present.sort((a,b)=> (b._t - a._t));
+
+  lines.push(`Junior Club — Present (${present.length})`);
+  lines.push(`Generated: ${new Date().toLocaleString("sv-SE")}`);
+  lines.push("");
+
+  present.forEach(p => lines.push(`${p.class}\t${p.name}\t${p.time}`));
+  await copyText(lines.join("\n"));
+}
+
+function toCsv(rows, headers){
+  const esc = (v) => {
+    const s = (v ?? "").toString();
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+    return s;
+  };
+  return [headers.join(","), ...rows.map(r => headers.map(h => esc(r[h])).join(","))].join("\n");
+}
+
+function exportPresentCsv(){
+  const q = normalizeStr(search.value);
+  const cls = classFilter.value;
+
+  let present = [...presentAll];
+  if (cls) present = present.filter(p => p.class === cls);
+  if (q) present = present.filter(p => (`${p.name} ${p.class} ${p.card}`.toLowerCase().includes(q)));
+  present.sort((a,b)=> (b._t - a._t));
+
+  const rows = present.map(p => ({
+    student_name: p.name,
+    class: p.class,
+    timestamp: p.time,
+    card_uid: p.card
+  }));
+
+  const csv = toCsv(rows, ["student_name","class","timestamp","card_uid"]);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  const yyyy = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `juniorclub_present_${yyyy}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ===========================
+MAIN LOAD
+=========================== */
 async function reloadAll(){
   let mappingOk = false;
   let attendanceOk = false;
@@ -336,19 +716,29 @@ async function reloadAll(){
       fetch(MAP_CSV,{cache:"no-store"}).then(r=>r.text())
     ]);
 
-    const att = parseCSV(attText);
+    const attAll = parseCSV(attText);
     const map = parseCSV(mapText);
 
-    attendanceOk = att.length >= 0;
-    mappingOk = map.length >= 0;
+    attendanceOk = true;
+    mappingOk = true;
     lastSyncAt = Date.now();
 
-    dbgAttRows.textContent = String(att.length);
+    dbgAttRows.textContent = String(attAll.length);
     dbgMapRows.textContent = String(map.length);
-    dbgAttHeaders.textContent = Object.keys(att[0]||{}).join(" | ");
+    dbgAttHeaders.textContent = Object.keys(attAll[0]||{}).join(" | ");
     dbgMapHeaders.textContent = Object.keys(map[0]||{}).join(" | ");
     dbgError.textContent = "—";
 
+    /* Latest attendance timestamp (all time) for stale indicator */
+    latestAttendanceTsAllTime = 0;
+    attAll.forEach(r => {
+      const t = parseEU(r.Timestamp);
+      if (t > latestAttendanceTsAllTime) latestAttendanceTsAllTime = t;
+    });
+    dbgLatestAttTs.textContent = latestAttendanceTsAllTime ? new Date(latestAttendanceTsAllTime).toLocaleString("sv-SE") : "—";
+    setStale(latestAttendanceTsAllTime);
+
+    /* Latest mapping per card */
     const mapping = {};
     map.forEach(r=>{
       if(!r.card_uid) return;
@@ -358,6 +748,17 @@ async function reloadAll(){
       }
     });
 
+    /* Today-only filter (attendance only) */
+    const useTodayOnly = todayOnly.checked;
+    const dayStart = startOfTodayLocalTs();
+    const att = useTodayOnly
+      ? attAll.filter(r => {
+          const t = parseEU(r.Timestamp);
+          return t >= dayStart;
+        })
+      : attAll;
+
+    /* Latest scan per card (within chosen dataset) */
     const latest = {};
     att.forEach(r=>{
       if(!r.card_uid) return;
@@ -374,7 +775,7 @@ async function reloadAll(){
       const m = mapping[r.card_uid];
 
       if(!m){
-        unknown.push({ time:r.Timestamp, card:r.card_uid });
+        unknown.push({ time:r.Timestamp || "", card:r.card_uid || "" });
         return;
       }
 
@@ -382,17 +783,17 @@ async function reloadAll(){
         present.push({
           name: m.student_name || "",
           class: m.class || "",
-          time: r.Timestamp || ""
+          time: r.Timestamp || "",
+          card: r.card_uid || "",
+          _t: r._t || 0
         });
       }
     });
 
-    clearNode(presentTable);
-    present.forEach(p => addRow(presentTable, [p.name, p.class, p.time]));
-    presentCount.textContent = String(present.length);
+    presentAll = present;
+    unknownAll = unknown;
 
-    clearNode(unknownTable);
-    unknown.forEach(u => addRow(unknownTable, [u.time, u.card], "unknown"));
+    applyFiltersAndRender();
 
   }catch(e){
     lastError = (e && e.message) ? e.message : String(e);
@@ -402,12 +803,38 @@ async function reloadAll(){
   }
 }
 
+/* ===========================
+EVENTS
+=========================== */
+todayOnly.addEventListener("change", ()=>{
+  savePrefBool("todayOnly", todayOnly.checked);
+  reloadAll();
+});
+
+search.addEventListener("input", ()=>{
+  savePrefStr("search", search.value);
+  applyFiltersAndRender();
+});
+
+classFilter.addEventListener("change", ()=>{
+  savePrefStr("classFilter", classFilter.value);
+  applyFiltersAndRender();
+});
+
+sortBy.addEventListener("change", ()=>{
+  savePrefStr("sortBy", sortBy.value);
+  applyFiltersAndRender();
+});
+
 function toggleDebug(){
   debugBox.classList.toggle("show");
 }
 
-/* ===== INIT ===== */
+/* ===========================
+INIT
+=========================== */
 setHealth(false, false);
+setStale(0);
 reloadAll();
 setInterval(reloadAll, 20000);
 </script>
