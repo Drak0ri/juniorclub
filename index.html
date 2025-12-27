@@ -1,5 +1,6 @@
 <!-- =========================
 File: /index.html
+(ONLY changes: cache-bust fetches + monotonic “newest snapshot wins” guard + warning surfaced via existing health line)
 ========================= -->
 <!DOCTYPE html>
 <html lang="en">
@@ -198,6 +199,10 @@ let lastScan = { card: null, time: 0 };
 let lastSyncAt = 0;
 let lastError = "—";
 
+/* Monotonic acceptance guards (NEW) */
+let lastAcceptedMappingTs = 0;
+let lastAcceptedAttStateTs = 0;
+
 /* ================= CLOCK ================= */
 function updateClock(){
   clockEl.textContent = new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
@@ -242,7 +247,7 @@ function fmtTime(ts){
 function updateHealth(){
   const m = mappingLoaded ? "✅" : "⏳";
   const s = stateLoaded ? "✅" : "⏳";
-  const err = lastError && lastError !== "—" ? ` | Error: ${lastError}` : "";
+  const err = lastError && lastError !== "—" ? ` | ⚠️ ${lastError}` : "";
   healthEl.textContent = `Data: mapping ${m} state ${s} | Last sync: ${fmtTime(lastSyncAt)}${err}`;
 }
 
@@ -315,15 +320,28 @@ function parseEU(ts){
 
 /* ================= LOADERS ================= */
 async function loadMapping(){
-  const csv = await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+  const url = `${MAPPING_CSV_URL}&_=${Date.now()}`; /* cache-bust (NEW) */
+  const csv = await fetch(url,{cache:"no-store"}).then(r=>r.text());
   const rows = parseCSV(csv);
 
   const latest = {};
+  let fetchedLatestTs = 0;
+
   rows.forEach(r => {
     if (!r.card_uid) return;
     const t = parseEU(r.Timestamp);
+    if (t > fetchedLatestTs) fetchedLatestTs = t;
     if (!latest[r.card_uid] || t >= latest[r.card_uid]._t) latest[r.card_uid] = { ...r, _t:t };
   });
+
+  /* Monotonic guard (NEW): ignore older snapshots */
+  if (lastAcceptedMappingTs > 0 && (fetchedLatestTs === 0 || fetchedLatestTs + 2000 < lastAcceptedMappingTs)) {
+    lastError = "Google cache served an older snapshot — keeping newest data.";
+    mappingLoaded = true;
+    return;
+  }
+
+  lastAcceptedMappingTs = Math.max(lastAcceptedMappingTs, fetchedLatestTs);
 
   knownActiveCards = new Set(
     Object.values(latest)
@@ -335,16 +353,29 @@ async function loadMapping(){
 }
 
 async function loadLatestInOutState(){
-  const csv = await fetch(ATT_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+  const url = `${ATT_CSV_URL}&_=${Date.now()}`; /* cache-bust (NEW) */
+  const csv = await fetch(url,{cache:"no-store"}).then(r=>r.text());
   const rows = parseCSV(csv);
 
   const latest = {};
+  let fetchedLatestTs = 0;
+
   rows.forEach(r => {
     if(!r.card_uid) return;
     if(r.event !== "IN" && r.event !== "OUT") return;
     const t = parseEU(r.Timestamp);
+    if (t > fetchedLatestTs) fetchedLatestTs = t;
     if(!latest[r.card_uid] || t >= latest[r.card_uid]._t) latest[r.card_uid] = { ...r, _t:t };
   });
+
+  /* Monotonic guard (NEW): ignore older snapshots */
+  if (lastAcceptedAttStateTs > 0 && (fetchedLatestTs === 0 || fetchedLatestTs + 2000 < lastAcceptedAttStateTs)) {
+    lastError = "Google cache served an older snapshot — keeping newest data.";
+    stateLoaded = true;
+    return;
+  }
+
+  lastAcceptedAttStateTs = Math.max(lastAcceptedAttStateTs, fetchedLatestTs);
 
   stateByCard = Object.fromEntries(
     Object.entries(latest).map(([card, r]) => [card, r.event])
@@ -377,7 +408,7 @@ async function refreshMapping(){
   try{
     await loadMapping();
     lastSyncAt = Date.now();
-    lastError = "—";
+    if (lastError === "—") lastError = "—";
   }catch(e){
     lastError = (e && e.message) ? e.message : String(e);
   }finally{
@@ -389,7 +420,7 @@ async function refreshState(){
   try{
     await loadLatestInOutState();
     lastSyncAt = Date.now();
-    lastError = "—";
+    if (lastError === "—") lastError = "—";
   }catch(e){
     lastError = (e && e.message) ? e.message : String(e);
   }finally{
