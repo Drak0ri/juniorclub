@@ -1,3 +1,6 @@
+<!-- =========================
+File: /index.html
+========================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +13,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
-/* ================= DESIGN v1 ================= */
 :root{
   --navy:#102d69;
   --green-bg:#d9f2c7;
@@ -34,7 +36,6 @@ body{
   transition:background .25s ease;
 }
 
-/* ---------- HEADER ---------- */
 header{
   display:flex;
   justify-content:space-between;
@@ -45,7 +46,6 @@ header{
 header img{ height:40px; }
 .clock{ font-weight:800; font-size:20px; }
 
-/* ---------- MAIN CARD ---------- */
 main{
   display:grid;
   place-items:center;
@@ -60,10 +60,7 @@ main{
   background:rgba(255,255,255,0.08);
   border:1px solid rgba(255,255,255,0.25);
   box-shadow:0 20px 60px rgba(0,0,0,.25);
-  transition:
-    background .25s ease,
-    transform .2s ease,
-    box-shadow .2s ease;
+  transition:background .25s ease, transform .2s ease, box-shadow .2s ease;
 }
 
 .pill{
@@ -92,46 +89,43 @@ main{
   opacity:.9;
 }
 
-/* ---------- FOOTER ---------- */
 footer{
   padding:14px 22px;
   font-size:12px;
-  opacity:.75;
+  opacity:.85;
   display:flex;
   justify-content:space-between;
+  gap:12px;
   color:#fff;
+  flex-wrap:wrap;
+}
+.health{
+  opacity:.9;
+  font-weight:700;
+  font-size:12px;
 }
 
-/* ---------- STATES ---------- */
-body.ready .card{
-  animation:idlePulse 3s ease-in-out infinite;
-}
+body.ready .card{ animation:idlePulse 3s ease-in-out infinite; }
 
 @keyframes idlePulse{
   0%,100%{ box-shadow:0 20px 60px rgba(0,0,0,.25); }
   50%{ box-shadow:0 20px 80px rgba(255,255,255,.15); }
 }
 
-body.in .card{
-  background:var(--green-bg);
-  color:var(--dark);
-  transform:scale(1.02);
-}
+body.in .card{ background:var(--green-bg); color:var(--dark); transform:scale(1.02); }
 body.in .status{ color:var(--green-text); }
 
-body.out .card{
-  background:var(--red-bg);
-  color:var(--dark);
-}
+body.out .card{ background:var(--red-bg); color:var(--dark); }
 body.out .status{ color:var(--red-text); }
 
-body.unknown .card{
-  background:var(--yellow-bg);
-  color:var(--dark);
-}
+body.unknown .card{ background:var(--yellow-bg); color:var(--dark); }
 body.unknown .status{ color:var(--red-text); }
 
-/* ============================================ */
+body.loading .card{
+  background:rgba(255,255,255,0.10);
+  color:#fff;
+  transform:none;
+}
 </style>
 </head>
 
@@ -151,18 +145,18 @@ body.unknown .status{ color:var(--red-text); }
 
 <footer>
   <div>Junior Club Portal</div>
-  <div>Design v1</div>
+  <div class="health" id="health">Data: —</div>
 </footer>
 
 <script>
-/* ================= DOM BINDINGS ================= */
+/* ================= DOM ================= */
 const pillEl    = document.getElementById("pill");
 const statusEl  = document.getElementById("status");
 const messageEl = document.getElementById("message");
 const clockEl   = document.getElementById("clock");
-/* ================================================ */
+const healthEl  = document.getElementById("health");
 
-/* ================= CONFIG (UNCHANGED) ================= */
+/* ================= CONFIG ================= */
 const ATT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
@@ -188,18 +182,25 @@ const CLUB_ID="IESV_JuniorClub";
 const SCHEMA_VERSION="v3";
 const DEBOUNCE_MS=5000;
 const RESET_MS=2500;
-/* ====================================================== */
 
-let knownActiveCards=new Set();
-let mappingLoaded=false;
-let stateByCard={};
-let buffer="",lastKeyTime=0;
-let lastScan={card:null,time:0};
+const REFRESH_MAPPING_MS = 60_000;
+const REFRESH_STATE_MS   = 30_000;
+
+/* ================= STATE ================= */
+let knownActiveCards = new Set();
+let stateByCard = {};
+let mappingLoaded = false;
+let stateLoaded = false;
+
+let buffer = "", lastKeyTime = 0;
+let lastScan = { card: null, time: 0 };
+
+let lastSyncAt = 0;
+let lastError = "—";
 
 /* ================= CLOCK ================= */
 function updateClock(){
-  clockEl.textContent =
-    new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
+  clockEl.textContent = new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
 }
 setInterval(updateClock,1000); updateClock();
 
@@ -218,104 +219,250 @@ function showState(css,label,msg){
   messageEl.textContent=msg;
 }
 
-/* ================= CSV ================= */
-function splitCSVLine(line){
-  const out=[],len=line.length; let cur="",q=false;
-  for(let i=0;i<len;i++){
-    const c=line[i];
-    if(c==='"'){ q=!q; continue; }
-    if(c===',' && !q){ out.push(cur); cur=""; continue; }
-    cur+=c;
-  }
-  out.push(cur); return out.map(s=>s.trim());
+function showLoading(){
+  document.body.className="loading";
+  pillEl.textContent="LOADING";
+  statusEl.textContent="PLEASE WAIT";
+  messageEl.textContent="Syncing…";
 }
 
+function showOffline(msg){
+  document.body.className="unknown";
+  pillEl.textContent="ERROR";
+  statusEl.textContent="OFFLINE";
+  messageEl.textContent=msg || "Check connection / CSV publish";
+}
+
+/* ================= HEALTH ================= */
+function fmtTime(ts){
+  if(!ts) return "—";
+  return new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+
+function updateHealth(){
+  const m = mappingLoaded ? "✅" : "⏳";
+  const s = stateLoaded ? "✅" : "⏳";
+  const err = lastError && lastError !== "—" ? ` | Error: ${lastError}` : "";
+  healthEl.textContent = `Data: mapping ${m} state ${s} | Last sync: ${fmtTime(lastSyncAt)}${err}`;
+}
+
+function isReadyToScan(){
+  return mappingLoaded && stateLoaded;
+}
+
+/* ================= CSV (RFC4180-ish) ================= */
 function parseCSV(text){
-  const lines=text.trim().split("\n");
-  const headers=splitCSVLine(lines[0]);
-  return lines.slice(1).map(l=>{
-    const v=splitCSVLine(l),o={};
-    headers.forEach((h,i)=>o[h]=v[i]||"");
-    return o;
-  });
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+
+  const pushField = () => { row.push(field); field = ""; };
+  const pushRow = () => {
+    if (row.length === 1 && row[0] === "" && rows.length === 0) return;
+    rows.push(row);
+    row = [];
+  };
+
+  const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  for (let i = 0; i < s.length; i++){
+    const c = s[i];
+
+    if (c === '"'){
+      const next = s[i + 1];
+      if (inQuotes && next === '"'){
+        field += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (!inQuotes && c === ","){
+      pushField();
+      continue;
+    }
+
+    if (!inQuotes && c === "\n"){
+      pushField();
+      pushRow();
+      continue;
+    }
+
+    field += c;
+  }
+
+  pushField();
+  pushRow();
+
+  const headers = (rows.shift() || []).map(h => (h || "").trim());
+  return rows
+    .filter(r => r.some(v => (v || "").trim() !== ""))
+    .map(r => {
+      const o = {};
+      headers.forEach((h, idx) => (o[h] = (r[idx] ?? "").trim()));
+      return o;
+    });
 }
 
 function parseEU(ts){
-  const m=ts&&ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
+  const m = ts && ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
   if(!m) return 0;
-  return new Date(+m[3],m[2]-1,+m[1],+m[4],+m[5],+m[6]).getTime();
+  return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5], +m[6]).getTime();
 }
 
+/* ================= LOADERS ================= */
 async function loadMapping(){
-  const csv=await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
-  const rows=parseCSV(csv),latest={};
-  rows.forEach(r=>r.card_uid&&(latest[r.card_uid]=r));
-  knownActiveCards=new Set(
-    Object.values(latest).filter(r=>r.status==="active").map(r=>r.card_uid)
+  const csv = await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+  const rows = parseCSV(csv);
+
+  const latest = {};
+  rows.forEach(r => {
+    if (!r.card_uid) return;
+    const t = parseEU(r.Timestamp);
+    if (!latest[r.card_uid] || t >= latest[r.card_uid]._t) latest[r.card_uid] = { ...r, _t:t };
+  });
+
+  knownActiveCards = new Set(
+    Object.values(latest)
+      .filter(r => r.status === "active")
+      .map(r => r.card_uid)
   );
-  mappingLoaded=true;
+
+  mappingLoaded = true;
 }
 
 async function loadLatestInOutState(){
-  const csv=await fetch(ATT_CSV_URL,{cache:"no-store"}).then(r=>r.text());
-  const rows=parseCSV(csv),latest={};
-  rows.forEach(r=>{
+  const csv = await fetch(ATT_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+  const rows = parseCSV(csv);
+
+  const latest = {};
+  rows.forEach(r => {
     if(!r.card_uid) return;
-    if(r.event!=="IN"&&r.event!=="OUT") return;
-    const t=parseEU(r.Timestamp);
-    if(!latest[r.card_uid]||t>latest[r.card_uid].t)
-      latest[r.card_uid]={event:r.event,t};
+    if(r.event !== "IN" && r.event !== "OUT") return;
+    const t = parseEU(r.Timestamp);
+    if(!latest[r.card_uid] || t >= latest[r.card_uid]._t) latest[r.card_uid] = { ...r, _t:t };
   });
-  stateByCard=Object.fromEntries(Object.entries(latest).map(([k,v])=>[k,v.event]));
+
+  stateByCard = Object.fromEntries(
+    Object.entries(latest).map(([card, r]) => [card, r.event])
+  );
+
+  stateLoaded = true;
 }
 
+async function syncAll(){
+  try{
+    lastError = "—";
+    showLoading();
+    mappingLoaded = false;
+    stateLoaded = false;
+    updateHealth();
+
+    await Promise.all([loadMapping(), loadLatestInOutState()]);
+
+    lastSyncAt = Date.now();
+    resetUI();
+  }catch(e){
+    lastError = (e && e.message) ? e.message : String(e);
+    showOffline("Check connection / CSV publish");
+  }finally{
+    updateHealth();
+  }
+}
+
+async function refreshMapping(){
+  try{
+    await loadMapping();
+    lastSyncAt = Date.now();
+    lastError = "—";
+  }catch(e){
+    lastError = (e && e.message) ? e.message : String(e);
+  }finally{
+    updateHealth();
+  }
+}
+
+async function refreshState(){
+  try{
+    await loadLatestInOutState();
+    lastSyncAt = Date.now();
+    lastError = "—";
+  }catch(e){
+    lastError = (e && e.message) ? e.message : String(e);
+  }finally{
+    updateHealth();
+  }
+}
+
+/* ================= SUBMIT ================= */
 function postAttendance(card,event){
-  const d=new URLSearchParams();
-  d.append(ATT.card_uid,card);
-  d.append(ATT.event,event);
-  d.append(ATT.device_id,DEVICE_ID);
-  d.append(ATT.method,"RFID");
-  d.append(ATT.club_id,CLUB_ID);
-  d.append(ATT.schema_version,SCHEMA_VERSION);
+  const d = new URLSearchParams();
+  d.append(ATT.card_uid, card);
+  d.append(ATT.event, event);
+  d.append(ATT.device_id, DEVICE_ID);
+  d.append(ATT.method, "RFID");
+  d.append(ATT.club_id, CLUB_ID);
+  d.append(ATT.schema_version, SCHEMA_VERSION);
   fetch(ATT_FORM_URL,{method:"POST",mode:"no-cors",body:d});
 }
 
 /* ================= SCAN ================= */
-document.addEventListener("keydown",e=>{
-  const now=Date.now();
-  if(e.key.length===1){
-    if(now-lastKeyTime>80) buffer="";
-    buffer+=e.key; lastKeyTime=now; return;
+document.addEventListener("keydown", e => {
+  const now = Date.now();
+
+  if (e.key.length === 1){
+    if (now - lastKeyTime > 80) buffer = "";
+    buffer += e.key;
+    lastKeyTime = now;
+    return;
   }
-  if(e.key==="Enter"){
-    const card=buffer.trim(); buffer="";
-    if(!card||!mappingLoaded) return;
-    if(lastScan.card===card&&now-lastScan.time<DEBOUNCE_MS) return;
-    lastScan={card,time:now};
 
-    if(!knownActiveCards.has(card)){
-      postAttendance(card,"UNKNOWN");
-      showState("unknown","PLEASE WAIT","Ask a staff member");
-      return setTimeout(resetUI,RESET_MS);
+  if (e.key === "Enter"){
+    const card = buffer.trim();
+    buffer = "";
+
+    if (!card) return;
+
+    if (!isReadyToScan()){
+      showLoading();
+      updateHealth();
+      return;
     }
 
-    const next=(stateByCard[card]==="IN")?"OUT":"IN";
-    stateByCard[card]=next;
-    postAttendance(card,next);
+    if (lastScan.card === card && now - lastScan.time < DEBOUNCE_MS) return;
+    lastScan = { card, time: now };
 
-    if(next==="IN"){
-      showState("in","WELCOME","You’re checked in");
+    if (!knownActiveCards.has(card)){
+      postAttendance(card, "UNKNOWN");
+      showState("unknown", "PLEASE WAIT", "Ask a staff member");
+      updateHealth();
+      return setTimeout(resetUI, RESET_MS);
+    }
+
+    const next = (stateByCard[card] === "IN") ? "OUT" : "IN";
+    stateByCard[card] = next;
+
+    postAttendance(card, next);
+
+    if (next === "IN"){
+      showState("in", "WELCOME", "You’re checked in");
     }else{
-      showState("out","GOODBYE","You’re checked out");
+      showState("out", "GOODBYE", "You’re checked out");
     }
-    setTimeout(resetUI,RESET_MS);
+
+    updateHealth();
+    setTimeout(resetUI, RESET_MS);
   }
 });
 
 /* ================= INIT ================= */
-resetUI();
-loadMapping();
-loadLatestInOutState();
+updateHealth();
+syncAll();
+setInterval(refreshMapping, REFRESH_MAPPING_MS);
+setInterval(refreshState, REFRESH_STATE_MS);
 </script>
 </body>
 </html>
