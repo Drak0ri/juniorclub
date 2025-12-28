@@ -24,16 +24,16 @@
   --yellow-bg:#fff3b0;
   --dark:#102d69;
   --white:#ffffff;
-  --border: rgba(255,255,255,0.25);
+  --border:  rgba(255,255,255,0.25);
   --card-bg: rgba(255,255,255,0.08);
 }
 
-*{ box-sizing:border-box; }
+*{ box-sizing: border-box; }
 
 body{
   margin:0;
   min-height:100vh;
-  background:var(--navy);
+  background: var(--navy);
   font-family:"Open Sans",Arial,sans-serif;
   color:#fff;
   display:flex;
@@ -80,7 +80,7 @@ header h1{
 }
 
 /* ---------- TOOLBAR ---------- */
-. toolbar{
+.toolbar{
   padding:12px 22px;
   display:flex;
   flex-wrap:wrap;
@@ -122,10 +122,10 @@ header h1{
 
 .toolbar button:hover{
   background:rgba(255,255,255,0.25);
-  transform: translateY(-1px);
+  transform:translateY(-1px);
 }
 
-.toolbar button:active{
+.toolbar button: active{
   transform:translateY(0);
 }
 
@@ -138,7 +138,7 @@ header h1{
   background:#0a5526;
 }
 
-.toolbar button. danger{
+.toolbar button.danger{
   background:var(--red-text);
   border-color:var(--red-text);
 }
@@ -157,10 +157,10 @@ header h1{
 .pill{
   display:inline-block;
   padding:6px 12px;
-  border-radius: 999px;
+  border-radius:999px;
   font-weight:800;
   font-size:11px;
-  letter-spacing:. 6px;
+  letter-spacing:.6px;
   text-transform:uppercase;
   background:rgba(255,255,255,0.15);
   color:#fff;
@@ -175,17 +175,17 @@ main{
 
 . card{
   background:var(--card-bg);
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
   border-radius:18px;
   padding:20px;
-  margin-bottom:20px;
+  margin-bottom: 20px;
   box-shadow:0 10px 40px rgba(0,0,0,. 25);
 }
 
 .card h2{
   margin: 0 0 16px;
   font-size:18px;
-  font-weight:800;
+  font-weight: 800;
   letter-spacing:.4px;
 }
 
@@ -198,7 +198,7 @@ main{
 
 .stat{
   background:rgba(255,255,255,0.08);
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
   border-radius:12px;
   padding:14px 18px;
   min-width:140px;
@@ -216,10 +216,10 @@ main{
 .stat-value{
   font-size: 32px;
   font-weight: 800;
-  line-height:1;
+  line-height: 1;
 }
 
-.stat. in .stat-value{ color:var(--green-text); }
+.stat. in . stat-value{ color:var(--green-text); }
 .stat.out .stat-value{ color:var(--red-text); }
 
 /* ---------- TABLE ---------- */
@@ -244,7 +244,7 @@ th{
 }
 
 tbody tr{
-  border-bottom:1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
   transition:background .15s ease;
 }
 
@@ -297,7 +297,7 @@ td{
 
 .status-unknown{
   color:#000;
-  background:var(--yellow-bg);
+  background: var(--yellow-bg);
   padding:4px 10px;
   border-radius:999px;
   display:inline-block;
@@ -317,7 +317,7 @@ td{
   letter-spacing:.6px;
 }
 
-.toggle-btn. in{
+. toggle-btn. in{
   background:var(--green-text);
   color:#fff;
 }
@@ -351,7 +351,7 @@ td{
   border-radius: 6px;
   border:none;
   background:rgba(176,0,32,0.2);
-  color: var(--red-text);
+  color:var(--red-text);
   font-weight:800;
   font-size:11px;
   cursor:pointer;
@@ -359,7 +359,7 @@ td{
 }
 
 .remove-btn:hover{
-  background:var(--red-text);
+  background: var(--red-text);
   color:#fff;
 }
 
@@ -463,7 +463,7 @@ td{
   font-weight:800;
   font-size:14px;
   cursor:pointer;
-  transition: all .15s ease;
+  transition:all .15s ease;
 }
 
 .modal-footer . btn-primary{
@@ -471,7 +471,7 @@ td{
   color:#fff;
 }
 
-. modal-footer .btn-primary:hover{
+.modal-footer .btn-primary:hover{
   background:#0a5526;
 }
 
@@ -481,7 +481,7 @@ td{
 }
 
 .modal-footer .btn-secondary:hover{
-  background:rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.2);
 }
 
 .error-msg{
@@ -518,7 +518,7 @@ td{
   transform:translateY(0);
 }
 
-.toast.error{
+.toast. error{
   background:var(--red-bg);
   color:var(--red-text);
 }
@@ -536,7 +536,7 @@ td{
 }
 
 .empty-text{
-  font-size:16px;
+  font-size: 16px;
   font-weight:700;
 }
 
@@ -665,7 +665,7 @@ footer{
       <option value="9B">9B</option>
       <option value="9C">9C</option>
     </select>
-    <div class="pill" id="operatorPill">Operator:  <span id="operatorName">Not set</span></div>
+    <div class="pill" id="operatorPill">Operator: <span id="operatorName">Not set</span></div>
   </div>
   <div class="group">
     <button onclick="openAddTempModal()">+ Add Temporary Student</button>
@@ -719,7 +719,7 @@ footer{
 
 <footer>
   <div>Junior Club – Manual Check-In/Out</div>
-  <div>Last updated: <span id="lastUpdate">--: --</span></div>
+  <div>Last updated: <span id="lastUpdate">--:--</span></div>
 </footer>
 
 </div>
@@ -791,7 +791,7 @@ function checkPin(){
     document.getElementById("app").style.display = "flex";
     init();
   } else {
-    errorEl.innerHTML = '<div class="error-msg">Incorrect PIN. Please try again.</div>';
+    errorEl.innerHTML = '<div class="error-msg">Incorrect PIN.  Please try again.</div>';
   }
 }
 
@@ -815,7 +815,7 @@ setInterval(updateClock, 1000);
 updateClock();
 
 function parseCSV(text){
-  const lines = text. trim().split("\n");
+  const lines = text.trim().split("\n");
   const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
   return lines.slice(1).map(line => {
     const values = line.split(",").map(v => v.trim().replace(/^"|"$/g, ""));
@@ -834,7 +834,7 @@ function parseEU(ts){
 function showToast(msg, error = false){
   const toast = document.getElementById("toast");
   toast.textContent = msg;
-  toast.classList.toggle("error", error);
+  toast. classList.toggle("error", error);
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 3000);
 }
@@ -902,7 +902,7 @@ async function loadMapping(){
   }));
   
   students = [... mapped, ...temps];
-  students.sort((a,b) => a.student_name.localeCompare(b.student_name));
+  students.sort((a,b) => a.student_name.localeCompare(b. student_name));
 }
 
 async function loadAttendance(){
@@ -967,7 +967,7 @@ function toggleStudent(card, currentState, studentName){
 }
 
 function confirmMarkAllOut(){
-  if(!confirm("Mark ALL students OUT? This cannot be undone.")) return;
+  if(! confirm("Mark ALL students OUT?  This cannot be undone. ")) return;
   
   students.forEach(s => {
     if(attendanceState[s.card_uid] === "IN"){
@@ -1025,6 +1025,9 @@ async function saveTemporaryStudent(){
   // Check them in immediately
   postAttendance(card, "IN", "Temporary student added");
   
+  // Update local state immediately so they show as IN (prevents duplicate post on reload)
+  attendanceState[card] = "IN";
+  
   closeAddTempModal();
   await reloadData();
   showToast(`${name} added and checked in`);
@@ -1033,7 +1036,7 @@ async function saveTemporaryStudent(){
 function removeTempStudent(card, name){
   if(! confirm(`Remove temporary student ${name}? `)) return;
   
-  tempStudents = tempStudents. filter(t => t.card_uid !== card);
+  tempStudents = tempStudents.filter(t => t.card_uid !== card);
   saveTempStudents(tempStudents);
   
   delete attendanceState[card];
@@ -1094,7 +1097,7 @@ function renderTable(){
       "";
     
     tr.innerHTML = `
-      <td class="name-cell">${s.student_name}${s.temp ? ' 🏷️' : ''}</td>
+      <td class="name-cell">${s.student_name}${s.temp ?  ' 🏷️' : ''}</td>
       <td class="class-cell">${s.class}</td>
       <td class="status-cell"><span class="${statusClass}">${state}</span></td>
       <td>
