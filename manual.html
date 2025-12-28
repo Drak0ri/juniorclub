@@ -69,7 +69,7 @@ header img{ height:40px; }
 header h1{
   margin:0;
   font-size:20px;
-  font-weight:800;
+  font-weight: 800;
   letter-spacing:. 3px;
 }
 
@@ -124,7 +124,7 @@ header h1{
   transform:translateY(-1px);
 }
 
-.toolbar button: active{
+.toolbar button:active{
   transform:translateY(0);
 }
 
@@ -165,6 +165,24 @@ header h1{
   color:#fff;
 }
 
+.logout-btn{
+  padding:6px 12px;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.08);
+  color:#fff;
+  font-weight:700;
+  font-size:12px;
+  cursor:pointer;
+  transition:all .15s ease;
+  text-decoration:none;
+}
+
+.logout-btn:hover{
+  background:var(--red-text);
+  border-color:var(--red-text);
+}
+
 /* ---------- MAIN ---------- */
 main{
   flex:1;
@@ -172,17 +190,17 @@ main{
   overflow-y:auto;
 }
 
-. card{
+.card{
   background:var(--card-bg);
-  border: 1px solid var(--border);
+  border:1px solid var(--border);
   border-radius:18px;
   padding:20px;
-  margin-bottom: 20px;
-  box-shadow:0 10px 40px rgba(0,0,0,. 25);
+  margin-bottom:20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,. 25);
 }
 
 .card h2{
-  margin: 0 0 16px;
+  margin:0 0 16px;
   font-size:18px;
   font-weight: 800;
   letter-spacing:.4px;
@@ -197,7 +215,7 @@ main{
 
 .stat{
   background:rgba(255,255,255,0.08);
-  border: 1px solid var(--border);
+  border:1px solid var(--border);
   border-radius:12px;
   padding:14px 18px;
   min-width:140px;
@@ -260,7 +278,7 @@ td{
   vertical-align:middle;
 }
 
-.name-cell{
+. name-cell{
   font-weight:800;
   font-size:15px;
 }
@@ -296,7 +314,7 @@ td{
 
 .status-unknown{
   color:#000;
-  background: var(--yellow-bg);
+  background:var(--yellow-bg);
   padding:4px 10px;
   border-radius:999px;
   display:inline-block;
@@ -316,7 +334,7 @@ td{
   letter-spacing:.6px;
 }
 
-. toggle-btn. in{
+.toggle-btn. in{
   background:var(--green-text);
   color:#fff;
 }
@@ -358,7 +376,7 @@ td{
 }
 
 .remove-btn:hover{
-  background: var(--red-text);
+  background:var(--red-text);
   color:#fff;
 }
 
@@ -470,7 +488,7 @@ td{
   color:#fff;
 }
 
-.modal-footer .btn-primary:hover{
+. modal-footer .btn-primary:hover{
   background:#0a5526;
 }
 
@@ -480,7 +498,7 @@ td{
 }
 
 .modal-footer .btn-secondary:hover{
-  background: rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.2);
 }
 
 .error-msg{
@@ -517,7 +535,7 @@ td{
   transform:translateY(0);
 }
 
-.toast. error{
+.toast.error{
   background:var(--red-bg);
   color:var(--red-text);
 }
@@ -554,7 +572,7 @@ footer{
 <body>
 
 <!-- PIN GATE -->
-<div class="modal-overlay show" id="pinGate">
+<div class="modal-overlay" id="pinGate">
   <div class="modal">
     <div class="modal-header">
       <h2>Staff Access Required</h2>
@@ -628,7 +646,7 @@ footer{
 </div>
 
 <!-- MAIN APP -->
-<div id="app" style="display:none; flex:1; display:flex; flex-direction:column;">
+<div id="app" style="display:none;">
 
 <header>
   <div class="left">
@@ -637,7 +655,10 @@ footer{
     </a>
     <h1>Manual Check-In/Out</h1>
   </div>
-  <div class="clock" id="clock">--:--</div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <div class="clock" id="clock">--:--</div>
+    <button class="logout-btn" onclick="logout()">🔒 Logout</button>
+  </div>
 </header>
 
 <div class="toolbar">
@@ -664,7 +685,7 @@ footer{
       <option value="9B">9B</option>
       <option value="9C">9C</option>
     </select>
-    <div class="pill" id="operatorPill">Operator: <span id="operatorName">Not set</span></div>
+    <div class="pill" id="operatorPill">Operator:  <span id="operatorName">Not set</span></div>
   </div>
   <div class="group">
     <button onclick="openAddTempModal()">+ Add Temporary Student</button>
@@ -718,7 +739,7 @@ footer{
 
 <footer>
   <div>Junior Club – Manual Check-In/Out</div>
-  <div>Last updated: <span id="lastUpdate">--:--</span></div>
+  <div>Last updated: <span id="lastUpdate">--: --</span></div>
 </footer>
 
 </div>
@@ -748,15 +769,15 @@ const MAPPING_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
 
 const MAP_ENTRY = {
-  card_uid:       "entry.1712147498",
-  student_email: "entry.1171642279",
-  student_name:  "entry.2022534068",
-  class:         "entry.1723675198",
-  status:        "entry.1124037588",
-  pin:           "entry.352224440",
-  note:          "entry.523442266",
-  mapped_by:     "entry.1680238241",
-  schema:         "entry.1809813215"
+  card_uid:"entry.1712147498",
+  student_email:"entry.1171642279",
+  student_name:"entry.2022534068",
+  class:"entry.1723675198",
+  status:"entry.1124037588",
+  pin:"entry.352224440",
+  note:"entry.523442266",
+  mapped_by:"entry.1680238241",
+  schema:"entry.1809813215"
 };
 
 const MAPPING_CSV_URL =
@@ -794,33 +815,74 @@ function checkPin(){
   }
 }
 
+function logout(){
+  if(confirm("Logout?  You'll need to enter the PIN again.")){
+    localStorage.removeItem(PIN_STORAGE_KEY);
+    location.reload();
+  }
+}
+
 // Check if already authenticated
 if(localStorage.getItem(PIN_STORAGE_KEY) === "1"){
   document.getElementById("pinGate").classList.remove("show");
   document.getElementById("app").style.display = "flex";
+  // Call init immediately
+  window.addEventListener("DOMContentLoaded", function(){
+    init();
+  });
+} else {
+  // Show PIN gate
+  document.getElementById("pinGate").classList.add("show");
 }
 
 // Allow Enter key on PIN input
-document.getElementById("pinInput")?. addEventListener("keydown", e => {
+document.getElementById("pinInput")?.addEventListener("keydown", e => {
   if(e. key === "Enter") checkPin();
 });
 
 /* ================= UTILITIES ================= */
 function updateClock(){
-  document.getElementById("clock").textContent =
-    new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
+  const el = document.getElementById("clock");
+  if(el){
+    el.textContent = new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
+  }
 }
 setInterval(updateClock, 1000);
 updateClock();
 
+/* ================= CSV PARSER (PROPER RFC4180) ================= */
+function splitCSVLine(line){
+  const out = [];
+  const len = line.length;
+  let cur = "";
+  let q = false;
+  
+  for(let i = 0; i < len; i++){
+    const c = line[i];
+    if(c === '"'){
+      q = !q;
+      continue;
+    }
+    if(c === ',' && !q){
+      out.push(cur);
+      cur = "";
+      continue;
+    }
+    cur += c;
+  }
+  out.push(cur);
+  return out. map(s => s.trim());
+}
+
 function parseCSV(text){
-  const lines = text.trim().split("\n");
-  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
-  return lines.slice(1).map(line => {
-    const values = line.split(",").map(v => v.trim().replace(/^"|"$/g, ""));
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = values[i] || "");
-    return obj;
+  const lines = text. trim().split("\n");
+  if(lines.length < 2) return [];
+  const headers = splitCSVLine(lines[0]);
+  return lines.slice(1).map(l => {
+    const v = splitCSVLine(l);
+    const o = {};
+    headers.forEach((h, i) => o[h] = v[i] || "");
+    return o;
   });
 }
 
@@ -833,7 +895,7 @@ function parseEU(ts){
 function showToast(msg, error = false){
   const toast = document.getElementById("toast");
   toast.textContent = msg;
-  toast. classList.toggle("error", error);
+  toast.classList.toggle("error", error);
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 3000);
 }
@@ -868,60 +930,71 @@ function loadOperator(){
   operator = localStorage.getItem(OPERATOR_STORAGE_KEY) || "";
   
   // Prompt if not set
-  if(!operator){
+  if(! operator){
     operator = prompt("Enter your staff email/name for audit trail: ") || "Unknown Staff";
     localStorage.setItem(OPERATOR_STORAGE_KEY, operator);
   }
   
-  document.getElementById("operatorName").textContent = operator;
+  const el = document.getElementById("operatorName");
+  if(el) el.textContent = operator;
 }
 
 /* ================= DATA LOADING ================= */
 async function loadMapping(){
-  const csv = await fetch(MAPPING_CSV_URL, {cache:"no-store"}).then(r => r.text());
-  const rows = parseCSV(csv);
-  
-  // Include active mapped students
-  const mapped = rows
-    .filter(r => r.card_uid && r.status === "active" && r.student_name)
-    .map(r => ({
-      card_uid: r.card_uid,
-      student_name: r.student_name. trim(),
-      class: r.class || "",
-      temp:  false
+  try{
+    const csv = await fetch(MAPPING_CSV_URL, {cache:"no-store"}).then(r => r.text());
+    const rows = parseCSV(csv);
+    
+    // Include active mapped students
+    const mapped = rows
+      .filter(r => r. card_uid && r.status === "active" && r.student_name)
+      .map(r => ({
+        card_uid: r. card_uid,
+        student_name: r.student_name. trim(),
+        class: r.class || "",
+        temp:  false
+      }));
+    
+    // Include temp students
+    const temps = tempStudents.map(t => ({
+      card_uid:  t.card_uid,
+      student_name: t.student_name,
+      class: t.class,
+      temp: true,
+      note: t.note
     }));
-  
-  // Include temp students
-  const temps = tempStudents.map(t => ({
-    card_uid:  t.card_uid,
-    student_name: t.student_name,
-    class: t.class,
-    temp: true,
-    note: t.note
-  }));
-  
-  students = [... mapped, ...temps];
-  students.sort((a,b) => a.student_name.localeCompare(b. student_name));
+    
+    students = [... mapped, ...temps];
+    students.sort((a,b) => a.student_name.localeCompare(b.student_name));
+  }catch(e){
+    console.error("loadMapping error:", e);
+    showToast("Failed to load students:  " + e.message, true);
+  }
 }
 
 async function loadAttendance(){
-  const csv = await fetch(ATT_CSV_URL, {cache:"no-store"}).then(r => r.text());
-  const rows = parseCSV(csv);
-  
-  const latest = {};
-  rows.forEach(r => {
-    if(! r.card_uid) return;
-    if(r.event !== "IN" && r.event !== "OUT") return;
-    const t = parseEU(r. Timestamp);
-    if(!latest[r.card_uid] || t > latest[r.card_uid].t){
-      latest[r.card_uid] = { event: r.event, t };
-    }
-  });
-  
-  attendanceState = {};
-  Object.entries(latest).forEach(([card, data]) => {
-    attendanceState[card] = data.event;
-  });
+  try{
+    const csv = await fetch(ATT_CSV_URL, {cache:"no-store"}).then(r => r.text());
+    const rows = parseCSV(csv);
+    
+    const latest = {};
+    rows.forEach(r => {
+      if(! r.card_uid) return;
+      if(r.event !== "IN" && r.event !== "OUT") return;
+      const t = parseEU(r. Timestamp);
+      if(!latest[r.card_uid] || t > latest[r.card_uid].t){
+        latest[r.card_uid] = { event: r.event, t };
+      }
+    });
+    
+    attendanceState = {};
+    Object.entries(latest).forEach(([card, data]) => {
+      attendanceState[card] = data.event;
+    });
+  }catch(e){
+    console.error("loadAttendance error:", e);
+    showToast("Failed to load attendance: " + e.message, true);
+  }
 }
 
 async function reloadData(){
@@ -929,11 +1002,13 @@ async function reloadData(){
     await Promise.all([loadMapping(), loadAttendance()]);
     renderTable();
     updateStats();
-    document.getElementById("lastUpdate").textContent = 
-      new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-    showToast("✓ Data refreshed");
+    const el = document.getElementById("lastUpdate");
+    if(el){
+      el.textContent = new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    }
   }catch(e){
-    showToast("Failed to load data: " + e.message, true);
+    console.error("reloadData error:", e);
+    showToast("Failed to reload data: " + e.message, true);
   }
 }
 
@@ -945,7 +1020,7 @@ function postAttendance(card, event, note = ""){
   d.append(ATT.device_id, DEVICE_ID);
   d.append(ATT.method, "MANUAL");
   d.append(ATT.operator, operator);
-  d.append(ATT.note, note);
+  d.append(ATT. note, note);
   d.append(ATT.club_id, CLUB_ID);
   d.append(ATT.schema_version, SCHEMA_VERSION);
   
@@ -966,7 +1041,7 @@ function toggleStudent(card, currentState, studentName){
 }
 
 function confirmMarkAllOut(){
-  if(! confirm("Mark ALL students OUT?  This cannot be undone. ")) return;
+  if(!confirm("Mark ALL students OUT? This cannot be undone. ")) return;
   
   students.forEach(s => {
     if(attendanceState[s.card_uid] === "IN"){
@@ -981,9 +1056,9 @@ function confirmMarkAllOut(){
 function openAddTempModal(){
   document.getElementById("tempCard").value = generateTempCardUID();
   document.getElementById("tempName").value = "";
-  document.getElementById("tempClass").value = "";
+  document. getElementById("tempClass").value = "";
   document.getElementById("tempNote").value = "";
-  document.getElementById("tempError").innerHTML = "";
+  document. getElementById("tempError").innerHTML = "";
   document.getElementById("addTempModal").classList.add("show");
 }
 
@@ -994,7 +1069,7 @@ function closeAddTempModal(){
 async function saveTemporaryStudent(){
   const name = document.getElementById("tempName").value.trim();
   const cls = document.getElementById("tempClass").value.trim();
-  const card = document.getElementById("tempCard").value.trim();
+  const card = document.getElementById("tempCard").value. trim();
   const note = document.getElementById("tempNote").value.trim();
   const errorEl = document.getElementById("tempError");
   
@@ -1028,7 +1103,16 @@ async function saveTemporaryStudent(){
   attendanceState[card] = "IN";
   
   closeAddTempModal();
-  await reloadData();
+  
+  // Only reload mapping (to show the new student), DON'T reload attendance
+  await loadMapping();
+  renderTable();
+  updateStats();
+  const el = document.getElementById("lastUpdate");
+  if(el){
+    el.textContent = new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  }
+  
   showToast(`${name} added and checked in`);
 }
 
@@ -1048,20 +1132,29 @@ function updateStats(){
   const inCount = students.filter(s => attendanceState[s.card_uid] === "IN").length;
   const outCount = students.length - inCount;
   
-  document.getElementById("statIn").textContent = inCount;
-  document.getElementById("statOut").textContent = outCount;
-  document.getElementById("statTotal").textContent = students.length;
+  const inEl = document.getElementById("statIn");
+  const outEl = document.getElementById("statOut");
+  const totalEl = document.getElementById("statTotal");
+  
+  if(inEl) inEl.textContent = inCount;
+  if(outEl) outEl.textContent = outCount;
+  if(totalEl) totalEl.textContent = students.length;
 }
 
 function renderTable(){
   const tbody = document.getElementById("studentTable");
-  const search = document.getElementById("search").value.toLowerCase();
-  const classFilter = document.getElementById("classFilter").value;
+  if(!tbody) return;
+  
+  const searchEl = document.getElementById("search");
+  const classFilterEl = document.getElementById("classFilter");
+  
+  const search = searchEl ?  searchEl.value.toLowerCase() : "";
+  const classFilter = classFilterEl ? classFilterEl.value :  "";
   
   clearNode(tbody);
   
   const filtered = students.filter(s => {
-    const matchSearch = ! search || 
+    const matchSearch = !search || 
       s.student_name.toLowerCase().includes(search) ||
       s.class.toLowerCase().includes(search);
     const matchClass = ! classFilter || s.class === classFilter;
@@ -1096,7 +1189,7 @@ function renderTable(){
       "";
     
     tr.innerHTML = `
-      <td class="name-cell">${s.student_name}${s.temp ?  ' 🏷️' : ''}</td>
+      <td class="name-cell">${s.student_name}${s.temp ? ' 🏷️' : ''}</td>
       <td class="class-cell">${s.class}</td>
       <td class="status-cell"><span class="${statusClass}">${state}</span></td>
       <td>
@@ -1117,6 +1210,7 @@ document.getElementById("classFilter")?.addEventListener("change", renderTable);
 
 /* ================= INIT ================= */
 async function init(){
+  console.log("init() called");
   loadOperator();
   tempStudents = loadTempStudents();
   await reloadData();
