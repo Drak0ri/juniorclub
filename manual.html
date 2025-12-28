@@ -22,16 +22,16 @@
   --yellow-bg:#fff3b0;
   --dark:#102d69;
   --white:#ffffff;
-  --border:  rgba(255,255,255,0.25);
-  --card-bg: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.25);
+  --card-bg:rgba(255,255,255,0.08);
 }
 
 *{ box-sizing: border-box; }
 
 body{
-  margin: 0;
+  margin:0;
   min-height:100vh;
-  background:  var(--navy);
+  background: var(--navy);
   font-family:"Open Sans",Arial,sans-serif;
   color:#fff;
   display:flex;
@@ -49,7 +49,7 @@ header{
   border-bottom:1px solid var(--border);
 }
 
-header . left{
+header .left{
   display:flex;
   align-items:center;
   gap:12px;
@@ -57,7 +57,7 @@ header . left{
 
 header a{
   color:#fff;
-  text-decoration:  none;
+  text-decoration: none;
   display:flex;
   align-items:center;
   gap:10px;
@@ -68,12 +68,12 @@ header img{ height:40px; }
 header h1{
   margin:0;
   font-size:20px;
-  font-weight:  800;
+  font-weight: 800;
   letter-spacing:. 3px;
 }
 
 . clock{
-  font-weight: 800;
+  font-weight:800;
   font-size:20px;
 }
 
@@ -86,7 +86,7 @@ header h1{
   align-items:center;
   justify-content:space-between;
   border-bottom:1px solid var(--border);
-  background: rgba(255,255,255,0.04);
+  background:rgba(255,255,255,0.04);
 }
 
 .toolbar input,
@@ -96,20 +96,20 @@ header h1{
   border:1px solid var(--border);
   background:rgba(255,255,255,0.12);
   color:#fff;
-  font-family:  inherit;
+  font-family: inherit;
   font-weight:700;
   font-size:14px;
   min-width:220px;
 }
 
 .toolbar input:: placeholder{
-  color:  rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.6);
 }
 
 .toolbar button{
   padding:8px 14px;
-  border-radius:  8px;
-  border: 1px solid var(--border);
+  border-radius: 8px;
+  border:1px solid var(--border);
   background:rgba(255,255,255,0.15);
   color:#fff;
   font-weight:800;
@@ -174,7 +174,7 @@ header h1{
   font-size:12px;
   cursor:pointer;
   transition:all .15s ease;
-  text-decoration: none;
+  text-decoration:none;
 }
 
 .logout-btn:hover{
@@ -191,15 +191,15 @@ main{
 
 .card{
   background:var(--card-bg);
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
   border-radius:18px;
   padding:20px;
-  margin-bottom:  20px;
-  box-shadow:0 10px 40px rgba(0,0,0,. 25);
+  margin-bottom:20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,. 25);
 }
 
 .card h2{
-  margin:  0 0 16px;
+  margin: 0 0 16px;
   font-size:18px;
   font-weight: 800;
   letter-spacing:.4px;
@@ -214,7 +214,7 @@ main{
 
 .stat{
   background:rgba(255,255,255,0.08);
-  border:  1px solid var(--border);
+  border: 1px solid var(--border);
   border-radius:12px;
   padding:14px 18px;
   min-width:140px;
@@ -230,9 +230,9 @@ main{
 }
 
 .stat-value{
-  font-size:  32px;
-  font-weight:  800;
-  line-height: 1;
+  font-size: 32px;
+  font-weight: 800;
+  line-height:1;
 }
 
 .stat. in . stat-value{ color:var(--green-text); }
@@ -260,7 +260,7 @@ th{
 }
 
 tbody tr{
-  border-bottom:  1px solid rgba(255,255,255,0.1);
+  border-bottom:1px solid rgba(255,255,255,0.1);
   transition:background .15s ease;
 }
 
@@ -277,7 +277,7 @@ td{
   vertical-align:middle;
 }
 
-. name-cell{
+.name-cell{
   font-weight:800;
   font-size:15px;
 }
@@ -299,7 +299,7 @@ td{
   color:var(--green-text);
   background:var(--green-bg);
   padding:4px 10px;
-  border-radius:  999px;
+  border-radius: 999px;
   display:inline-block;
 }
 
@@ -307,13 +307,13 @@ td{
   color:var(--red-text);
   background:var(--red-bg);
   padding:4px 10px;
-  border-radius: 999px;
+  border-radius:999px;
   display:inline-block;
 }
 
 .status-unknown{
   color:#000;
-  background:  var(--yellow-bg);
+  background: var(--yellow-bg);
   padding:4px 10px;
   border-radius:999px;
   display:inline-block;
@@ -322,7 +322,7 @@ td{
 /* ---------- TOGGLE BUTTON ---------- */
 .toggle-btn{
   padding:8px 16px;
-  border-radius: 8px;
+  border-radius:8px;
   border:none;
   font-weight:800;
   font-size:13px;
@@ -333,7 +333,7 @@ td{
   letter-spacing:.6px;
 }
 
-.toggle-btn.in{
+. toggle-btn. in{
   background:var(--green-text);
   color:#fff;
 }
@@ -364,10 +364,10 @@ td{
 
 . remove-btn{
   padding:6px 10px;
-  border-radius:  6px;
+  border-radius: 6px;
   border:none;
   background:rgba(176,0,32,0.2);
-  color:var(--red-text);
+  color: var(--red-text);
   font-weight:800;
   font-size:11px;
   cursor:pointer;
@@ -375,7 +375,7 @@ td{
 }
 
 .remove-btn:hover{
-  background:  var(--red-text);
+  background:var(--red-text);
   color:#fff;
 }
 
@@ -383,7 +383,7 @@ td{
 .modal-overlay{
   position:fixed;
   inset:0;
-  background:  rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.75);
   display:none;
   align-items:center;
   justify-content:center;
@@ -413,8 +413,8 @@ td{
 .modal-header h2{
   margin:0;
   font-size:20px;
-  font-weight:  800;
-  letter-spacing:.4px;
+  font-weight: 800;
+  letter-spacing:. 4px;
 }
 
 .modal-body{
@@ -428,10 +428,10 @@ td{
 .field label{
   display:block;
   font-size:12px;
-  font-weight:  800;
+  font-weight: 800;
   text-transform:uppercase;
   letter-spacing:.8px;
-  margin-bottom:  6px;
+  margin-bottom: 6px;
   opacity:.85;
 }
 
@@ -439,17 +439,17 @@ td{
 .field select{
   width:100%;
   padding:10px 12px;
-  border-radius: 8px;
-  border:  1px solid var(--border);
+  border-radius:8px;
+  border: 1px solid var(--border);
   background:rgba(255,255,255,0.12);
   color:#fff;
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 16px;
+  font-family:inherit;
+  font-weight:700;
+  font-size:16px;
 }
 
 .field input::placeholder{
-  color: rgba(255,255,255,0.5);
+  color:rgba(255,255,255,0.5);
 }
 
 .field input[readonly]{
@@ -474,12 +474,12 @@ td{
 
 .modal-footer button{
   padding:10px 18px;
-  border-radius:  8px;
-  border: none;
-  font-weight: 800;
-  font-size: 14px;
+  border-radius: 8px;
+  border:none;
+  font-weight:800;
+  font-size:14px;
   cursor:pointer;
-  transition:  all .15s ease;
+  transition:all .15s ease;
 }
 
 .modal-footer . btn-primary{
@@ -497,14 +497,14 @@ td{
 }
 
 .modal-footer .btn-secondary:hover{
-  background:  rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.2);
 }
 
 .error-msg{
   color:var(--red-text);
   background:var(--red-bg);
   padding:10px 12px;
-  border-radius:  8px;
+  border-radius: 8px;
   font-weight:800;
   font-size:13px;
   margin-top:10px;
@@ -514,16 +514,16 @@ td{
 .toast{
   position:fixed;
   bottom:20px;
-  right:  20px;
+  right: 20px;
   padding:14px 18px;
-  border-radius:  12px;
+  border-radius: 12px;
   background:var(--green-bg);
   color:var(--green-text);
   font-weight:800;
   font-size:14px;
   box-shadow:0 10px 40px rgba(0,0,0,.3);
-  opacity:  0;
-  transform: translateY(10px);
+  opacity: 0;
+  transform:translateY(10px);
   transition:all . 2s ease;
   pointer-events:none;
   z-index:10000;
@@ -547,7 +547,7 @@ td{
 }
 
 .empty-icon{
-  font-size:  48px;
+  font-size:48px;
   margin-bottom:12px;
 }
 
@@ -591,12 +591,12 @@ footer{
       <div class="field">
         <label>Enter Staff PIN</label>
         <input type="password" id="pinInput" placeholder="Enter PIN" autocomplete="off" inputmode="numeric">
-        <div class="note">This page is for staff manual check-in/out only. </div>
+        <div class="note">This page is for staff manual check-in/out only.</div>
       </div>
       <div id="pinError"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn-secondary" onclick="window.location.href='./staff. html'">Cancel</button>
+      <button class="btn-secondary" onclick="window.location.href='./staff.html'">Cancel</button>
       <button class="btn-primary" onclick="checkPin()">Enter</button>
     </div>
   </div>
@@ -640,7 +640,7 @@ footer{
       <div class="field">
         <label>Temporary Card UID</label>
         <input type="text" id="tempCard" readonly>
-        <div class="note">Auto-generated unique ID for this temporary student. </div>
+        <div class="note">Auto-generated unique ID for this temporary student.</div>
       </div>
       <div class="field">
         <label>Note (optional)</label>
@@ -749,7 +749,7 @@ footer{
 
 <footer>
   <div>Junior Club – Manual Check-In/Out</div>
-  <div>Last updated: <span id="lastUpdate">--: --</span></div>
+  <div>Last updated: <span id="lastUpdate">--:--</span></div>
 </footer>
 
 </div>
@@ -823,7 +823,7 @@ function checkPin(){
     document.getElementById("app").classList.add("show");
     init();
   } else {
-    errorEl.innerHTML = '<div class="error-msg">Incorrect PIN. Please try again.</div>';
+    errorEl.innerHTML = '<div class="error-msg">Incorrect PIN.  Please try again.</div>';
   }
 }
 
@@ -942,9 +942,9 @@ function saveLocalOverride(card, state){
 
 function clearOldOverrides(){
   const now = Date.now();
-  const THIRTY_SECONDS = 30000;
+  const FIVE_MINUTES = 300000; // 5 minutes
   Object.keys(localOverrides).forEach(card => {
-    if(now - localOverrides[card]. timestamp > THIRTY_SECONDS){
+    if(now - localOverrides[card].timestamp > FIVE_MINUTES){
       delete localOverrides[card];
     }
   });
@@ -982,7 +982,7 @@ function loadOperator(){
   operator = localStorage.getItem(OPERATOR_STORAGE_KEY) || "";
   
   // Prompt if not set
-  if(!operator){
+  if(! operator){
     operator = prompt("Enter your staff email/name for audit trail: ") || "Unknown Staff";
     localStorage.setItem(OPERATOR_STORAGE_KEY, operator);
   }
@@ -1017,7 +1017,7 @@ async function loadMapping(){
     }));
     
     students = [...mapped, ...temps];
-    students.sort((a,b) => a.student_name.localeCompare(b.student_name));
+    students.sort((a,b) => a.student_name.localeCompare(b. student_name));
   }catch(e){
     console.error("loadMapping error:", e);
     showToast("Failed to load students:  " + e.message, true);
@@ -1083,7 +1083,7 @@ function postAttendance(card, event, note = ""){
   d.append(ATT.device_id, DEVICE_ID);
   d.append(ATT.method, "MANUAL");
   d.append(ATT.operator, operator);
-  d.append(ATT.note, note);
+  d.append(ATT. note, note);
   d.append(ATT.club_id, CLUB_ID);
   d.append(ATT.schema_version, SCHEMA_VERSION);
   
@@ -1105,7 +1105,7 @@ function toggleStudent(card, currentState, studentName){
 }
 
 function confirmMarkAllOut(){
-  if(!confirm("Mark ALL students OUT? This cannot be undone. ")) return;
+  if(!confirm("Mark ALL students OUT?  This cannot be undone. ")) return;
   
   students.forEach(s => {
     if(attendanceState[s.card_uid] === "IN"){
@@ -1185,7 +1185,7 @@ async function saveTemporaryStudent(){
 }
 
 function removeTempStudent(card, name){
-  if(! confirm(`Remove temporary student ${name}?`)) return;
+  if(! confirm(`Remove temporary student ${name}? `)) return;
   
   tempStudents = tempStudents.filter(t => t.card_uid !== card);
   saveTempStudents(tempStudents);
@@ -1224,7 +1224,7 @@ function renderTable(){
   
   const filtered = students.filter(s => {
     const matchSearch = !search || 
-      s.student_name. toLowerCase().includes(search) ||
+      s.student_name.toLowerCase().includes(search) ||
       s.class.toLowerCase().includes(search);
     const matchClass = ! classFilter || s.class === classFilter;
     return matchSearch && matchClass;
