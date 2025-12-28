@@ -1,4 +1,3 @@
-<!-- /manual.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,8 +22,8 @@
   --yellow-bg:#fff3b0;
   --dark:#102d69;
   --white:#ffffff;
-  --border:  rgba(255,255,255,0.25);
-  --card-bg: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.25);
+  --card-bg:rgba(255,255,255,0.08);
 }
 
 *{ box-sizing: border-box; }
@@ -133,7 +132,7 @@ header h1{
   border-color:var(--green-text);
 }
 
-.toolbar button. primary:hover{
+.toolbar button.primary:hover{
   background:#0a5526;
 }
 
@@ -195,14 +194,14 @@ main{
   border:1px solid var(--border);
   border-radius:18px;
   padding:20px;
-  margin-bottom:20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,. 25);
+  margin-bottom: 20px;
+  box-shadow:0 10px 40px rgba(0,0,0,. 25);
 }
 
 .card h2{
-  margin:0 0 16px;
+  margin: 0 0 16px;
   font-size:18px;
-  font-weight: 800;
+  font-weight:800;
   letter-spacing:.4px;
 }
 
@@ -215,7 +214,7 @@ main{
 
 .stat{
   background:rgba(255,255,255,0.08);
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
   border-radius:12px;
   padding:14px 18px;
   min-width:140px;
@@ -233,7 +232,7 @@ main{
 .stat-value{
   font-size: 32px;
   font-weight: 800;
-  line-height: 1;
+  line-height:1;
 }
 
 .stat. in . stat-value{ color:var(--green-text); }
@@ -278,7 +277,7 @@ td{
   vertical-align:middle;
 }
 
-. name-cell{
+.name-cell{
   font-weight:800;
   font-size:15px;
 }
@@ -314,7 +313,7 @@ td{
 
 .status-unknown{
   color:#000;
-  background:var(--yellow-bg);
+  background: var(--yellow-bg);
   padding:4px 10px;
   border-radius:999px;
   display:inline-block;
@@ -323,7 +322,7 @@ td{
 /* ---------- TOGGLE BUTTON ---------- */
 .toggle-btn{
   padding:8px 16px;
-  border-radius: 8px;
+  border-radius:8px;
   border:none;
   font-weight:800;
   font-size:13px;
@@ -376,7 +375,7 @@ td{
 }
 
 .remove-btn:hover{
-  background:var(--red-text);
+  background: var(--red-text);
   color:#fff;
 }
 
@@ -480,7 +479,7 @@ td{
   font-weight:800;
   font-size:14px;
   cursor:pointer;
-  transition:all .15s ease;
+  transition: all .15s ease;
 }
 
 .modal-footer . btn-primary{
@@ -498,7 +497,7 @@ td{
 }
 
 .modal-footer .btn-secondary:hover{
-  background:rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.2);
 }
 
 .error-msg{
@@ -530,7 +529,7 @@ td{
   z-index:10000;
 }
 
-.toast. show{
+.toast.show{
   opacity:1;
   transform:translateY(0);
 }
@@ -553,7 +552,7 @@ td{
 }
 
 .empty-text{
-  font-size: 16px;
+  font-size:16px;
   font-weight:700;
 }
 
@@ -565,6 +564,17 @@ footer{
   display:flex;
   justify-content:space-between;
   border-top:1px solid var(--border);
+}
+
+/* ---------- APP CONTAINER ---------- */
+#app{
+  display:none;
+  flex:1;
+  flex-direction:column;
+}
+
+#app.show{
+  display:flex;
 }
 </style>
 </head>
@@ -646,7 +656,7 @@ footer{
 </div>
 
 <!-- MAIN APP -->
-<div id="app" style="display:none;">
+<div id="app">
 
 <header>
   <div class="left">
@@ -739,7 +749,7 @@ footer{
 
 <footer>
   <div>Junior Club – Manual Check-In/Out</div>
-  <div>Last updated: <span id="lastUpdate">--: --</span></div>
+  <div>Last updated: <span id="lastUpdate">--:--</span></div>
 </footer>
 
 </div>
@@ -808,7 +818,7 @@ function checkPin(){
   if(input === STAFF_PIN){
     localStorage.setItem(PIN_STORAGE_KEY, "1");
     document.getElementById("pinGate").classList.remove("show");
-    document.getElementById("app").style.display = "flex";
+    document.getElementById("app").classList.add("show");
     init();
   } else {
     errorEl.innerHTML = '<div class="error-msg">Incorrect PIN.  Please try again.</div>';
@@ -825,11 +835,13 @@ function logout(){
 // Check if already authenticated
 if(localStorage.getItem(PIN_STORAGE_KEY) === "1"){
   document.getElementById("pinGate").classList.remove("show");
-  document.getElementById("app").style.display = "flex";
-  // Call init immediately
-  window.addEventListener("DOMContentLoaded", function(){
+  document.getElementById("app").classList.add("show");
+  // Call init when ready
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
     init();
-  });
+  }
 } else {
   // Show PIN gate
   document.getElementById("pinGate").classList.add("show");
@@ -912,7 +924,7 @@ function generateTempCardUID(){
 function loadTempStudents(){
   try{
     const raw = localStorage.getItem(TEMP_STORAGE_KEY);
-    if(! raw) return [];
+    if(!raw) return [];
     return JSON.parse(raw);
   }catch{
     return [];
@@ -930,7 +942,7 @@ function loadOperator(){
   operator = localStorage.getItem(OPERATOR_STORAGE_KEY) || "";
   
   // Prompt if not set
-  if(! operator){
+  if(!operator){
     operator = prompt("Enter your staff email/name for audit trail: ") || "Unknown Staff";
     localStorage.setItem(OPERATOR_STORAGE_KEY, operator);
   }
@@ -949,7 +961,7 @@ async function loadMapping(){
     const mapped = rows
       .filter(r => r. card_uid && r.status === "active" && r.student_name)
       .map(r => ({
-        card_uid: r. card_uid,
+        card_uid: r.card_uid,
         student_name: r.student_name. trim(),
         class: r.class || "",
         temp:  false
@@ -1024,7 +1036,7 @@ function postAttendance(card, event, note = ""){
   d.append(ATT.club_id, CLUB_ID);
   d.append(ATT.schema_version, SCHEMA_VERSION);
   
-  fetch(ATT_FORM_URL, {method:"POST", mode:"no-cors", body:d});
+  fetch(ATT_FORM_URL, {method:"POST", mode:"no-cors", body: d});
   
   // Update local state immediately
   attendanceState[card] = event;
@@ -1133,12 +1145,12 @@ function updateStats(){
   const outCount = students.length - inCount;
   
   const inEl = document.getElementById("statIn");
-  const outEl = document.getElementById("statOut");
+  const outEl = document. getElementById("statOut");
   const totalEl = document.getElementById("statTotal");
   
   if(inEl) inEl.textContent = inCount;
   if(outEl) outEl.textContent = outCount;
-  if(totalEl) totalEl.textContent = students.length;
+  if(totalEl) totalEl.textContent = students. length;
 }
 
 function renderTable(){
@@ -1154,7 +1166,7 @@ function renderTable(){
   clearNode(tbody);
   
   const filtered = students.filter(s => {
-    const matchSearch = !search || 
+    const matchSearch = ! search || 
       s.student_name.toLowerCase().includes(search) ||
       s.class.toLowerCase().includes(search);
     const matchClass = ! classFilter || s.class === classFilter;
@@ -1177,7 +1189,7 @@ function renderTable(){
   
   filtered.forEach(s => {
     const state = attendanceState[s.card_uid] || "OUT";
-    const tr = document. createElement("tr");
+    const tr = document.createElement("tr");
     if(s.temp) tr.classList.add("temp");
     
     const statusClass = state === "IN" ? "status-in" : "status-out";
