@@ -1,3 +1,5 @@
+<!-- /staff.html -->
+<!-- /staff.html (CHANGED: different favicon for staff tab) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,9 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Junior Club – Staff</title>
 
-<link rel="icon" href="./ies. ico" type="image/x-icon">
+<!-- Base favicon (will be overridden by generated STAFF favicon below) -->
+<link rel="icon" href="./ies.ico" type="image/x-icon">
 
-<link href="https://fonts.googleapis.com/css2? family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <script>
 (async function setStaffFavicon(){
@@ -47,327 +50,333 @@
 </script>
 
 <style>
-: root{
-  --navy:#102d69;
-  --bg:#f6f8fb;
-  --border:#d0d7e2;
-  --warn:#fff7b2;
-  --green:#0b6b2f;
-  --muted:#5b6b86;
-  --danger:#b00020;
+:root{
+--navy:#102d69;
+--bg:#f6f8fb;
+--border:#d0d7e2;
+--warn:#fff7b2;
+--green:#0b6b2f;
+--muted:#5b6b86;
+--danger:#b00020;
 }
 
 body{
-  margin:0;
-  font-family:"Open Sans",Arial,sans-serif;
-  background: var(--bg);
-  color:#102d69;
+margin:0;
+font-family:"Open Sans",Arial,sans-serif;
+background:var(--bg);
+color:#102d69;
 }
 
 header{
-  background:var(--navy);
-  color:#fff;
-  padding:14px 18px;
+background:var(--navy);
+color:#fff;
+padding:14px 18px;
 }
 
-header . top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
+header .top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
 }
 
 header .brandlink{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  text-decoration:none;
-  color:#fff;
-  font-weight:800;
+display:flex;
+align-items:center;
+gap:10px;
+text-decoration:none;
+color:#fff;
+font-weight:800;
 }
 header .brandlink img{ height:34px; }
 
 header input, header select{
-  padding:6px 8px;
-  border-radius:6px;
-  border:none;
-  min-width:220px;
+padding:6px 8px;
+border-radius:6px;
+border:none;
+min-width:220px;
 }
 
 header .meta{
-  font-size:12px;
-  opacity:.95;
-  margin-top:8px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  align-items:center;
+font-size:12px;
+opacity:.95;
+margin-top:8px;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+align-items:center;
 }
 
-. meta . pill{
-  display:inline-block;
-  background:rgba(255,255,255,0.12);
-  padding:4px 8px;
-  border-radius:999px;
-  font-weight:700;
+.meta .pill{
+display:inline-block;
+background:rgba(255,255,255,0.12);
+padding:4px 8px;
+border-radius:999px;
+font-weight:700;
 }
 
 .toolbar{
-  margin-top:10px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
+margin-top:10px;
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+align-items:center;
 }
 
-.toolbar . group{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center;
+.toolbar .group{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+align-items:center;
 }
 
 .toggle{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  background:rgba(255,255,255,0.10);
-  padding:6px 10px;
-  border-radius: 999px;
-  font-weight:700;
-  font-size:12px;
-  user-select:none;
+display:flex;
+align-items:center;
+gap:6px;
+background:rgba(255,255,255,0.10);
+padding:6px 10px;
+border-radius:999px;
+font-weight:700;
+font-size:12px;
+user-select:none;
 }
 
 .toggle input{ min-width:auto; }
 
 button{
-  background:var(--navy);
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius: 6px;
-  font-weight: 800;
-  cursor:pointer;
+background:var(--navy);
+color:#fff;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+font-weight:800;
+cursor:pointer;
 }
 
-button. secondary{
-  background:#fff;
-  color: var(--navy);
-  border: 1px solid var(--border);
+button.secondary{
+background:#fff;
+color:var(--navy);
+border:1px solid var(--border);
 }
 
 button.small{
-  padding:5px 8px;
-  font-size: 12px;
-  border-radius:6px;
+padding:5px 8px;
+font-size:12px;
+border-radius:6px;
 }
 
 main{
-  max-width:1200px;
-  margin:20px auto;
-  padding:0 16px;
+max-width:1200px;
+margin:20px auto;
+padding:0 16px;
 }
 
 .card{
-  background:#fff;
-  border: 1px solid var(--border);
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:16px;
+background:#fff;
+border:1px solid var(--border);
+border-radius:12px;
+padding:16px;
+margin-bottom:16px;
 }
 
 .big{
-  font-size:48px;
-  font-weight: 800;
-  color:var(--green);
+font-size:48px;
+font-weight:800;
+color:var(--green);
 }
 
 table{
-  width:100%;
-  border-collapse:collapse;
+width:100%;
+border-collapse:collapse;
 }
 
 th,td{
-  padding:10px;
-  border-bottom:1px solid var(--border);
-  vertical-align:top;
+padding:10px;
+border-bottom:1px solid var(--border);
+vertical-align:top;
 }
 
-tr. unknown{ background:var(--warn); }
+tr.unknown{ background:var(--warn); }
 
-. grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:16px;
+.grid{
+display:grid;
+grid-template-columns:1fr;
+gap:16px;
 }
 
 @media (min-width:980px){
-  .grid{ grid-template-columns:1fr 1fr; }
+.grid{ grid-template-columns:1fr 1fr; }
 }
 
 .debug{
-  display:none;
-  font-size:12px;
-  opacity:.85;
-  color:var(--muted);
+display:none;
+font-size:12px;
+opacity:.85;
+color:var(--muted);
 }
-. debug.show{ display:block; }
-. toggle-debug{
-  font-size:12px;
-  cursor:pointer;
-  opacity:.8;
-  text-decoration:underline;
+.debug.show{ display:block; }
+.toggle-debug{
+font-size:12px;
+cursor:pointer;
+opacity:.8;
+text-decoration:underline;
 }
 
 .smallmuted{ font-size:12px; opacity:.75; }
 
-.badge-warn{ color:#000; background:var(--warn); border-radius:999px; padding: 2px 8px; font-weight:800; }
+.badge-warn{ color:#000; background:var(--warn); border-radius:999px; padding:2px 8px; font-weight:800; }
 .badge-danger{ color:#fff; background:var(--danger); border-radius:999px; padding:2px 8px; font-weight:800; }
 
 .section-title{
-  margin: 14px 0 8px;
-  font-size:14px;
-  font-weight: 800;
-  color:var(--navy);
+margin:14px 0 8px;
+font-size:14px;
+font-weight:800;
+color:var(--navy);
 }
 
 @media print{
-  header, . toggle-debug, #debugBox, #unknownCardHelp, #mapModalOverlay, #toast { display:none ! important; }
-  body{ background:#fff; }
-  .card{ border:none; }
+header, .toggle-debug, #debugBox, #unknownCardHelp, #mapModalOverlay, #toast { display:none !important; }
+body{ background:#fff; }
+.card{ border:none; }
 }
 
+/* ===========================
+MODAL
+=========================== */
 .modal-overlay{
-  position:fixed;
-  inset:0;
-  background: rgba(0,0,0,0.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-  z-index:9999;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.45);
+display:none;
+align-items:center;
+justify-content:center;
+padding:16px;
+z-index:9999;
 }
 .modal-overlay.show{ display:flex; }
 
 .modal{
-  width:min(780px, 96vw);
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,0.25);
+width:min(780px, 96vw);
+background:#fff;
+border:1px solid var(--border);
+border-radius:14px;
+overflow:hidden;
+box-shadow:0 20px 60px rgba(0,0,0,0.25);
 }
 
 .modal-header{
-  background:var(--navy);
-  color:#fff;
-  padding: 12px 14px;
-  display:flex;
-  justify-content:space-between;
-  align-items: center;
-  gap:10px;
+background:var(--navy);
+color:#fff;
+padding:12px 14px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
 }
 
 .modal-header .title{
-  font-weight:800;
+font-weight:800;
 }
 
 .modal-body{
-  padding:14px;
-  display:grid;
-  gap:12px;
+padding:14px;
+display:grid;
+gap:12px;
 }
 
 .modal-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:12px;
+display:grid;
+grid-template-columns:1fr;
+gap:12px;
 }
 
 @media (min-width:900px){
-  .modal-grid{ grid-template-columns:1fr 1fr; }
+.modal-grid{ grid-template-columns:1fr 1fr; }
 }
 
 .field label{
-  display:block;
-  font-size:12px;
-  font-weight:800;
-  margin-bottom:4px;
-  color:var(--muted);
+display:block;
+font-size:12px;
+font-weight:800;
+margin-bottom:4px;
+color:var(--muted);
 }
 
-.field input, . field select, .field textarea{
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:8px 10px;
-  font-family: inherit;
-  font-size: 14px;
+.field input, .field select, .field textarea{
+width:100%;
+border:1px solid var(--border);
+border-radius:8px;
+padding:8px 10px;
+font-family:inherit;
+font-size:14px;
 }
 
 .field textarea{
-  min-height:90px;
-  resize:vertical;
+min-height:90px;
+resize:vertical;
 }
 
 .field input[readonly]{
-  background:#f3f5f9;
+background:#f3f5f9;
 }
 
 .modal-foot{
-  padding:12px 14px;
-  border-top:1px solid var(--border);
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:space-between;
-  align-items:center;
+padding:12px 14px;
+border-top:1px solid var(--border);
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+justify-content:space-between;
+align-items:center;
 }
 
 .modal-note{
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.3;
+font-size:12px;
+color:var(--muted);
+line-height:1.3;
 }
 
 .modal-error{
-  font-size:12px;
-  color:var(--danger);
-  font-weight:800;
+font-size:12px;
+color:var(--danger);
+font-weight:800;
 }
 
 .kv{
-  font-size:12px;
-  color:var(--muted);
-  border: 1px dashed var(--border);
-  border-radius:10px;
-  padding:10px;
-  background:#fafbfe;
+font-size:12px;
+color:var(--muted);
+border:1px dashed var(--border);
+border-radius:10px;
+padding:10px;
+background:#fafbfe;
 }
 .kv strong{ color:#102d69; }
 
+/* ===========================
+TOAST
+=========================== */
 .toast{
-  position:fixed;
-  right:16px;
-  bottom:16px;
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:10px 12px;
-  box-shadow:0 12px 40px rgba(0,0,0,0.18);
-  font-weight:800;
-  color:var(--navy);
-  opacity: 0;
-  transform:translateY(10px);
-  pointer-events:none;
-  transition:opacity . 18s ease, transform .18s ease;
-  z-index:10000;
+position:fixed;
+right:16px;
+bottom:16px;
+background:#fff;
+border:1px solid var(--border);
+border-radius:12px;
+padding:10px 12px;
+box-shadow:0 12px 40px rgba(0,0,0,0.18);
+font-weight:800;
+color:var(--navy);
+opacity:0;
+transform:translateY(10px);
+pointer-events:none;
+transition:opacity .18s ease, transform .18s ease;
+z-index:10000;
 }
 .toast.show{
-  opacity:1;
-  transform:translateY(0);
+opacity:1;
+transform:translateY(0);
 }
 </style>
 </head>
@@ -375,245 +384,258 @@ tr. unknown{ background:var(--warn); }
 <body>
 
 <header>
-  <div class="top">
-    <a class="brandlink" href="./index.html" aria-label="Back to scan page" title="Scan page">
-      <img src="./logo-negative.png" alt="IES Logo">
-      <span>Junior Club – Staff</span>
-    </a>
+<div class="top">
+<a class="brandlink" href="./index.html" aria-label="Back to scan page" title="Scan page">
+<img src="./logo-negative.png" alt="IES Logo">
+<span>Junior Club – Staff</span>
+</a>
 
-    <div class="group">
-      <input id="operator" placeholder="staff email">
-      <button onclick="saveOperator()">Save</button>
-      <button class="secondary" onclick="reloadAll()">Refresh</button>
-    </div>
-  </div>
+<div class="group">
+<input id="operator" placeholder="staff email">
+<button onclick="saveOperator()">Save</button>
+<button class="secondary" onclick="reloadAll()">Refresh</button>
+</div>
+</div>
 
-  <div class="meta">
-    <span class="pill" id="updateStatus">Last updated: —</span>
-    <span class="pill" id="health">Data:  —</span>
-    <span class="pill" id="stale">Stale: —</span>
-    <span class="pill badge-warn" id="cacheWarn" style="display:none;">⚠️ Google cache served an older snapshot — showing newest known data</span>
-  </div>
+<div class="meta">
+<span class="pill" id="updateStatus">Last updated: —</span>
+<span class="pill" id="health">Data: —</span>
+<span class="pill" id="stale">Stale: —</span>
+<span class="pill badge-warn" id="cacheWarn" style="display:none;">⚠️ Google cache served an older snapshot — showing newest known data</span>
+</div>
 
-  <div class="toolbar">
-    <div class="group">
-      <label class="toggle" title="Limits attendance view to scans from today (local time).">
-        <input type="checkbox" id="todayOnly">
-        Today-only
-      </label>
-    </div>
+<div class="toolbar">
+<div class="group">
+<label class="toggle" title="Limits attendance view to scans from today (local time).">
+<input type="checkbox" id="todayOnly">
+Today-only
+</label>
+</div>
 
-    <div class="group">
-      <input id="search" placeholder="search name / class / card" style="min-width:260px;">
-      <select id="classFilter" title="Filter by class" style="min-width:180px;">
-        <option value="">All classes</option>
-      </select>
-      <select id="sortBy" title="Sort present list" style="min-width:200px;">
-        <option value="time_desc">Sort:  Latest time</option>
-        <option value="name_asc">Sort: Name (A–Z)</option>
-        <option value="class_asc">Sort: Class (A–Z)</option>
-      </select>
-    </div>
+<div class="group">
+<input id="search" placeholder="search name / class / card" style="min-width:260px;">
+<select id="classFilter" title="Filter by class" style="min-width:180px;">
+<option value="">All classes</option>
+</select>
+<select id="sortBy" title="Sort present list" style="min-width:200px;">
+<option value="time_desc">Sort: Latest time</option>
+<option value="name_asc">Sort: Name (A–Z)</option>
+<option value="class_asc">Sort: Class (A–Z)</option>
+</select>
+</div>
 
-    <div class="group">
-      <button class="secondary" onclick="printPage()">Print</button>
-      <button class="secondary" onclick="copyPresent()">Copy list</button>
-      <button class="secondary" onclick="exportPresentCsv()">Export CSV</button>
-    </div>
-  </div>
+<div class="group">
+<button class="secondary" onclick="printPage()">Print</button>
+<button class="secondary" onclick="copyPresent()">Copy list</button>
+<button class="secondary" onclick="exportPresentCsv()">Export CSV</button>
+</div>
+</div>
 </header>
 
 <main>
 
 <div class="card">
-  <h2>Currently Present</h2>
-  <div class="big" id="presentCount">0</div>
-  <div class="smallmuted">
-    Latest scan per card (event = IN, includes manual check-ins)
-  </div>
+<h2>Currently Present</h2>
+<div class="big" id="presentCount">0</div>
+<div class="smallmuted">
+Latest scan per card (event = IN, mapping status = active)
+</div>
 </div>
 
 <div class="grid">
 
-  <div>
-    <div class="card">
-      <h2>Who's Here Now</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Class</th>
-            <th>Time (Latest IN)</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="presentTable"></tbody>
-      </table>
-    </div>
-  </div>
+<div>
+<div class="card">
+<h2>Who’s Here Now</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Class</th>
+<th>Time (Latest IN)</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="presentTable"></tbody>
+</table>
+</div>
+</div>
 
-  <div>
-    <div class="card">
-      <h2>Unknown Cards</h2>
-      <div class="smallmuted" id="unknownCardHelp">
-        Tip: Use <strong>Register</strong> to add the card to the mapping table. 
-      </div>
+<div>
+<div class="card">
+<h2>Unknown Cards</h2>
+<div class="smallmuted" id="unknownCardHelp">
+Tip: Use <strong>Register</strong> to add the card to the mapping table.
+</div>
 
-      <div class="section-title">Unknown (unmapped)</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Card</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="unknownTable"></tbody>
-      </table>
+<div class="section-title">Unknown (unmapped)</div>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>Card</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="unknownTable"></tbody>
+</table>
 
-      <div class="section-title">Registered (awaiting rescan)</div>
-      <div class="smallmuted" id="pendingHelp">After registering, the student must scan again to check in.</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Registered</th>
-            <th>Card</th>
-            <th>Name</th>
-            <th>Class</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="pendingTable"></tbody>
-      </table>
-    </div>
-  </div>
+<div class="section-title">Registered (awaiting rescan)</div>
+<div class="smallmuted" id="pendingHelp">After registering, the student must scan again to check in.</div>
+<table>
+<thead>
+<tr>
+<th>Registered</th>
+<th>Card</th>
+<th>Name</th>
+<th>Class</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="pendingTable"></tbody>
+</table>
+</div>
+</div>
 
 </div>
 
 <div class="card">
-  <div class="toggle-debug" onclick="toggleDebug()">Show diagnostics</div>
-  <div class="debug" id="debugBox">
-    Attendance rows: <span id="dbgAttRows">—</span><br>
-    Mapping rows: <span id="dbgMapRows">—</span><br>
-    Attendance headers: <span id="dbgAttHeaders"></span><br>
-    Mapping headers: <span id="dbgMapHeaders"></span><br>
-    Latest attendance timestamp: <span id="dbgLatestAttTs">—</span><br>
-    Last error: <span id="dbgError"></span>
-  </div>
+<div class="toggle-debug" onclick="toggleDebug()">Show diagnostics</div>
+<div class="debug" id="debugBox">
+Attendance rows: <span id="dbgAttRows">—</span><br>
+Mapping rows: <span id="dbgMapRows">—</span><br>
+Attendance headers: <span id="dbgAttHeaders"></span><br>
+Mapping headers: <span id="dbgMapHeaders"></span><br>
+Latest attendance timestamp: <span id="dbgLatestAttTs">—</span><br>
+Last error: <span id="dbgError"></span>
+</div>
 </div>
 
 </main>
 
+<!-- ===========================
+REGISTER/EDIT MODAL
+=========================== -->
 <div class="modal-overlay" id="mapModalOverlay" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="title" id="modalTitle">Register card</div>
-      <button class="secondary small" onclick="closeMapModal()">Close</button>
-    </div>
+<div class="modal">
+<div class="modal-header">
+<div class="title" id="modalTitle">Register card</div>
+<button class="secondary small" onclick="closeMapModal()">Close</button>
+</div>
 
-    <div class="modal-body">
-      <div class="kv" id="modalCurrentBox" style="display:none;"></div>
+<div class="modal-body">
+<div class="kv" id="modalCurrentBox" style="display:none;"></div>
 
-      <div class="modal-grid">
-        <div class="field">
-          <label>Card UID</label>
-          <input id="m_card_uid" readonly>
-        </div>
+<div class="modal-grid">
+<div class="field">
+<label>Card UID</label>
+<input id="m_card_uid" readonly>
+</div>
 
-        <div class="field">
-          <label>Student email</label>
-          <input id="m_student_email" placeholder="student. vasteras@engelska.se">
-        </div>
+<div class="field">
+<label>Student email</label>
+<input id="m_student_email" placeholder="student.vasteras@engelska.se">
+</div>
 
-        <div class="field">
-          <label>Student name</label>
-          <input id="m_student_name" placeholder="First Last">
-        </div>
+<div class="field">
+<label>Student name</label>
+<input id="m_student_name" placeholder="First Last">
+</div>
 
-        <div class="field">
-          <label>Class</label>
-          <select id="m_class"></select>
-          <input id="m_class_custom" placeholder="Enter class" style="margin-top:8px; display:none;">
-        </div>
+<div class="field">
+<label>Class</label>
+<select id="m_class"></select>
+<input id="m_class_custom" placeholder="Enter class" style="margin-top:8px; display:none;">
+</div>
 
-        <div class="field">
-          <label>Status</label>
-          <select id="m_status">
-            <option value="active">active</option>
-            <option value="inactive">inactive</option>
-            <option value="lost">lost</option>
-          </select>
-        </div>
+<div class="field">
+<label>Status</label>
+<select id="m_status">
+<option value="active">active</option>
+<option value="inactive">inactive</option>
+<option value="lost">lost</option>
+</select>
+</div>
 
-        <div class="field">
-          <label>PIN</label>
-          <input id="m_pin" placeholder="optional">
-        </div>
+<div class="field">
+<label>PIN</label>
+<input id="m_pin" placeholder="optional">
+</div>
 
-        <div class="field" style="grid-column:1/-1;">
-          <label>Note</label>
-          <textarea id="m_note" placeholder="optional"></textarea>
-        </div>
+<div class="field" style="grid-column:1/-1;">
+<label>Note</label>
+<textarea id="m_note" placeholder="optional"></textarea>
+</div>
 
-        <div class="field">
-          <label>Mapped by</label>
-          <input id="m_mapped_by" readonly>
-        </div>
+<div class="field">
+<label>Mapped by</label>
+<input id="m_mapped_by" readonly>
+</div>
 
-        <div class="field">
-          <label>Schema</label>
-          <input id="m_schema" readonly>
-        </div>
-      </div>
-    </div>
+<div class="field">
+<label>Schema</label>
+<input id="m_schema" readonly>
+</div>
+</div>
+</div>
 
-    <div class="modal-foot">
-      <div>
-        <button onclick="submitMapModal()">Save</button>
-        <span class="modal-error" id="modalError"></span>
-      </div>
+<div class="modal-foot">
+<div>
+<button onclick="submitMapModal()">Save</button>
+<span class="modal-error" id="modalError"></span>
+</div>
 
-      <div class="modal-note" id="modalNote">
-        Saves via Google Form. It can take a little time to appear in the published CSV.
-      </div>
-    </div>
-  </div>
+<div class="modal-note" id="modalNote">
+Saves via Google Form. It can take a little time to appear in the published CSV.
+</div>
+</div>
+</div>
 </div>
 
 <div class="toast" id="toast">Saved ✅</div>
 
 <script>
+/* ===========================
+CONFIG
+=========================== */
+/* ===== CONFIG / SCRIPT (UNCHANGED) ===== */
 const ATT_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const MAP_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
 const MAP_FORM_RESPONSE_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
+"https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
 
 const MAP_ENTRY = {
-  card_uid:       "entry. 1712147498",
-  student_email: "entry.1171642279",
-  student_name:  "entry.2022534068",
-  class:         "entry.1723675198",
-  status:        "entry.1124037588",
-  pin:           "entry.352224440",
-  note:          "entry.523442266",
-  mapped_by:     "entry.1680238241",
-  schema:        "entry.1809813215"
+card_uid:      "entry.1712147498",
+student_email: "entry.1171642279",
+student_name:  "entry.2022534068",
+class:         "entry.1723675198",
+status:        "entry.1124037588",
+pin:           "entry.352224440",
+note:          "entry.523442266",
+mapped_by:     "entry.1680238241",
+schema:        "entry.1809813215"
 };
 
 const MAP_DEFAULTS = {
-  student_email: "student.vasteras@engelska.se",
-  status:  "active",
-  schema: "v3"
+student_email: "student.vasteras@engelska.se",
+status: "active",
+schema: "v3"
 };
 
 const STALE_WARN_MINUTES = 5;
 
+const CLASS_DEFAULTS = {
+  yearStart: 4,
+  yearEnd: 9,
+  letters: ["A", "B", "C"]
+};
 const CLASS_DEFAULTS = { yearStart: 4, yearEnd: 9, letters: ["A", "B", "C"] };
 const CLASS_CUSTOM_VALUE = "__CUSTOM__";
+
 const POST_SAVE_REFRESH_MS = 20_000;
 
 const OPTIMISTIC_MAP_KEY = "juniorclub_optimistic_mapping_v1";
@@ -625,23 +647,29 @@ const PENDING_RESCAN_TTL_MS = 24 * 60 * 60 * 1000;
 const PENDING_AUTO_HIDE_MINUTES = 60;
 const PENDING_AUTO_HIDE_MS = PENDING_AUTO_HIDE_MINUTES * 60 * 1000;
 
+/* ===========================
+OPERATOR
+=========================== */
 function saveOperator(){ localStorage.setItem("op", operator.value); }
 operator.value = localStorage.getItem("op") || "";
 
+/* ===========================
+PREFERENCES
+=========================== */
 function loadPrefBool(key, fallback){
-  const v = localStorage.getItem(key);
-  if (v === null) return fallback;
-  return v === "1";
+const v = localStorage.getItem(key);
+if (v === null) return fallback;
+return v === "1";
 }
 function savePrefBool(key, value){
-  localStorage.setItem(key, value ? "1" :  "0");
+localStorage.setItem(key, value ? "1" : "0");
 }
 function loadPrefStr(key, fallback){
-  const v = localStorage.getItem(key);
-  return (v === null) ? fallback : v;
+const v = localStorage.getItem(key);
+return (v === null) ? fallback : v;
 }
 function savePrefStr(key, value){
-  localStorage.setItem(key, value);
+localStorage.setItem(key, value);
 }
 
 todayOnly.checked = loadPrefBool("todayOnly", true);
@@ -649,6 +677,9 @@ search.value = loadPrefStr("search", "");
 sortBy.value = loadPrefStr("sortBy", "time_desc");
 classFilter.value = loadPrefStr("classFilter", "");
 
+/* ===========================
+HEALTH / STATUS
+=========================== */
 let lastRefresh = 0;
 let timer = null;
 let lastError = "—";
@@ -661,119 +692,128 @@ let lastAcceptedLatestMapTs = 0;
 let lastAcceptedMapRows = 0;
 
 function fmtTime(ts){
-  if(! ts) return "—";
-  return new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+if(!ts) return "—";
+return new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 }
 
 function startTimer(){
-  if(timer) clearInterval(timer);
-  timer = setInterval(()=>{
-    if(! lastRefresh) return;
-    const s = Math.floor((Date.now() - lastRefresh)/1000);
-    updateStatus. textContent = `Last updated: ${s}s ago`;
-  },1000);
+if(timer) clearInterval(timer);
+timer = setInterval(()=>{
+if(!lastRefresh) return;
+const s = Math.floor((Date.now() - lastRefresh)/1000);
+updateStatus.textContent = `Last updated: ${s}s ago`;
+},1000);
 }
 
 function setHealth(mappingOk, attendanceOk){
-  const m = mappingOk ? "✅" : "⏳";
-  const a = attendanceOk ? "✅" : "⏳";
-  const err = lastError && lastError !== "—" ? ` | Error: ${lastError}` : "";
-  health.textContent = `Data: mapping ${m} attendance ${a} | Last sync: ${fmtTime(lastSyncAt)}${err}`;
+const m = mappingOk ? "✅" : "⏳";
+const a = attendanceOk ? "✅" : "⏳";
+const err = lastError && lastError !== "—" ? ` | Error: ${lastError}` : "";
+health.textContent = `Data: mapping ${m} attendance ${a} | Last sync: ${fmtTime(lastSyncAt)}${err}`;
 }
 
 function setStale(latestAttTs){
-  if(! latestAttTs){
-    stale.textContent = "Stale: —";
-    return;
-  }
-  const ageMs = Date.now() - latestAttTs;
-  const mins = Math.max(0, Math.floor(ageMs / 60000));
-  const warn = mins >= STALE_WARN_MINUTES;
+if(!latestAttTs){
+stale.textContent = "Stale: —";
+return;
+}
+const ageMs = Date.now() - latestAttTs;
+const mins = Math.max(0, Math.floor(ageMs / 60000));
+const warn = mins >= STALE_WARN_MINUTES;
 
-  stale.textContent = warn ? `Stale: ${mins}m ⚠️` : `Stale: ${mins}m`;
-  stale.className = "pill" + (warn ? " badge-warn" : "");
+stale.textContent = warn ? `Stale: ${mins}m ⚠️` : `Stale: ${mins}m`;
+stale.className = "pill" + (warn ? " badge-warn" : "");
 }
 
 function showCacheWarn(show){
-  cacheWarn.style.display = show ? "inline-block" : "none";
+cacheWarn.style.display = show ? "inline-block" : "none";
 }
 
+/* ===========================
+CSV PARSER (RFC4180-ish)
+=========================== */
 function parseCSV(text){
-  const rows = [];
-  let row = [];
-  let field = "";
-  let inQuotes = false;
+const rows = [];
+let row = [];
+let field = "";
+let inQuotes = false;
 
-  const pushField = () => { row.push(field); field = ""; };
-  const pushRow = () => {
-    if (row.length === 1 && row[0] === "" && rows.length === 0) return;
-    rows.push(row);
-    row = [];
-  };
+const pushField = () => { row.push(field); field = ""; };
+const pushRow = () => {
+if (row.length === 1 && row[0] === "" && rows.length === 0) return;
+rows.push(row);
+row = [];
+};
 
-  const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 
-  for (let i = 0; i < s.length; i++){
-    const c = s[i];
+for (let i = 0; i < s.length; i++){
+const c = s[i];
 
-    if (c === '"'){
-      const next = s[i + 1];
-      if (inQuotes && next === '"'){
-        field += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
+if (c === '"'){
+const next = s[i + 1];
+if (inQuotes && next === '"'){
+field += '"';
+i++;
+} else {
+inQuotes = !inQuotes;
+}
+continue;
+}
 
-    if (! inQuotes && c === ","){ pushField(); continue; }
-    if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
-    field += c;
-  }
+if (!inQuotes && c === ","){ pushField(); continue; }
+if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
+field += c;
+}
 
-  pushField();
-  pushRow();
+pushField();
+pushRow();
 
-  const headers = (rows. shift() || []).map(h => (h || "").trim());
-  return rows
-    .filter(r => r.some(v => (v || "").trim() !== ""))
-    .map(r => {
-      const o = {};
-      headers.forEach((h, idx) => (o[h] = (r[idx] ??  "").trim()));
-      return o;
-    });
+const headers = (rows.shift() || []).map(h => (h || "").trim());
+return rows
+.filter(r => r.some(v => (v || "").trim() !== ""))
+.map(r => {
+const o = {};
+headers.forEach((h, idx) => (o[h] = (r[idx] ?? "").trim()));
+return o;
+});
 }
 
 function parseEU(ts){
-  if(!ts) return 0;
-  const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
-  if(!m) return 0;
-  return new Date(
-    Number(m[3]),
-    Number(m[2]) - 1,
-    Number(m[1]),
-    Number(m[4]),
-    Number(m[5]),
-    Number(m[6])
-  ).getTime();
+if(!ts) return 0;
+const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
+if(!m) return 0;
+return new Date(
+Number(m[3]),
+Number(m[2]) - 1,
+Number(m[1]),
+Number(m[4]),
+Number(m[5]),
+Number(m[6])
+).getTime();
 }
 
 function startOfTodayLocalTs(){
-  const d = new Date();
-  d.setHours(0,0,0,0);
-  return d.getTime();
+const d = new Date();
+d.setHours(0,0,0,0);
+return d.getTime();
 }
 
 function fmtLocal(ts){
-  if(!ts) return "";
-  return new Date(ts).toLocaleString("sv-SE");
+if(!ts) return "";
+return new Date(ts).toLocaleString("sv-SE");
 }
 
+/* ===========================
+SAFE RENDERING
+=========================== */
 function clearNode(node){
-  while (node.firstChild) node.removeChild(node.firstChild);
+while (node.firstChild) node.removeChild(node.firstChild);
 }
 
+/* ===========================
+DATA + VIEW STATE
+=========================== */
 let presentAll = [];
 let unknownAll = [];
 let pendingAll = [];
@@ -781,797 +821,762 @@ let mappingByCard = {};
 
 function normalizeStr(s){ return (s || "").toString().trim().toLowerCase(); }
 
+/* ===========================
+OPTIMISTIC MAPPING
+=========================== */
 function loadOptimisticMapping(){
-  try{
-    const raw = localStorage.getItem(OPTIMISTIC_MAP_KEY);
-    if (! raw) return {};
-    const obj = JSON.parse(raw);
-    if (! obj || typeof obj !== "object") return {};
-    const now = Date.now();
-    const out = {};
-    for (const [card, rec] of Object.entries(obj)){
-      if (! rec || typeof rec !== "object") continue;
-      const savedAt = Number(rec._savedAt || 0);
-      if (! savedAt) continue;
-      if (now - savedAt > OPTIMISTIC_TTL_MS) continue;
-      out[card] = rec;
-    }
-    return out;
-  }catch{
-    return {};
-  }
+try{
+const raw = localStorage.getItem(OPTIMISTIC_MAP_KEY);
+if (!raw) return {};
+const obj = JSON.parse(raw);
+if (!obj || typeof obj !== "object") return {};
+const now = Date.now();
+const out = {};
+for (const [card, rec] of Object.entries(obj)){
+if (!rec || typeof rec !== "object") continue;
+const savedAt = Number(rec._savedAt || 0);
+if (!savedAt) continue;
+if (now - savedAt > OPTIMISTIC_TTL_MS) continue;
+out[card] = rec;
+}
+return out;
+}catch{
+return {};
+}
 }
 
 function saveOptimisticMapping(obj){
-  try{
-    localStorage.setItem(OPTIMISTIC_MAP_KEY, JSON.stringify(obj || {}));
-  }catch{
-  }
+try{
+localStorage.setItem(OPTIMISTIC_MAP_KEY, JSON.stringify(obj || {}));
+}catch{
+/* ignore */
+}
 }
 
 function upsertOptimisticMapping(cardUid, rec){
-  const card = (cardUid || "").trim();
-  if (!card) return;
-  const all = loadOptimisticMapping();
-  all[card] = { ...rec, _savedAt: Date.now() };
-  saveOptimisticMapping(all);
+const card = (cardUid || "").trim();
+if (!card) return;
+const all = loadOptimisticMapping();
+all[card] = { ...rec, _savedAt: Date.now() };
+saveOptimisticMapping(all);
 }
 
 function reconcileAndMergeOptimisticMapping(mapping){
-  const optimistic = loadOptimisticMapping();
-  let changed = false;
+const optimistic = loadOptimisticMapping();
+let changed = false;
 
-  for (const [card] of Object.entries(optimistic)){
-    if (mapping[card]){
-      delete optimistic[card];
-      changed = true;
-    }
-  }
-  if (changed) saveOptimisticMapping(optimistic);
+for (const [card] of Object.entries(optimistic)){
+if (mapping[card]){
+delete optimistic[card];
+changed = true;
+}
+}
+if (changed) saveOptimisticMapping(optimistic);
 
-  for (const [card, rec] of Object.entries(optimistic)){
-    if (!mapping[card]){
-      mapping[card] = { ...rec, _t: Number(rec._t || 0) };
-    }
-  }
-  return mapping;
+for (const [card, rec] of Object.entries(optimistic)){
+if (!mapping[card]){
+mapping[card] = { ...rec, _t: Number(rec._t || 0) };
+}
+}
+return mapping;
 }
 
+/* ===========================
+PENDING RESCAN
+=========================== */
 function loadPendingRescan(){
-  try{
-    const raw = localStorage.getItem(PENDING_RESCAN_KEY);
-    if (!raw) return {};
-    const obj = JSON. parse(raw);
-    if (!obj || typeof obj !== "object") return {};
-    const now = Date.now();
-    const out = {};
-    for (const [card, savedAt] of Object.entries(obj)){
-      const t = Number(savedAt || 0);
-      if (!t) continue;
-      if (now - t > PENDING_RESCAN_TTL_MS) continue;
-      if (now - t > PENDING_AUTO_HIDE_MS) continue;
-      out[card] = t;
-    }
-    return out;
-  }catch{
-    return {};
-  }
+try{
+const raw = localStorage.getItem(PENDING_RESCAN_KEY);
+if (!raw) return {};
+const obj = JSON.parse(raw);
+if (!obj || typeof obj !== "object") return {};
+const now = Date.now();
+const out = {};
+for (const [card, savedAt] of Object.entries(obj)){
+const t = Number(savedAt || 0);
+if (!t) continue;
+if (now - t > PENDING_RESCAN_TTL_MS) continue;
+if (now - t > PENDING_AUTO_HIDE_MS) continue;
+out[card] = t;
+}
+return out;
+}catch{
+return {};
+}
 }
 
 function savePendingRescan(obj){
-  try{
-    localStorage.setItem(PENDING_RESCAN_KEY, JSON.stringify(obj || {}));
-  }catch{
-  }
+try{
+localStorage.setItem(PENDING_RESCAN_KEY, JSON.stringify(obj || {}));
+}catch{
+/* ignore */
+}
 }
 
 function addPendingRescan(cardUid, savedAt){
-  const card = (cardUid || "").trim();
-  if (!card) return;
-  const all = loadPendingRescan();
-  all[card] = Number(savedAt || Date.now());
-  savePendingRescan(all);
+const card = (cardUid || "").trim();
+if (!card) return;
+const all = loadPendingRescan();
+all[card] = Number(savedAt || Date.now());
+savePendingRescan(all);
 }
 
 function prunePendingRescanAgainstAttendance(latestByCard){
-  const all = loadPendingRescan();
-  let changed = false;
+const all = loadPendingRescan();
+let changed = false;
 
-  for (const [card, savedAt] of Object.entries(all)){
-    const t = Number(savedAt || 0);
-    const scan = latestByCard[card];
-    if (scan && Number(scan._t || 0) > t){
-      delete all[card];
-      changed = true;
-    }
-  }
-
-  if (changed) savePendingRescan(all);
-  return all;
+for (const [card, savedAt] of Object.entries(all)){
+const t = Number(savedAt || 0);
+const scan = latestByCard[card];
+if (scan && Number(scan._t || 0) > t){
+delete all[card];
+changed = true;
+}
 }
 
+if (changed) savePendingRescan(all);
+return all;
+}
+
+/* ===========================
+TOAST
+=========================== */
 let toastHideTimer = null;
 
 function showToast(message){
-  toast.textContent = message;
-  toast.classList.add("show");
-  if (toastHideTimer) clearTimeout(toastHideTimer);
-  toastHideTimer = setTimeout(()=>toast.classList.remove("show"), 3200);
+toast.textContent = message;
+toast.classList.add("show");
+if (toastHideTimer) clearTimeout(toastHideTimer);
+toastHideTimer = setTimeout(()=>toast.classList.remove("show"), 3200);
 }
 
+/* ===========================
+POST-SAVE RE-REFRESH
+=========================== */
 let postSaveTimer = null;
 
 function schedulePostSaveRefresh(){
-  if (postSaveTimer) clearTimeout(postSaveTimer);
-  postSaveTimer = setTimeout(()=>reloadAll(), POST_SAVE_REFRESH_MS);
+if (postSaveTimer) clearTimeout(postSaveTimer);
+postSaveTimer = setTimeout(()=>reloadAll(), POST_SAVE_REFRESH_MS);
 }
 
+/* ===========================
+MODAL
+=========================== */
 let modalCardUid = "";
 let modalMode = "register";
 
 function buildDefaultClassList(){
-  const out = [];
-  for (let y = CLASS_DEFAULTS.yearStart; y <= CLASS_DEFAULTS.yearEnd; y++){
-    for (const letter of CLASS_DEFAULTS.letters){
-      out.push(`${y}${letter}`);
-    }
-  }
-  return out;
+const out = [];
+for (let y = CLASS_DEFAULTS.yearStart; y <= CLASS_DEFAULTS.yearEnd; y++){
+for (const letter of CLASS_DEFAULTS.letters){
+out.push(`${y}${letter}`);
+}
+}
+return out;
 }
 
 function initModalClassDropdown(){
-  const opts = buildDefaultClassList();
-  clearNode(m_class);
+const opts = buildDefaultClassList();
+clearNode(m_class);
 
-  const optBlank = document.createElement("option");
-  optBlank.value = "";
-  optBlank.textContent = "Select class";
-  m_class.appendChild(optBlank);
+const optBlank = document.createElement("option");
+optBlank.value = "";
+optBlank.textContent = "Select class";
+m_class.appendChild(optBlank);
 
-  opts.forEach(v=>{
-    const opt = document.createElement("option");
-    opt.value = v;
-    opt.textContent = v;
-    m_class.appendChild(opt);
-  });
+opts.forEach(v=>{
+const opt = document.createElement("option");
+opt.value = v;
+opt.textContent = v;
+m_class.appendChild(opt);
+});
 
-  const optCustom = document.createElement("option");
-  optCustom.value = CLASS_CUSTOM_VALUE;
-  optCustom.textContent = "Other / custom…";
-  m_class.appendChild(optCustom);
+const optCustom = document.createElement("option");
+optCustom.value = CLASS_CUSTOM_VALUE;
+optCustom.textContent = "Other / custom…";
+m_class.appendChild(optCustom);
 }
 
 function setModalClassValue(value){
-  const v = (value || "").trim();
-  const hasOption = Array.from(m_class.options).some(o => o.value === v);
+const v = (value || "").trim();
+const hasOption = Array.from(m_class.options).some(o => o.value === v);
 
-  if (! v){
-    m_class.value = "";
-    m_class_custom.value = "";
-    m_class_custom.style.display = "none";
-    return;
-  }
+if (!v){
+m_class.value = "";
+m_class_custom.value = "";
+m_class_custom.style.display = "none";
+return;
+}
 
-  if (hasOption){
-    m_class.value = v;
-    m_class_custom.value = "";
-    m_class_custom.style.display = "none";
-  } else {
-    m_class.value = CLASS_CUSTOM_VALUE;
-    m_class_custom.value = v;
-    m_class_custom.style.display = "block";
-  }
+if (hasOption){
+m_class.value = v;
+m_class_custom.value = "";
+m_class_custom.style.display = "none";
+return;
+}
+
+m_class.value = CLASS_CUSTOM_VALUE;
+m_class_custom.value = v;
+m_class_custom.style.display = "block";
 }
 
 function getModalClassValue(){
-  if (m_class.value === CLASS_CUSTOM_VALUE){
-    return (m_class_custom.value || "").trim();
-  }
-  return (m_class.value || "").trim();
+if (m_class.value === CLASS_CUSTOM_VALUE) return (m_class_custom.value || "").trim();
+return (m_class.value || "").trim();
 }
 
 m_class.addEventListener("change", ()=>{
-  if (m_class.value === CLASS_CUSTOM_VALUE){
-    m_class_custom.style. display = "block";
-    m_class_custom.focus();
-  } else {
-    m_class_custom.style. display = "none";
-    m_class_custom.value = "";
-  }
+if (m_class.value === CLASS_CUSTOM_VALUE){
+m_class_custom.style.display = "block";
+m_class_custom.focus();
+} else {
+m_class_custom.style.display = "none";
+m_class_custom.value = "";
+}
 });
 
-function openMapModal(mode, cardUid){
-  modalMode = mode;
-  modalCardUid = (cardUid || "").trim();
+function openMapModal(cardUid, mode){
+modalCardUid = (cardUid || "").trim();
+modalMode = mode || "register";
 
-  modalError.textContent = "";
+modalError.textContent = "";
+modalTitle.textContent = (modalMode === "edit") ? "Edit mapping" : "Register card";
 
-  if (mode === "register"){
-    modalTitle.textContent = "Register card";
-    modalCurrentBox.style.display = "none";
+const cur = mappingByCard[modalCardUid] || null;
+const mappedBy = (operator.value || "").trim();
 
-    m_card_uid.value = modalCardUid;
-    m_student_email.value = MAP_DEFAULTS.student_email;
-    m_student_name. value = "";
-    setModalClassValue("");
-    m_status.value = MAP_DEFAULTS. status;
-    m_pin.value = "";
-    m_note.value = "";
-    m_mapped_by.value = (operator.value || "").trim() || "—";
-    m_schema.value = MAP_DEFAULTS.schema;
+m_card_uid.value = modalCardUid;
+m_student_email.value = cur ? (cur.student_email || MAP_DEFAULTS.student_email) : MAP_DEFAULTS.student_email;
+m_student_name.value = cur ? (cur.student_name || "") : "";
+setModalClassValue(cur ? (cur.class || "") : "");
+m_status.value = cur ? (cur.status || MAP_DEFAULTS.status) : MAP_DEFAULTS.status;
+m_pin.value = cur ? (cur.pin || "") : "";
+m_note.value = cur ? (cur.note || "") : "";
+m_mapped_by.value = mappedBy;
+m_schema.value = cur ? (cur.schema || MAP_DEFAULTS.schema) : MAP_DEFAULTS.schema;
 
-    m_student_email.removeAttribute("readonly");
-    m_student_name.removeAttribute("readonly");
-    m_class.removeAttribute("disabled");
-    m_class_custom.removeAttribute("readonly");
-    m_status.removeAttribute("disabled");
-    m_pin.removeAttribute("readonly");
-    m_note.removeAttribute("readonly");
+if (cur){
+modalCurrentBox.style.display = "block";
+modalCurrentBox.innerHTML =
+`<strong>Current mapping:</strong><br>` +
+`card_uid: ${cur.card_uid || ""}<br>` +
+`student_email: ${cur.student_email || ""}<br>` +
+`student_name: ${cur.student_name || ""}<br>` +
+`class: ${cur.class || ""}<br>` +
+`status: ${cur.status || ""}<br>` +
+`pin: ${cur.pin || ""}<br>` +
+`note: ${cur.note || ""}<br>` +
+`mapped_by: ${cur.mapped_by || ""}<br>` +
+`schema: ${cur.schema || ""}<br>`;
+} else {
+modalCurrentBox.style.display = "none";
+modalCurrentBox.textContent = "";
+}
 
-  } else if (mode === "edit"){
-    modalTitle.textContent = "Edit mapping";
+mapModalOverlay.classList.add("show");
+mapModalOverlay.setAttribute("aria-hidden","false");
 
-    const existing = mappingByCard[modalCardUid];
-    if (!existing){
-      modalError.textContent = "Card not found in mapping. ";
-      return;
-    }
-
-    const lines = [];
-    lines.push(`<strong>Current:</strong> ${existing.student_name || "—"} (${existing.class || "—"})`);
-    lines.push(`Status: ${existing.status || "—"}`);
-    if (existing.student_email) lines.push(`Email: ${existing.student_email}`);
-    if (existing.note) lines.push(`Note: ${existing.note}`);
-    modalCurrentBox.innerHTML = lines.join("<br>");
-    modalCurrentBox.style.display = "block";
-
-    m_card_uid.value = modalCardUid;
-    m_student_email.value = existing.student_email || "";
-    m_student_name.value = existing.student_name || "";
-    setModalClassValue(existing.class || "");
-    m_status.value = existing.status || "active";
-    m_pin.value = existing.pin || "";
-    m_note.value = existing. note || "";
-    m_mapped_by.value = (operator.value || "").trim() || existing.mapped_by || "—";
-    m_schema.value = existing.schema || MAP_DEFAULTS.schema;
-
-    m_student_email.removeAttribute("readonly");
-    m_student_name. removeAttribute("readonly");
-    m_class.removeAttribute("disabled");
-    m_class_custom. removeAttribute("readonly");
-    m_status.removeAttribute("disabled");
-    m_pin.removeAttribute("readonly");
-    m_note.removeAttribute("readonly");
-  }
-
-  mapModalOverlay.classList.add("show");
-  mapModalOverlay.setAttribute("aria-hidden", "false");
+if (modalMode === "register"){
+showToast("Register the card — then scan again to check in");
+}
 }
 
 function closeMapModal(){
-  mapModalOverlay.classList.remove("show");
-  mapModalOverlay. setAttribute("aria-hidden", "true");
-  modalCardUid = "";
-  modalMode = "register";
+mapModalOverlay.classList.remove("show");
+mapModalOverlay.setAttribute("aria-hidden","true");
+modalCardUid = "";
 }
 
-function submitMapModal(){
-  const cardUid = (m_card_uid.value || "").trim();
-  const studentEmail = (m_student_email.value || "").trim();
-  const studentName = (m_student_name.value || "").trim();
-  const cls = getModalClassValue();
-  const status = (m_status.value || "").trim();
-  const pin = (m_pin.value || "").trim();
-  const note = (m_note.value || "").trim();
-  const mappedBy = (m_mapped_by.value || "").trim();
-  const schema = (m_schema.value || "").trim();
-
-  if (!cardUid){
-    modalError.textContent = "Card UID is required.";
-    return;
-  }
-  if (!studentEmail){
-    modalError.textContent = "Student email is required.";
-    return;
-  }
-  if (! studentName){
-    modalError.textContent = "Student name is required.";
-    return;
-  }
-  if (!cls){
-    modalError.textContent = "Class is required.";
-    return;
-  }
-
-  const payload = new URLSearchParams();
-  payload.append(MAP_ENTRY. card_uid, cardUid);
-  payload.append(MAP_ENTRY.student_email, studentEmail);
-  payload.append(MAP_ENTRY.student_name, studentName);
-  payload.append(MAP_ENTRY.class, cls);
-  payload.append(MAP_ENTRY.status, status || "active");
-  payload.append(MAP_ENTRY.pin, pin);
-  payload.append(MAP_ENTRY.note, note);
-  payload.append(MAP_ENTRY.mapped_by, mappedBy || "—");
-  payload.append(MAP_ENTRY.schema, schema || MAP_DEFAULTS.schema);
-
-  fetch(MAP_FORM_RESPONSE_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: payload.toString()
-  }).then(()=>{
-    showToast(`✅ Saved ${studentName}`);
-
-    upsertOptimisticMapping(cardUid, {
-      card_uid: cardUid,
-      student_email: studentEmail,
-      student_name: studentName,
-      class: cls,
-      status: status || "active",
-      pin: pin,
-      note: note,
-      mapped_by: mappedBy || "—",
-      schema:  schema || MAP_DEFAULTS.schema,
-      Timestamp: new Date().toLocaleString("en-GB").replace(",", ""),
-      _t: Date.now()
-    });
-
-    if (modalMode === "register"){
-      addPendingRescan(cardUid, Date.now());
-    }
-
-    closeMapModal();
-    reloadAll();
-    schedulePostSaveRefresh();
-
-  }).catch(err=>{
-    modalError.textContent = `Error: ${err.message || String(err)}`;
-  });
-}
-
-function buildLatestByCard(attRows, todayOnly){
-  const dayStart = todayOnly ? startOfTodayLocalTs() : 0;
-  const latest = {};
-
-  attRows.forEach(r=>{
-    const t = parseEU(r. Timestamp);
-    if (!t || (dayStart && t < dayStart)) return;
-    if (!r.card_uid) return;
-
-    const ev = (r.event || "").trim();
-    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") return;
-
-    const prev = latest[r.card_uid];
-    if (! prev || t >= prev._t){
-      latest[r.card_uid] = { ...r, _t: t };
-    }
-  });
-
-  return latest;
-}
-
-function buildLatestMapping(mapRows){
-  const mapping = {};
-  mapRows.forEach(r=>{
-    if (!r.card_uid) return;
-    const t = parseEU(r. Timestamp);
-    const prev = mapping[r.card_uid];
-    if (!prev || t >= prev._t){
-      mapping[r.card_uid] = { ...r, _t: t };
-    }
-  });
-  return mapping;
-}
-
-function normalizePresent(latestByCard, mapping){
-  const present = [];
-  const unknown = [];
-
-  Object.values(latestByCard).forEach(scan=>{
-    const ev = (scan.event || "").trim();
-    if (ev !== "IN") return;
-
-    const m = mapping[scan.card_uid];
-    if (!m){
-      unknown.push(scan);
-      return;
-    }
-
-    const studentName = (m.student_name || "").trim();
-    if (!studentName){
-      unknown.push(scan);
-      return;
-    }
-
-    present.push({
-      card_uid: scan.card_uid,
-      student_name: studentName,
-      student_email: (m.student_email || "").trim(),
-      class: (m.class || "").trim(),
-      status: (m.status || "").trim(),
-      lastIn: scan._t || 0
-    });
-  });
-
-  return { present, unknown };
-}
-
-function applyFiltersAndSort(present){
-  const q = normalizeStr(search.value);
-  const cls = normalizeStr(classFilter.value);
-
-  let filtered = present;
-
-  if (q){
-    filtered = filtered. filter(p=>
-      normalizeStr(p.student_name).includes(q) ||
-      normalizeStr(p.class).includes(q) ||
-      normalizeStr(p.card_uid).includes(q)
-    );
-  }
-
-  if (cls){
-    filtered = filtered.filter(p=> normalizeStr(p.class) === cls);
-  }
-
-  const sort = sortBy. value;
-  if (sort === "time_desc"){
-    filtered.sort((a,b)=> (b.lastIn || 0) - (a.lastIn || 0));
-  } else if (sort === "name_asc"){
-    filtered.sort((a,b)=> normalizeStr(a.student_name).localeCompare(normalizeStr(b.student_name)));
-  } else if (sort === "class_asc"){
-    filtered.sort((a,b)=> {
-      const c = normalizeStr(a.class).localeCompare(normalizeStr(b.class));
-      if (c !== 0) return c;
-      return normalizeStr(a.student_name).localeCompare(normalizeStr(b.student_name));
-    });
-  }
-
-  return filtered;
-}
-
-function renderPresentTable(present){
-  clearNode(presentTable);
-
-  if (! present.length){
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 4;
-    td.textContent = "No students present";
-    td.style.textAlign = "center";
-    td.style.opacity = "0.6";
-    tr.appendChild(td);
-    presentTable.appendChild(tr);
-    return;
-  }
-
-  present.forEach(p=>{
-    const tr = document.createElement("tr");
-
-    const tdName = document.createElement("td");
-    tdName.textContent = p.student_name || "—";
-    tr.appendChild(tdName);
-
-    const tdClass = document.createElement("td");
-    tdClass.textContent = p.class || "—";
-    tr.appendChild(tdClass);
-
-    const tdTime = document.createElement("td");
-    tdTime.textContent = p.lastIn ?  fmtLocal(p.lastIn) : "—";
-    tr.appendChild(tdTime);
-
-    const tdActions = document.createElement("td");
-    const btnEdit = document.createElement("button");
-    btnEdit.className = "small secondary";
-    btnEdit.textContent = "Edit";
-    btnEdit.onclick = ()=> openMapModal("edit", p. card_uid);
-    tdActions.appendChild(btnEdit);
-    tr.appendChild(tdActions);
-
-    presentTable.appendChild(tr);
-  });
-}
-
-function renderUnknownTable(unknown){
-  clearNode(unknownTable);
-
-  if (!unknown.length){
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 3;
-    td.textContent = "No unknown cards";
-    td.style.textAlign = "center";
-    td.style.opacity = "0.6";
-    tr.appendChild(td);
-    unknownTable.appendChild(tr);
-    return;
-  }
-
-  unknown.forEach(u=>{
-    const tr = document.createElement("tr");
-    tr.className = "unknown";
-
-    const tdTime = document.createElement("td");
-    tdTime.textContent = u._t ? fmtLocal(u._t) : "—";
-    tr.appendChild(tdTime);
-
-    const tdCard = document.createElement("td");
-    tdCard.textContent = u.card_uid || "—";
-    tdCard.style.fontFamily = "monospace";
-    tdCard.style.fontSize = "12px";
-    tr.appendChild(tdCard);
-
-    const tdActions = document.createElement("td");
-    const btnReg = document.createElement("button");
-    btnReg.className = "small";
-    btnReg.textContent = "Register";
-    btnReg.onclick = ()=> openMapModal("register", u.card_uid);
-    tdActions.appendChild(btnReg);
-    tr.appendChild(tdActions);
-
-    unknownTable.appendChild(tr);
-  });
-}
-
-function renderPendingTable(pendingMap, mapping){
-  clearNode(pendingTable);
-
-  const entries = Object.entries(pendingMap).map(([card, ts])=>{
-    const m = mapping[card];
-    return {
-      card,
-      ts,
-      name: (m && m.student_name) || "—",
-      class: (m && m.class) || "—"
-    };
-  });
-
-  entries.sort((a,b)=> b.ts - a.ts);
-
-  if (!entries.length){
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 5;
-    td.textContent = "No pending rescans";
-    td.style. textAlign = "center";
-    td.style.opacity = "0.6";
-    tr.appendChild(td);
-    pendingTable.appendChild(tr);
-    return;
-  }
-
-  entries. forEach(e=>{
-    const tr = document.createElement("tr");
-
-    const tdReg = document.createElement("td");
-    tdReg.textContent = e.ts ? fmtLocal(e. ts) : "—";
-    tr.appendChild(tdReg);
-
-    const tdCard = document. createElement("td");
-    tdCard.textContent = e.card;
-    tdCard.style.fontFamily = "monospace";
-    tdCard.style.fontSize = "12px";
-    tr.appendChild(tdCard);
-
-    const tdName = document.createElement("td");
-    tdName.textContent = e.name;
-    tr.appendChild(tdName);
-
-    const tdClass = document.createElement("td");
-    tdClass.textContent = e.class;
-    tr.appendChild(tdClass);
-
-    const tdActions = document.createElement("td");
-    const btnEdit = document.createElement("button");
-    btnEdit.className = "small secondary";
-    btnEdit.textContent = "Edit";
-    btnEdit.onclick = ()=> openMapModal("edit", e.card);
-    tdActions.appendChild(btnEdit);
-    tr.appendChild(tdActions);
-
-    pendingTable.appendChild(tr);
-  });
-}
-
-function populateClassFilter(present){
-  const classes = new Set();
-  present.forEach(p=>{
-    const c = (p.class || "").trim();
-    if (c) classes.add(c);
-  });
-
-  const sorted = Array.from(classes).sort();
-  const current = classFilter.value;
-
-  clearNode(classFilter);
-
-  const optAll = document.createElement("option");
-  optAll.value = "";
-  optAll.textContent = "All classes";
-  classFilter.appendChild(optAll);
-
-  sorted.forEach(c=>{
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    classFilter.appendChild(opt);
-  });
-
-  if (current && sorted.includes(current)){
-    classFilter.value = current;
-  } else {
-    classFilter.value = "";
-  }
-}
-
-function renderAll(){
-  presentCount. textContent = String(presentAll.length);
-
-  const filtered = applyFiltersAndSort(presentAll);
-  renderPresentTable(filtered);
-  renderUnknownTable(unknownAll);
-  renderPendingTable(pendingAll, mappingByCard);
-  populateClassFilter(presentAll);
-}
-
-search.addEventListener("input", renderAll);
-classFilter.addEventListener("change", ()=>{
-  savePrefStr("classFilter", classFilter.value);
-  renderAll();
-});
-sortBy.addEventListener("change", ()=>{
-  savePrefStr("sortBy", sortBy.value);
-  renderAll();
-});
-todayOnly.addEventListener("change", ()=>{
-  savePrefBool("todayOnly", todayOnly.checked);
-  reloadAll();
+mapModalOverlay.addEventListener("click", (e)=>{
+if (e.target === mapModalOverlay) closeMapModal();
 });
 
-function computeLatestTs(rows){
-  let t = 0;
-  rows. forEach(r=>{
-    const v = parseEU(r. Timestamp);
-    if (v > t) t = v;
-  });
-  return t;
+document.addEventListener("keydown", (e)=>{
+if (e.key === "Escape" && mapModalOverlay.classList.contains("show")) closeMapModal();
+});
+
+async function submitMapModal(){
+modalError.textContent = "";
+
+const cardUid = (m_card_uid.value || "").trim();
+const studentEmail = (m_student_email.value || "").trim();
+const studentName = (m_student_name.value || "").trim();
+const klass = getModalClassValue();
+const status = (m_status.value || "").trim();
+const pin = (m_pin.value || "").trim();
+const note = (m_note.value || "").trim();
+const mappedBy = (m_mapped_by.value || "").trim();
+const schema = (m_schema.value || "").trim();
+
+if (!cardUid){
+modalError.textContent = "Missing card UID.";
+return;
+}
+if (!studentName){
+modalError.textContent = "Student name is required.";
+return;
+}
+if (!mappedBy){
+modalError.textContent = "Enter staff email at the top (Save).";
+return;
 }
 
-function acceptOrRejectSnapshot(current, lastAccepted){
-  const { rows, latestTs } = current;
-  const { rows: lastRows, latestTs: lastTs } = lastAccepted;
+const d = new URLSearchParams();
+d.append(MAP_ENTRY.card_uid, cardUid);
+d.append(MAP_ENTRY.student_email, studentEmail || MAP_DEFAULTS.student_email);
+d.append(MAP_ENTRY.student_name, studentName);
+d.append(MAP_ENTRY.class, klass);
+d.append(MAP_ENTRY.status, status || MAP_DEFAULTS.status);
+d.append(MAP_ENTRY.pin, pin);
+d.append(MAP_ENTRY.note, note);
+d.append(MAP_ENTRY.mapped_by, mappedBy);
+d.append(MAP_ENTRY.schema, schema || MAP_DEFAULTS.schema);
 
-  const gotClearlyOlder = lastTs > 0 && (latestTs === 0 || latestTs + 2000 < lastTs);
-  const gotRowDrop = lastRows > 0 && rows + 2 < lastRows && latestTs <= lastTs;
+try{
+const savedAt = Date.now();
+await fetch(MAP_FORM_RESPONSE_URL, { method:"POST", mode:"no-cors", body:d });
 
-  return !(gotClearlyOlder || gotRowDrop);
+upsertOptimisticMapping(cardUid, {
+card_uid: cardUid,
+student_email: studentEmail || MAP_DEFAULTS.student_email,
+student_name: studentName,
+class: klass,
+status: status || MAP_DEFAULTS.status,
+pin: pin,
+note: note,
+mapped_by: mappedBy,
+schema: schema || MAP_DEFAULTS.schema,
+_t: savedAt
+});
+
+addPendingRescan(cardUid, savedAt);
+
+closeMapModal();
+
+showToast("Saved ✅ — now scan again to check in");
+
+reloadAll();
+schedulePostSaveRefresh();
+}catch(e){
+modalError.textContent = (e && e.message) ? e.message : String(e);
+}
 }
 
-async function reloadAll(){
-  try{
-    lastError = "—";
-    lastSyncAt = Date.now();
+/* ===========================
+FILTERS / SORT / EXPORT
+=========================== */
+function rebuildClassOptions(present){
+const wanted = classFilter.value;
+const classes = Array.from(new Set(present.map(p => p.class).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+clearNode(classFilter);
 
-    const [attText, mapText] = await Promise.all([
-      fetch(`${ATT_CSV}&_=${Date.now()}`, { cache: "no-store" }).then(r => r.text()),
-      fetch(`${MAP_CSV}&_=${Date.now()}`, { cache: "no-store" }).then(r => r.text())
-    ]);
+const optAll = document.createElement("option");
+optAll.value = "";
+optAll.textContent = "All classes";
+classFilter.appendChild(optAll);
 
-    const attRows = parseCSV(attText);
-    const mapRows = parseCSV(mapText);
+classes.forEach(c=>{
+const opt = document.createElement("option");
+opt.value = c;
+opt.textContent = c;
+classFilter.appendChild(opt);
+});
 
-    const latestAttTs = computeLatestTs(attRows);
-    const latestMapTs = computeLatestTs(mapRows);
-
-    const attOk = acceptOrRejectSnapshot(
-      { rows: attRows. length, latestTs: latestAttTs },
-      { rows: lastAcceptedAttRows, latestTs: lastAcceptedLatestAttTs }
-    );
-
-    const mapOk = acceptOrRejectSnapshot(
-      { rows: mapRows.length, latestTs: latestMapTs },
-      { rows: lastAcceptedMapRows, latestTs: lastAcceptedLatestMapTs }
-    );
-
-    if (!attOk){
-      setHealth(mapOk, false);
-      setStale(lastAcceptedLatestAttTs);
-      showCacheWarn(true);
-      dbgError. textContent = "Attendance snapshot rejected (older than last accepted)";
-      return;
-    }
-
-    if (!mapOk && Object.keys(mappingByCard).length){
-      setHealth(false, attOk);
-      showCacheWarn(true);
-      dbgError.textContent = "Mapping snapshot rejected (older than last accepted)";
-    } else {
-      showCacheWarn(false);
-      dbgError.textContent = "—";
-    }
-
-    lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, latestAttTs);
-    lastAcceptedAttRows = attRows.length;
-
-    if (mapOk){
-      lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, latestMapTs);
-      lastAcceptedMapRows = mapRows.length;
-      mappingByCard = buildLatestMapping(mapRows);
-      mappingByCard = reconcileAndMergeOptimisticMapping(mappingByCard);
-    }
-
-    const latestByCard = buildLatestByCard(attRows, todayOnly.checked);
-    const { present, unknown } = normalizePresent(latestByCard, mappingByCard);
-
-    const pendingMap = prunePendingRescanAgainstAttendance(latestByCard);
-
-    presentAll = present;
-    unknownAll = unknown;
-    pendingAll = pendingMap;
-
-    renderAll();
-
-    setHealth(mapOk, attOk);
-    setStale(latestAttTs);
-
-    lastRefresh = Date.now();
-    startTimer();
-
-    dbgAttRows.textContent = String(attRows.length);
-    dbgMapRows.textContent = String(mapRows.length);
-    dbgAttHeaders.textContent = attRows.length ? Object.keys(attRows[0]).join(", ") : "—";
-    dbgMapHeaders. textContent = mapRows.length ?  Object.keys(mapRows[0]).join(", ") : "—";
-    dbgLatestAttTs.textContent = latestAttTs ?  fmtLocal(latestAttTs) : "—";
-
-  }catch(e){
-    lastError = (e && e.message) ? e.message : String(e);
-    dbgError.textContent = lastError;
-    setHealth(false, false);
-  }
+classFilter.value = classes.includes(wanted) ? wanted : "";
+savePrefStr("classFilter", classFilter.value);
 }
 
-function printPage(){
-  window.print();
+function applyFiltersAndRender(){
+const q = normalizeStr(search.value);
+const cls = classFilter.value;
+const sort = sortBy.value;
+
+let present = [...presentAll];
+let unknown = [...unknownAll];
+let pending = [...pendingAll];
+
+if (cls){
+present = present.filter(p => p.class === cls);
 }
 
-function copyPresent(){
-  const filtered = applyFiltersAndSort(presentAll);
-  const lines = filtered.map(p=> `${p.student_name} (${p.class})`);
-  const text = lines.join("\n");
+if (q){
+present = present.filter(p => (`${p.name} ${p.class} ${p.card}`.toLowerCase().includes(q)));
+unknown = unknown.filter(u => (`${u.card} ${u.time}`.toLowerCase().includes(q)));
+pending = pending.filter(p => (`${p.card} ${p.name} ${p.class}`.toLowerCase().includes(q)));
+}
 
-  navigator.clipboard.writeText(text).then(()=>{
-    showToast(`✅ Copied ${lines.length} names`);
-  }).catch(err=>{
-    showToast(`❌ Copy failed: ${err. message}`);
-  });
+if (sort === "name_asc"){
+present.sort((a,b)=>a.name.localeCompare(b.name));
+} else if (sort === "class_asc"){
+present.sort((a,b)=>(a.class||"").localeCompare(b.class||"") || a.name.localeCompare(b.name));
+} else {
+present.sort((a,b)=> (b._t - a._t));
+}
+
+clearNode(presentTable);
+present.forEach(p=>{
+const tr = document.createElement("tr");
+
+const tdName = document.createElement("td"); tdName.textContent = p.name || "";
+const tdClass = document.createElement("td"); tdClass.textContent = p.class || "";
+const tdTime = document.createElement("td"); tdTime.textContent = p.time || "";
+const tdAct = document.createElement("td");
+
+const btn = document.createElement("button");
+btn.className = "secondary small";
+btn.textContent = "Edit";
+btn.onclick = () => openMapModal(p.card, "edit");
+tdAct.appendChild(btn);
+
+tr.appendChild(tdName);
+tr.appendChild(tdClass);
+tr.appendChild(tdTime);
+tr.appendChild(tdAct);
+presentTable.appendChild(tr);
+});
+
+presentCount.textContent = String(present.length);
+
+clearNode(unknownTable);
+unknown.forEach(u=>{
+const tr = document.createElement("tr");
+tr.className = "unknown";
+
+const tdTime = document.createElement("td"); tdTime.textContent = u.time || "";
+const tdCard = document.createElement("td"); tdCard.textContent = u.card || "";
+const tdAct = document.createElement("td");
+
+const btn = document.createElement("button");
+btn.className = "secondary small";
+btn.textContent = "Register";
+btn.onclick = () => openMapModal(u.card, "register");
+tdAct.appendChild(btn);
+
+tr.appendChild(tdTime);
+tr.appendChild(tdCard);
+tr.appendChild(tdAct);
+unknownTable.appendChild(tr);
+});
+
+clearNode(pendingTable);
+pending
+.sort((a,b)=> (b.savedAt - a.savedAt))
+.forEach(p=>{
+const tr = document.createElement("tr");
+
+const tdReg = document.createElement("td"); tdReg.textContent = fmtLocal(p.savedAt);
+const tdCard = document.createElement("td"); tdCard.textContent = p.card || "";
+const tdName = document.createElement("td"); tdName.textContent = p.name || "";
+const tdClass = document.createElement("td"); tdClass.textContent = p.class || "";
+const tdAct = document.createElement("td");
+
+const btn = document.createElement("button");
+btn.className = "secondary small";
+btn.textContent = "Edit";
+btn.onclick = () => openMapModal(p.card, "edit");
+tdAct.appendChild(btn);
+
+tr.appendChild(tdReg);
+tr.appendChild(tdCard);
+tr.appendChild(tdName);
+tr.appendChild(tdClass);
+tr.appendChild(tdAct);
+
+pendingTable.appendChild(tr);
+});
+
+rebuildClassOptions(presentAll);
+}
+
+function printPage(){ window.print(); }
+
+async function copyText(text){
+try{
+await navigator.clipboard.writeText(text);
+}catch{
+const ta = document.createElement("textarea");
+ta.value = text;
+document.body.appendChild(ta);
+ta.select();
+document.execCommand("copy");
+document.body.removeChild(ta);
+}
+}
+
+async function copyPresent(){
+const lines = [];
+const q = normalizeStr(search.value);
+const cls = classFilter.value;
+
+let present = [...presentAll];
+if (cls) present = present.filter(p => p.class === cls);
+if (q) present = present.filter(p => (`${p.name} ${p.class} ${p.card}`.toLowerCase().includes(q)));
+present.sort((a,b)=> (b._t - a._t));
+
+lines.push(`Junior Club — Present (${present.length})`);
+lines.push(`Generated: ${new Date().toLocaleString("sv-SE")}`);
+lines.push("");
+
+present.forEach(p => lines.push(`${p.class}\t${p.name}\t${p.time}`));
+await copyText(lines.join("\n"));
+}
+
+function toCsv(rows, headers){
+const esc = (v) => {
+const s = (v ?? "").toString();
+if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+return s;
+};
+return [headers.join(","), ...rows.map(r => headers.map(h => esc(r[h])).join(","))].join("\n");
 }
 
 function exportPresentCsv(){
-  const filtered = applyFiltersAndSort(presentAll);
-  const lines = ["Name,Class,Time"];
-  filtered.forEach(p=>{
-    const time = p.lastIn ? fmtLocal(p.lastIn) : "";
-    lines.push(`"${p.student_name}","${p.class}","${time}"`);
-  });
+const q = normalizeStr(search.value);
+const cls = classFilter.value;
 
-  const csv = lines.join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL. createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `present_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+let present = [...presentAll];
+if (cls) present = present.filter(p => p.class === cls);
+if (q) present = present.filter(p => (`${p.name} ${p.class} ${p.card}`.toLowerCase().includes(q)));
+present.sort((a,b)=> (b._t - a._t));
 
-  showToast(`✅ Exported ${filtered.length} students`);
+const rows = present.map(p => ({
+student_name: p.name,
+class: p.class,
+timestamp: p.time,
+card_uid: p.card
+}));
+
+const csv = toCsv(rows, ["student_name","class","timestamp","card_uid"]);
+const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement("a");
+const yyyy = new Date().toISOString().slice(0,10);
+a.href = url;
+a.download = `juniorclub_present_${yyyy}.csv`;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
 }
+
+/* ===========================
+MAIN LOAD
+=========================== */
+async function reloadAll(){
+let mappingOk = false;
+let attendanceOk = false;
+
+try{
+lastRefresh = Date.now();
+updateStatus.textContent = "Last updated: just now";
+startTimer();
+
+lastError = "—";
+showCacheWarn(false);
+setHealth(false, false);
+
+const attUrl = `${ATT_CSV}&_=${Date.now()}`;
+const mapUrl = `${MAP_CSV}&_=${Date.now()}`;
+
+const [attText, mapText] = await Promise.all([
+fetch(attUrl,{cache:"no-store"}).then(r=>r.text()),
+fetch(mapUrl,{cache:"no-store"}).then(r=>r.text())
+]);
+
+const attAll = parseCSV(attText);
+const mapAll = parseCSV(mapText);
+
+attendanceOk = true;
+mappingOk = true;
+lastSyncAt = Date.now();
+
+dbgAttRows.textContent = String(attAll.length);
+dbgMapRows.textContent = String(mapAll.length);
+dbgAttHeaders.textContent = Object.keys(attAll[0]||{}).join(" | ");
+dbgMapHeaders.textContent = Object.keys(mapAll[0]||{}).join(" | ");
+dbgError.textContent = "—";
+
+let fetchedLatestAttTs = 0;
+attAll.forEach(r => {
+const t = parseEU(r.Timestamp);
+if (t > fetchedLatestAttTs) fetchedLatestAttTs = t;
+});
+
+const gotClearlyOlderSnapshot =
+lastAcceptedLatestAttTs > 0 && (
+fetchedLatestAttTs === 0 || fetchedLatestAttTs + 2000 < lastAcceptedLatestAttTs
+);
+
+const gotRowCountDropWarning =
+lastAcceptedAttRows > 0 &&
+attAll.length + 2 < lastAcceptedAttRows &&
+fetchedLatestAttTs <= lastAcceptedLatestAttTs;
+
+if (gotClearlyOlderSnapshot || gotRowCountDropWarning) {
+lastError = "Received older published CSV snapshot (Google cache). Keeping newest view.";
+dbgError.textContent = lastError;
+showCacheWarn(true);
+
+setStale(lastAcceptedLatestAttTs);
+dbgLatestAttTs.textContent = lastAcceptedLatestAttTs
+? new Date(lastAcceptedLatestAttTs).toLocaleString("sv-SE")
+: "—";
+
+setHealth(true, true);
+return;
+}
+
+lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, fetchedLatestAttTs);
+lastAcceptedAttRows = attAll.length;
+
+dbgLatestAttTs.textContent = fetchedLatestAttTs ? new Date(fetchedLatestAttTs).toLocaleString("sv-SE") : "—";
+setStale(fetchedLatestAttTs);
+
+let fetchedLatestMapTs = 0;
+mapAll.forEach(r=>{
+const t = parseEU(r.Timestamp);
+if (t > fetchedLatestMapTs) fetchedLatestMapTs = t;
+});
+
+const gotMapOlderSnapshot =
+lastAcceptedLatestMapTs > 0 && (
+fetchedLatestMapTs === 0 || fetchedLatestMapTs + 2000 < lastAcceptedLatestMapTs
+);
+
+const gotMapRowDropWarning =
+lastAcceptedMapRows > 0 &&
+mapAll.length + 2 < lastAcceptedMapRows &&
+      fetchedLatestMapTs <= lastAcceptedLatestMapTs;
+      fetchedLatestMapTs <= lastAcceptedLatestAttTs;
+
+let mapping = {};
+
+if ((gotMapOlderSnapshot || gotMapRowDropWarning) && Object.keys(mappingByCard).length > 0){
+lastError = "Received older published MAPPING CSV snapshot (Google cache). Keeping newest mapping view.";
+dbgError.textContent = lastError;
+showCacheWarn(true);
+mapping = { ...mappingByCard };
+} else {
+mapAll.forEach(r=>{
+if(!r.card_uid) return;
+const t = parseEU(r.Timestamp);
+if(!mapping[r.card_uid] || t >= mapping[r.card_uid]._t){
+mapping[r.card_uid] = { ...r, _t:t };
+}
+});
+
+lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, fetchedLatestMapTs);
+lastAcceptedMapRows = mapAll.length;
+}
+
+mapping = reconcileAndMergeOptimisticMapping(mapping);
+mappingByCard = mapping;
+
+const useTodayOnly = todayOnly.checked;
+const dayStart = startOfTodayLocalTs();
+const att = useTodayOnly
+? attAll.filter(r => parseEU(r.Timestamp) >= dayStart)
+: attAll;
+
+const latest = {};
+att.forEach(r=>{
+if(!r.card_uid) return;
+const t = parseEU(r.Timestamp);
+if(!latest[r.card_uid] || t >= latest[r.card_uid]._t){
+latest[r.card_uid] = { ...r, _t:t };
+}
+});
+
+const pendingRaw = prunePendingRescanAgainstAttendance(latest);
+
+const present = [];
+const unknown = [];
+
+Object.values(latest).forEach(r=>{
+const m = mapping[r.card_uid];
+
+if(!m){
+unknown.push({ time:r.Timestamp || "", card:r.card_uid || "" });
+return;
+}
+
+if(m.status === "active" && r.event === "IN"){
+present.push({
+name: m.student_name || "",
+class: m.class || "",
+time: r.Timestamp || "",
+card: r.card_uid || "",
+_t: r._t || 0
+});
+}
+});
+
+const pending = [];
+for (const [card, savedAt] of Object.entries(pendingRaw)){
+const m = mapping[card] || {};
+pending.push({
+card,
+savedAt: Number(savedAt || 0),
+name: m.student_name || "",
+class: m.class || ""
+});
+}
+
+presentAll = present;
+unknownAll = unknown;
+pendingAll = pending;
+
+pendingHelp.textContent =
+`After registering, the student must scan again to check in. (Auto-clears after ${PENDING_AUTO_HIDE_MINUTES} minutes.)`;
+
+applyFiltersAndRender();
+
+}catch(e){
+lastError = (e && e.message) ? e.message : String(e);
+dbgError.textContent = lastError;
+}finally{
+setHealth(mappingOk, attendanceOk);
+}
+}
+
+/* ===========================
+EVENTS
+=========================== */
+todayOnly.addEventListener("change", ()=>{
+savePrefBool("todayOnly", todayOnly.checked);
+reloadAll();
+});
+
+search.addEventListener("input", ()=>{
+savePrefStr("search", search.value);
+applyFiltersAndRender();
+});
+
+classFilter.addEventListener("change", ()=>{
+savePrefStr("classFilter", classFilter.value);
+applyFiltersAndRender();
+});
+
+sortBy.addEventListener("change", ()=>{
+savePrefStr("sortBy", sortBy.value);
+applyFiltersAndRender();
+});
 
 function toggleDebug(){
-  debugBox.classList.toggle("show");
+debugBox.classList.toggle("show");
 }
 
+/* ===========================
+INIT
+=========================== */
 initModalClassDropdown();
+setHealth(false, false);
+setStale(0);
+showCacheWarn(false);
 reloadAll();
+setInterval(reloadAll, 20000);
 </script>
 
 </body>
