@@ -511,6 +511,7 @@ const PENDING_AUTO_HIDE_MS = 60 * 60 * 1000;
 
 const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
 const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
+const LOCAL_REGISTERED_KEY = "juniorclub_local_registered_v1";
 
 /* ===========================
 STATE
@@ -614,6 +615,29 @@ LOCAL STORAGE SYNC
 =========================== */
 function loadLocalScans(){ try { const raw = localStorage.getItem(LOCAL_SCANS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
 function loadLocalMapping(){ try { const raw = localStorage.getItem(LOCAL_MAPPING_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+
+function loadLocalRegistered(){
+  try {
+    const raw = localStorage.getItem(LOCAL_REGISTERED_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalRegistered(cardUid, rec){
+  try {
+    const all = loadLocalRegistered();
+    all[cardUid] = { ...rec, _savedAt: Date.now() };
+    localStorage.setItem(LOCAL_REGISTERED_KEY, JSON.stringify(all));
+    // Notify index.html to reload mapping
+    localStorage.setItem("juniorclub_register_notify", String(Date.now()));
+    localStorage.removeItem("juniorclub_register_notify");
+  } catch {
+    /* ignore */
+  }
+}
 
 /* ===========================
 OPTIMISTIC MAPPING
@@ -729,6 +753,9 @@ function buildLatestMapping(mapRows, localMapping){
   const mapping = {};
   mapRows.forEach(r=>{ if (!r.card_uid) return; const t = parseEU(r.Timestamp); const prev = mapping[r.card_uid]; if (!prev || t >= prev._t) mapping[r.card_uid] = { ...r, _t: t }; });
   for (const [card, rec] of Object.entries(localMapping)){ if (!mapping[card]) mapping[card] = { ...rec, _t: 0 }; }
+  // Merge locally registered cards
+  const localRegistered = loadLocalRegistered();
+  for (const [card, rec] of Object.entries(localRegistered)){ if (!mapping[card]) mapping[card] = { ...rec, _t: rec._savedAt || 0 }; }
   return mapping;
 }
 
@@ -971,10 +998,15 @@ async function submitMapModal(){
 
   try {
     await fetch(MAP_FORM_RESPONSE_URL, { method:"POST", mode:"no-cors", body:d });
-    upsertOptimisticMapping(cardUid, { card_uid: cardUid, student_email: studentEmail, student_name: studentName, class: classVal, status: status, pin: pin, note: note, mapped_by: mappedBy, schema: schema, _t: Date.now(), _savedAt: Date.now() });
+    
+    // Save to localStorage for instant recognition
+    const regRec = { card_uid: cardUid, student_email: studentEmail, student_name: studentName, class: classVal, status: status, pin: pin, note: note, mapped_by: mappedBy, schema: schema, _t: Date.now(), _savedAt: Date.now() };
+    saveLocalRegistered(cardUid, regRec);
+    
+    upsertOptimisticMapping(cardUid, regRec);
     addPendingRescan(cardUid, Date.now());
     closeMapModal();
-    showToast(modalMode === "edit" ? "Updated ✅" : "Registered ✅");
+    showToast(modalMode === "edit" ? "Updated ✅" : "Registered ✅ — scan now!");
     setTimeout(()=>loadAndRender(), POST_SAVE_REFRESH_MS);
   } catch(e){ modalError.textContent = `Error: ${e.message || e}`; }
 }
