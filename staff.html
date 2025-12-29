@@ -390,6 +390,8 @@ Today-only
 <button class="secondary" onclick="printPage()">Print</button>
 <button class="secondary" onclick="copyPresent()">Copy list</button>
 <button class="secondary" onclick="exportPresentCsv()">Export CSV</button>
+<button class="secondary" onclick="syncFromSheets()">Sync from Sheets</button>
+<button class="secondary" onclick="clearAllLocalData()" style="color:var(--danger);">Clear Local Data</button>
 </div>
 </div>
 </header>
@@ -935,6 +937,52 @@ USER ACTIONS
 =========================== */
 function reloadAll(){ loadAndRender(); }
 function printPage(){ window.print(); }
+
+function clearAllLocalData(){
+  if (!confirm("Clear ALL local data?\n\nThis removes:\n• Local scans\n• Local registrations\n• Optimistic mappings\n• Pending rescans\n\nGoogle Sheets data is NOT affected.")) return;
+  
+  const keys = [
+    LOCAL_SCANS_KEY,
+    LOCAL_MAPPING_KEY,
+    LOCAL_REGISTERED_KEY,
+    OPTIMISTIC_MAP_KEY,
+    PENDING_RESCAN_KEY,
+    "juniorclub_local_overrides"
+  ];
+  
+  keys.forEach(k => {
+    try { localStorage.removeItem(k); } catch {}
+  });
+  
+  showToast("Local data cleared ✅");
+  setTimeout(() => location.reload(), 500);
+}
+
+async function syncFromSheets(){
+  if (!confirm("Sync from Google Sheets?\n\nThis will:\n• Clear local data\n• Pull fresh data from Sheets\n• May take 10-60s if Sheets cache is stale")) return;
+  
+  // Clear local data first
+  const keys = [
+    LOCAL_SCANS_KEY,
+    LOCAL_MAPPING_KEY,
+    LOCAL_REGISTERED_KEY,
+    OPTIMISTIC_MAP_KEY,
+    PENDING_RESCAN_KEY,
+    "juniorclub_local_overrides"
+  ];
+  keys.forEach(k => { try { localStorage.removeItem(k); } catch {} });
+  
+  // Reset snapshot guards to accept fresh data
+  lastAcceptedLatestAttTs = 0;
+  lastAcceptedAttRows = 0;
+  lastAcceptedLatestMapTs = 0;
+  lastAcceptedMapRows = 0;
+  
+  showToast("Syncing from Sheets...");
+  await loadAndRender();
+  showToast("Synced from Sheets ✅");
+}
+
 function copyPresent(){ navigator.clipboard.writeText(presentAll.map(p=> `${p.student_name}\t${p.class}\t${p.timeStr}`).join("\n")).then(()=>showToast("Copied ✅")).catch(()=>showToast("Copy failed ❌")); }
 function exportPresentCsv(){
   const csv = "Name,Class,Time\n" + presentAll.map(p=> `"${p.student_name}","${p.class}","${p.timeStr}"`).join("\n");
