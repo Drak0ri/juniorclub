@@ -1361,6 +1361,86 @@ document.body.removeChild(a);
 URL.revokeObjectURL(url);
 }
 
+function buildLatestByCard(attRows, todayOnly){
+  const dayStart = todayOnly ? startOfTodayLocalTs() : 0;
+  const latest = {};
+
+  attRows.forEach(r=>{
+    const t = parseEU(r.Timestamp);
+    if (todayOnly && (!t || t < dayStart)) return;
+    if (!r.card_uid) return;
+
+    const ev = (r.event || "").trim();
+    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") return;
+
+    const prev = latest[r.card_uid];
+    if (!prev || t >= prev._t){
+      latest[r.card_uid] = { ...r, _t: t };
+    }
+  });
+
+  return latest;
+}
+
+function extractPresentUnknownPending(latestByCard, mapping, pendingRaw){
+  const present = [];
+  const unknown = [];
+
+  Object.values(latestByCard).forEach(scan=>{
+    const card = scan.card_uid;
+    const ev = (scan.event || "").trim();
+
+    // Check if it's an UNKNOWN scan
+    if (ev === "UNKNOWN"){
+      unknown.push({
+        card,
+        _t: scan._t,
+        time: fmtLocal(scan._t)
+      });
+      return;
+    }
+
+    // Check if card is mapped
+    const m = mapping[card];
+    if (!m){
+      // Not mapped and not marked UNKNOWN - could be old data
+      if(ev === "IN"){
+        unknown.push({
+          card,
+          _t: scan._t,
+          time: fmtLocal(scan._t)
+        });
+      }
+      return;
+    }
+
+    // Check if student is present (event=IN and status=active)
+    if (ev === "IN" && (m.status || "").trim() === "active"){
+      present.push({
+        card,
+        name: (m.student_name || "").trim(),
+        class: (m.class || "").trim(),
+        _t: scan._t,
+        time: fmtLocal(scan._t)
+      });
+    }
+  });
+
+  // Build pending list
+  const pending = [];
+  for (const [card, savedAt] of Object.entries(pendingRaw)){
+    const m = mapping[card] || {};
+    pending.push({
+      card,
+      savedAt: Number(savedAt || 0),
+      name: m.student_name || "",
+      class: m.class || ""
+    });
+  }
+
+  return { present, unknown, pending };
+}
+
 /* ===========================
 MAIN LOAD
 =========================== */
@@ -1474,55 +1554,13 @@ lastAcceptedMapRows = mapAll.length;
 mapping = reconcileAndMergeOptimisticMapping(mapping);
 mappingByCard = mapping;
 
-const useTodayOnly = todayOnly.checked;
-const dayStart = startOfTodayLocalTs();
-const att = useTodayOnly
-? attAll.filter(r => parseEU(r.Timestamp) >= dayStart)
-: attAll;
-
-const latest = {};
-att.forEach(r=>{
-if(!r.card_uid) return;
-const t = parseEU(r.Timestamp);
-if(!latest[r.card_uid] || t >= latest[r.card_uid]._t){
-latest[r.card_uid] = { ...r, _t:t };
-}
-});
-
-const pendingRaw = prunePendingRescanAgainstAttendance(latest);
-
-const present = [];
-const unknown = [];
-
-Object.values(latest).forEach(r=>{
-const m = mapping[r.card_uid];
-
-if(!m){
-unknown.push({ time:r.Timestamp || "", card:r.card_uid || "" });
-return;
-}
-
-if(m.status === "active" && r.event === "IN"){
-present.push({
-name: m.student_name || "",
-class: m.class || "",
-time: r.Timestamp || "",
-card: r.card_uid || "",
-_t: r._t || 0
-});
-}
-});
-
-const pending = [];
-for (const [card, savedAt] of Object.entries(pendingRaw)){
-const m = mapping[card] || {};
-pending.push({
-card,
-savedAt: Number(savedAt || 0),
-name: m.student_name || "",
-class: m.class || ""
-});
-}
+const latestByCard = buildLatestByCard(attAll, todayOnly.checked);
+const pendingRaw = prunePendingRescanAgainstAttendance(latestByCard);
+const { present, unknown, pending } = extractPresentUnknownPending(
+  latestByCard,
+  mappingByCard,
+  pendingRaw
+);
 
 presentAll = present;
 unknownAll = unknown;
