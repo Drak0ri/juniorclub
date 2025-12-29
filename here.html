@@ -1,4 +1,4 @@
-<!-- /here.html (CHANGED: kiosk “Updated” includes stale minutes) -->
+<!-- /here.html (v3.1 - localStorage instant sync) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -116,6 +116,7 @@ button:active{ transform:translateY(1px); }
 }
 
 .meta .warn{ color:#000; background:#fff7b2; border-color:#f1dd6d; }
+.meta .live{ color:#fff; background:var(--present); border-color:var(--present); }
 
 /* Compact (when Just-left hidden): keep it cleaner */
 body.compact .meta{
@@ -395,8 +396,9 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
 <div class="meta">
   <div class="pill" id="metaLeft">Last updated: —</div>
   <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+    <div class="pill live" id="metaLive">⚡ Live sync</div>
     <div class="pill" id="metaStale">Stale: —</div>
-    <div class="pill" id="metaLag">Note: changes can take 10–60s to apply</div>
+    <div class="pill" id="metaLag">Note: Google Sheets delayed 10–60s</div>
   </div>
 </div>
 
@@ -443,8 +445,8 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
     </div>
     <div class="panel-body">
       <div class="note">
-        This is a lightweight “staff-only” gate for a static site. It deters casual access but is not strong security.
-        For real access control, you’d host this behind your school login (Google Workspace / intranet / Apps Script).
+        This is a lightweight "staff-only" gate for a static site. It deters casual access but is not strong security.
+        For real access control, you'd host this behind your school login (Google Workspace / intranet / Apps Script).
       </div>
 
       <div>
@@ -486,6 +488,10 @@ const STAFF_PIN = ""; // optional: set a PIN (e.g. "1234") to enable the lightwe
 
 const KIOSK_HIDE_MS = 5000;
 
+/* ================= LOCAL SYNC KEYS ================= */
+const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
+const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
+
 /* ===========================
 STATE
 =========================== */
@@ -517,6 +523,7 @@ const leftCount = document.getElementById("leftCount");
 const metaLeft = document.getElementById("metaLeft");
 const metaStale = document.getElementById("metaStale");
 const metaLag = document.getElementById("metaLag");
+const metaLive = document.getElementById("metaLive");
 
 const btnDark = document.getElementById("btnDark");
 const btnFull = document.getElementById("btnFull");
@@ -648,6 +655,29 @@ function buildDisplayNames(presentStudents){
 }
 
 /* ===========================
+LOCAL STORAGE SYNC
+=========================== */
+function loadLocalScans(){
+  try {
+    const raw = localStorage.getItem(LOCAL_SCANS_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+function loadLocalMapping(){
+  try {
+    const raw = localStorage.getItem(LOCAL_MAPPING_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+/* ===========================
 FONT FIT + GRID LAYOUT
 =========================== */
 function bestLayout(container, items){
@@ -755,7 +785,7 @@ function setMeta(latestAttTs){
   metaStale.className = warn ? "pill warn" : "pill";
 
   if (document.body.classList.contains("compact")){
-    metaLeft.textContent = `Updated: ${updated} | ${staleText} | Updates can take 10–60s`;
+    metaLeft.textContent = `Updated: ${updated} | ${staleText}`;
     metaStale.style.display = "none";
     metaLag.style.display = "none";
   } else {
@@ -788,10 +818,11 @@ function computeLatestTs(rows, tsField){
   return t;
 }
 
-function buildLatestByCardToday(attRows){
+function buildLatestByCardToday(attRows, localScans){
   const dayStart = startOfTodayLocalTs();
   const latest = {};
 
+  // Process Google Sheets data
   attRows.forEach(r=>{
     const t = parseEU(r.Timestamp);
     if (!t || t < dayStart) return;
@@ -806,11 +837,30 @@ function buildLatestByCardToday(attRows){
     }
   });
 
+  // Merge with local scans (local takes priority if newer)
+  for (const [card, scan] of Object.entries(localScans)){
+    if (scan.timestamp < dayStart) continue;
+    const ev = (scan.event || "").trim();
+    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") continue;
+
+    const prev = latest[card];
+    if (!prev || scan.timestamp >= prev._t){
+      latest[card] = {
+        card_uid: card,
+        event: ev,
+        _t: scan.timestamp,
+        _local: true
+      };
+    }
+  }
+
   return latest;
 }
 
-function buildLatestMapping(mapRows){
+function buildLatestMapping(mapRows, localMapping){
   const mapping = {};
+  
+  // Process Google Sheets data
   mapRows.forEach(r=>{
     if (!r.card_uid) return;
     const t = parseEU(r.Timestamp);
@@ -819,6 +869,14 @@ function buildLatestMapping(mapRows){
       mapping[r.card_uid] = { ...r, _t: t };
     }
   });
+
+  // Merge with local mapping (from index.html)
+  for (const [card, rec] of Object.entries(localMapping)){
+    if (!mapping[card]){
+      mapping[card] = { ...rec, _t: 0 };
+    }
+  }
+
   return mapping;
 }
 
@@ -842,7 +900,8 @@ function normalizePresent(latestByCard, mapping){
         card_uid: scan.card_uid,
         student_name: studentName,
         class: (m.class || "").trim(),
-        _t: scan._t
+        _t: scan._t,
+        _local: scan._local || false
       });
       return;
     }
@@ -852,7 +911,8 @@ function normalizePresent(latestByCard, mapping){
         card_uid: scan.card_uid,
         student_name: studentName,
         class: (m.class || "").trim(),
-        _t: scan._t
+        _t: scan._t,
+        _local: scan._local || false
       });
     }
   });
@@ -875,6 +935,10 @@ function setJustLeftVisible(hasAny){
 async function loadAndRender(){
   try{
     lastError = null;
+
+    // Load local data first (instant)
+    const localScans = loadLocalScans();
+    const localMapping = loadLocalMapping();
 
     const [attText, mapText] = await Promise.all([
       fetchCsv(ATT_CSV),
@@ -918,10 +982,10 @@ async function loadAndRender(){
     if (mapOk){
       lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, latestMapTs);
       lastAcceptedMapRows = mapRows.length;
-      mappingByCard = buildLatestMapping(mapRows);
+      mappingByCard = buildLatestMapping(mapRows, localMapping);
     }
 
-    const latestByCardToday = buildLatestByCardToday(attRows);
+    const latestByCardToday = buildLatestByCardToday(attRows, localScans);
     const { presentDisplay, leftDisplay } = normalizePresent(latestByCardToday, mappingByCard);
 
     presentCount.textContent = String(presentDisplay.length);
@@ -944,6 +1008,14 @@ async function loadAndRender(){
     showBanner("Error", lastError);
   }
 }
+
+/* Listen for scan events from index.html */
+window.addEventListener("storage", (e) => {
+  if (e.key === "juniorclub_scan_notify"){
+    // Instant refresh when a scan happens
+    loadAndRender();
+  }
+});
 
 /* Resize → recompute layout without reloading data */
 let resizeTimer = null;
