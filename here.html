@@ -1,4 +1,4 @@
-<!-- /here.html (v3.1 - localStorage instant sync) -->
+<!-- /here.html (v3.2 - consistent design) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,23 +12,20 @@
 <style>
 :root{
   --navy:#102d69;
-  --bg:#f6f8fb;
-  --card:#ffffff;
-  --text:#102d69;
-  --muted:#5b6b86;
-  --border:#d0d7e2;
+  --bg:#102d69;
+  --card:rgba(255,255,255,0.08);
+  --card-solid:#1a3a7a;
+  --text:#ffffff;
+  --muted:rgba(255,255,255,0.7);
+  --border:rgba(255,255,255,0.15);
   --present:#0b6b2f;
   --out:#b00020;
-  --pill:#eef2f9;
-}
-
-body.dark{
-  --bg:#0a1226;
-  --card:#0f1b36;
-  --text:#eaf0ff;
-  --muted:#b7c4e6;
-  --border:#223154;
-  --pill:#16254a;
+  --pill:rgba(255,255,255,0.12);
+  --green-bg:#d9f2c7;
+  --green-text:#0b6b2f;
+  --red-bg:#ffd6d6;
+  --red-text:#b00020;
+  --yellow-bg:#fff3b0;
 }
 
 *{ box-sizing:border-box; }
@@ -51,6 +48,7 @@ header{
   align-items:center;
   justify-content:space-between;
   gap:10px;
+  border-bottom:1px solid var(--border);
 }
 
 .brand{
@@ -90,14 +88,15 @@ button:hover{ background:rgba(255,255,255,0.18); }
 button:active{ transform:translateY(1px); }
 
 .meta{
-  height:34px;
+  min-height:34px;
   padding:8px 14px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:10px;
+  flex-wrap:wrap;
   border-bottom:1px solid var(--border);
-  background:var(--card);
+  background:rgba(255,255,255,0.05);
   color:var(--muted);
   font-size:12px;
   font-weight:700;
@@ -118,18 +117,8 @@ button:active{ transform:translateY(1px); }
 .meta .warn{ color:#000; background:#fff7b2; border-color:#f1dd6d; }
 .meta .live{ color:#fff; background:var(--present); border-color:var(--present); }
 
-/* Compact (when Just-left hidden): keep it cleaner */
-body.compact .meta{
-  height:28px;
-  font-size:11px;
-  padding:6px 12px;
-}
-body.compact #metaLeft.pill{
-  padding:4px 10px;
-}
-
 main{
-  height:calc(100vh - 64px - 34px);
+  height:calc(100vh - 64px - 50px - 50px);
   display:grid;
   grid-template-rows:1fr auto;
   gap:10px;
@@ -165,7 +154,19 @@ main{
 .card-head .count{
   font-size:14px;
   font-weight:900;
-  color:var(--present);
+  color:var(--green-text);
+  background:var(--green-bg);
+  padding:2px 10px;
+  border-radius:999px;
+}
+
+.card-head .count-out{
+  font-size:14px;
+  font-weight:900;
+  color:var(--red-text);
+  background:var(--red-bg);
+  padding:2px 10px;
+  border-radius:999px;
 }
 
 .grid-wrap{
@@ -188,7 +189,7 @@ main{
   justify-content:center;
   border:1px solid var(--border);
   border-radius:14px;
-  background:transparent;
+  background:rgba(255,255,255,0.05);
   font-weight:900;
   letter-spacing:.3px;
   text-align:center;
@@ -224,25 +225,42 @@ main{
   align-content:center;
 }
 
+.out-grid .name{
+  background:rgba(176,0,32,0.15);
+  border-color:rgba(176,0,32,0.3);
+  color:var(--red-bg);
+}
+
+/* Fixed banner at bottom - above content */
 .banner{
   position:fixed;
   left:12px;
   right:12px;
   bottom:12px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:10px 12px;
+  background:rgba(255,243,176,0.95);
+  border:1px solid #f1dd6d;
+  border-radius:10px;
+  padding:8px 14px;
   display:none;
   gap:10px;
   align-items:center;
   justify-content:space-between;
-  box-shadow:0 10px 30px rgba(0,0,0,.18);
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
   z-index:9998;
+  font-size:12px;
+  color:#000;
 }
 .banner.show{ display:flex; }
-.banner strong{ color:var(--out); }
-.banner .hint{ color:var(--muted); font-size:12px; font-weight:800; }
+.banner strong{ color:#b00020; font-weight:800; }
+.banner .hint{ color:#666; font-size:11px; font-weight:700; }
+.banner button{ 
+  padding:5px 10px; 
+  font-size:11px; 
+  background:#102d69;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+}
 
 .gate{
   position:fixed;
@@ -258,7 +276,7 @@ main{
 
 .gate .panel{
   width:min(520px, 96vw);
-  background:var(--card);
+  background:var(--card-solid);
   border:1px solid var(--border);
   border-radius:16px;
   overflow:hidden;
@@ -291,7 +309,7 @@ main{
   font-size:16px;
   font-weight:800;
   color:var(--text);
-  background:transparent;
+  background:rgba(255,255,255,0.1);
 }
 .gate .row{
   display:flex;
@@ -305,7 +323,7 @@ main{
   line-height:1.35;
 }
 .gate .err{
-  color:var(--out);
+  color:var(--red-bg);
   font-weight:900;
   font-size:12px;
   min-height:16px;
@@ -321,11 +339,11 @@ main{
 }
 .gate .btn.secondary{
   background:transparent;
-  color:var(--navy);
+  color:#fff;
   border:1px solid var(--border);
 }
 
-/* Kiosk mode (fullscreen): hide UI, keep only names + tiny overlays */
+/* Kiosk mode */
 .kioskbar,
 .kioskmeta{
   position:fixed;
@@ -339,41 +357,23 @@ main{
   color:#fff;
   font-weight:900;
   font-size:12px;
-  letter-spacing:.2px;
-  opacity:1;
-  transition:opacity .18s ease;
 }
 
-.kioskbar{
-  right:14px;
-  bottom:14px;
-}
-
-.kioskmeta{
-  left:14px;
-  bottom:14px;
-  font-weight:800;
-  opacity:0.9;
-}
+.kioskbar{ right:14px; bottom:14px; }
+.kioskmeta{ left:14px; bottom:14px; font-weight:800; opacity:0.9; }
 
 body.kiosk .kioskbar,
-body.kiosk .kioskmeta{
-  display:inline-flex;
-}
+body.kiosk .kioskmeta{ display:inline-flex; }
 
 body.kiosk header{ display:none; }
 body.kiosk .meta{ display:none; }
-body.kiosk main{
-  height:100vh;
-  padding:12px;
-}
+body.kiosk main{ height:100vh; padding:12px; }
 
-/* Auto-hide in kiosk mode after inactivity */
 body.kiosk.kiosk-ui-hidden .kioskbar,
-body.kiosk.kiosk-ui-hidden .kioskmeta{
-  opacity:0;
-  pointer-events:none;
-}
+body.kiosk.kiosk-ui-hidden .kioskmeta{ opacity:0; pointer-events:none; }
+
+body.compact .meta{ min-height:28px; font-size:11px; padding:6px 12px; }
+body.compact #metaLeft.pill{ padding:4px 10px; }
 </style>
 </head>
 
@@ -385,9 +385,7 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
       <span>Here Today</span>
     </a>
   </div>
-
   <div class="controls">
-    <button id="btnDark" type="button">Dark mode</button>
     <button id="btnFull" type="button">Fullscreen</button>
     <button id="btnRefresh" type="button">Refresh</button>
   </div>
@@ -398,7 +396,6 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
   <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
     <div class="pill live" id="metaLive">⚡ Live sync</div>
     <div class="pill" id="metaStale">Stale: —</div>
-    <div class="pill" id="metaLag">Note: Google Sheets delayed 10–60s</div>
   </div>
 </div>
 
@@ -420,7 +417,7 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
     <div class="card">
       <div class="card-head">
         <h1>Just left (last 5 minutes)</h1>
-        <div class="small" id="leftCount">0</div>
+        <div class="count-out" id="leftCount">0</div>
       </div>
       <div class="grid-wrap out-grid">
         <div class="grid" id="leftGrid"></div>
@@ -431,10 +428,10 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
 
 <div class="banner" id="banner">
   <div>
-    <strong id="bannerTitle">Data delay</strong>
-    <div class="hint" id="bannerMsg">—</div>
+    <strong id="bannerTitle">⚠️ Data delay</strong>
+    <span class="hint" id="bannerMsg">—</span>
   </div>
-  <button type="button" id="bannerClose">Close</button>
+  <button type="button" id="bannerClose">Dismiss</button>
 </div>
 
 <div class="gate" id="gate">
@@ -444,19 +441,14 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
       <a href="./index.html" style="color:#fff;text-decoration:underline;font-weight:900;">Scan page</a>
     </div>
     <div class="panel-body">
-      <div class="note">
-        This is a lightweight "staff-only" gate for a static site. It deters casual access but is not strong security.
-        For real access control, you'd host this behind your school login (Google Workspace / intranet / Apps Script).
-      </div>
-
+      <div class="note">This is a lightweight "staff-only" gate.</div>
       <div>
         <label>Enter PIN</label>
         <input id="gatePin" type="password" autocomplete="off" inputmode="numeric" placeholder="PIN">
         <div class="err" id="gateErr"></div>
       </div>
-
       <div class="row">
-        <button class="btn secondary" type="button" id="gateRemember">Remember on this device</button>
+        <button class="btn secondary" type="button" id="gateRemember">Remember</button>
         <button class="btn" type="button" id="gateEnter">Enter</button>
       </div>
     </div>
@@ -464,667 +456,211 @@ body.kiosk.kiosk-ui-hidden .kioskmeta{
 </div>
 
 <script>
-/* ===========================
-CONFIG
-=========================== */
-const ATT_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
-
-const MAP_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+const ATT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+const MAP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
 const JUST_LEFT_WINDOW_MS = 5 * 60 * 1000;
-
 const POLL_MS_BASE = 5000;
 const POLL_MS_BURST = 2000;
 const BURST_FOR_MS = 30000;
-
 const STALE_WARN_MIN = 5;
-
 const FONT_MIN = 18;
 const FONT_MAX = 72;
-
-const STAFF_PIN = ""; // optional: set a PIN (e.g. "1234") to enable the lightweight gate (NOT strong security)
-
+const STAFF_PIN = "";
 const KIOSK_HIDE_MS = 5000;
-
-/* ================= LOCAL SYNC KEYS ================= */
 const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
 const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
 
-/* ===========================
-STATE
-=========================== */
-let pollTimer = null;
-let burstUntilTs = 0;
+let pollTimer = null, burstUntilTs = 0;
+let lastAcceptedLatestAttTs = 0, lastAcceptedAttRows = 0;
+let lastAcceptedLatestMapTs = 0, lastAcceptedMapRows = 0;
+let mappingByCard = {}, lastError = null, kioskHideTimer = null;
 
-let lastAcceptedLatestAttTs = 0;
-let lastAcceptedAttRows = 0;
-
-let lastAcceptedLatestMapTs = 0;
-let lastAcceptedMapRows = 0;
-
-let mappingByCard = {};
-let lastError = null;
-
-let kioskHideTimer = null;
-
-/* ===========================
-UI HOOKS
-=========================== */
 const mainEl = document.getElementById("main");
 const leftWrap = document.getElementById("leftWrap");
-
 const presentGrid = document.getElementById("presentGrid");
 const leftGrid = document.getElementById("leftGrid");
 const presentCount = document.getElementById("presentCount");
 const leftCount = document.getElementById("leftCount");
-
 const metaLeft = document.getElementById("metaLeft");
 const metaStale = document.getElementById("metaStale");
-const metaLag = document.getElementById("metaLag");
 const metaLive = document.getElementById("metaLive");
-
-const btnDark = document.getElementById("btnDark");
 const btnFull = document.getElementById("btnFull");
 const btnRefresh = document.getElementById("btnRefresh");
-
 const banner = document.getElementById("banner");
 const bannerTitle = document.getElementById("bannerTitle");
 const bannerMsg = document.getElementById("bannerMsg");
 const bannerClose = document.getElementById("bannerClose");
-
 const kioskCount = document.getElementById("kioskCount");
 const kioskMeta = document.getElementById("kioskMeta");
-
 const gate = document.getElementById("gate");
 const gatePin = document.getElementById("gatePin");
 const gateErr = document.getElementById("gateErr");
 const gateRemember = document.getElementById("gateRemember");
 const gateEnter = document.getElementById("gateEnter");
 
-/* ===========================
-UTIL
-=========================== */
-function showBanner(title, msg){
-  bannerTitle.textContent = title;
-  bannerMsg.textContent = msg;
-  banner.classList.add("show");
-}
+function showBanner(title, msg){ bannerTitle.textContent = "⚠️ " + title; bannerMsg.textContent = msg; banner.classList.add("show"); }
 function hideBanner(){ banner.classList.remove("show"); }
-
 bannerClose.addEventListener("click", hideBanner);
 
-function nowStr(){
-  return new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-}
-function minutesBetween(aTs, bTs){
-  return Math.max(0, Math.floor((aTs - bTs) / 60000));
-}
-function startOfTodayLocalTs(){
-  const d = new Date();
-  d.setHours(0,0,0,0);
-  return d.getTime();
-}
-function parseEU(ts){
-  if(!ts) return 0;
-  const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
-  if(!m) return 0;
-  return new Date(
-    Number(m[3]),
-    Number(m[2]) - 1,
-    Number(m[1]),
-    Number(m[4]),
-    Number(m[5]),
-    Number(m[6])
-  ).getTime();
-}
+function nowStr(){ return new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}); }
+function minutesBetween(a,b){ return Math.max(0, Math.floor((a-b)/60000)); }
+function startOfTodayLocalTs(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function parseEU(ts){ if(!ts)return 0; const m=ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/); if(!m)return 0; return new Date(+m[3],m[2]-1,+m[1],+m[4],+m[5],+m[6]).getTime(); }
 
-/* RFC4180-ish CSV parser */
 function parseCSV(text){
-  const rows = [];
-  let row = [];
-  let field = "";
-  let inQuotes = false;
-
-  const pushField = () => { row.push(field); field = ""; };
-  const pushRow = () => { rows.push(row); row = []; };
-
-  const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-  for (let i = 0; i < s.length; i++){
-    const c = s[i];
-
-    if (c === '"'){
-      const next = s[i + 1];
-      if (inQuotes && next === '"'){
-        field += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if (!inQuotes && c === ","){ pushField(); continue; }
-    if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
-    field += c;
+  const rows=[]; let row=[],field="",inQuotes=false;
+  const pushField=()=>{row.push(field);field="";};
+  const pushRow=()=>{rows.push(row);row=[];};
+  const s=(text||"").replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(c==='"'){const next=s[i+1];if(inQuotes&&next==='"'){field+='"';i++;}else{inQuotes=!inQuotes;}continue;}
+    if(!inQuotes&&c===","){pushField();continue;}
+    if(!inQuotes&&c==="\n"){pushField();pushRow();continue;}
+    field+=c;
   }
-  pushField();
-  pushRow();
-
-  const headers = (rows.shift() || []).map(h => (h || "").trim());
-  return rows
-    .filter(r => r.some(v => (v || "").trim() !== ""))
-    .map(r => {
-      const o = {};
-      headers.forEach((h, idx) => (o[h] = (r[idx] ?? "").trim()));
-      return o;
-    });
+  pushField();pushRow();
+  const headers=(rows.shift()||[]).map(h=>(h||"").trim());
+  return rows.filter(r=>r.some(v=>(v||"").trim()!=="")).map(r=>{const o={};headers.forEach((h,idx)=>(o[h]=(r[idx]??"").trim()));return o;});
 }
 
-function clearNode(node){
-  while (node.firstChild) node.removeChild(node.firstChild);
+function clearNode(n){while(n.firstChild)n.removeChild(n.firstChild);}
+function parseStudentName(full){const s=(full||"").trim().replace(/\s+/g," ");if(!s)return{first:"",lastInitial:""};const parts=s.split(" ");const first=parts[0]||"";const last=parts.length>1?parts[parts.length-1]:"";return{first,lastInitial:last?last[0].toUpperCase():""};}
+
+function buildDisplayNames(students){
+  const firstCounts=new Map();
+  const parsed=students.map(p=>{const n=parseStudentName(p.student_name);const fl=(n.first||"").toLowerCase();firstCounts.set(fl,(firstCounts.get(fl)||0)+1);return{...p,_first:n.first,_lastInitial:n.lastInitial};});
+  return parsed.map(p=>{const key=(p._first||"").toLowerCase();const dup=(firstCounts.get(key)||0)>1;const label=dup&&p._lastInitial?`${p._first} ${p._lastInitial}`:p._first||p.student_name||"";return{...p,label};});
 }
 
-function parseStudentName(full){
-  const s = (full || "").trim().replace(/\s+/g, " ");
-  if (!s) return { first:"", lastInitial:"" };
-  const parts = s.split(" ");
-  const first = parts[0] || "";
-  const last = parts.length > 1 ? parts[parts.length - 1] : "";
-  const lastInitial = last ? last[0].toUpperCase() : "";
-  return { first, lastInitial };
-}
+function loadLocalScans(){try{const raw=localStorage.getItem(LOCAL_SCANS_KEY);return raw?JSON.parse(raw):{};}catch{return{};}}
+function loadLocalMapping(){try{const raw=localStorage.getItem(LOCAL_MAPPING_KEY);return raw?JSON.parse(raw):{};}catch{return{};}}
 
-function buildDisplayNames(presentStudents){
-  const firstCounts = new Map();
-  const parsed = presentStudents.map(p => {
-    const n = parseStudentName(p.student_name);
-    const firstLower = (n.first || "").toLowerCase();
-    firstCounts.set(firstLower, (firstCounts.get(firstLower) || 0) + 1);
-    return { ...p, _first:n.first, _lastInitial:n.lastInitial };
-  });
-
-  return parsed.map(p => {
-    const key = (p._first || "").toLowerCase();
-    const dup = (firstCounts.get(key) || 0) > 1;
-    const label = dup && p._lastInitial ? `${p._first} ${p._lastInitial}` : p._first || p.student_name || "";
-    return { ...p, label };
-  });
-}
-
-/* ===========================
-LOCAL STORAGE SYNC
-=========================== */
-function loadLocalScans(){
-  try {
-    const raw = localStorage.getItem(LOCAL_SCANS_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
-
-function loadLocalMapping(){
-  try {
-    const raw = localStorage.getItem(LOCAL_MAPPING_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
-
-/* ===========================
-FONT FIT + GRID LAYOUT
-=========================== */
-function bestLayout(container, items){
-  const rect = container.getBoundingClientRect();
-  const w = Math.max(1, rect.width);
-  const h = Math.max(1, rect.height);
-
-  const n = items.length;
-  if (n <= 0) return { cols: 1, font: FONT_MAX };
-
-  const maxChars = Math.max(1, ...items.map(x => (x.label || "").length));
-
-  const minCols = 1;
-  const maxCols = Math.min(8, Math.max(1, n));
-
-  let best = { cols: 1, font: FONT_MIN };
-
-  for (let cols = minCols; cols <= maxCols; cols++){
-    const rows = Math.ceil(n / cols);
-    const cellW = w / cols;
-    const cellH = h / rows;
-
-    const fontFromH = cellH * 0.62;
-    const fontFromW = (cellW * 0.92) / (maxChars * 0.58);
-
-    const font = Math.max(FONT_MIN, Math.min(FONT_MAX, Math.floor(Math.min(fontFromH, fontFromW))));
-
-    if (font > best.font) best = { cols, font };
+function bestLayout(container,items){
+  const rect=container.getBoundingClientRect();
+  const w=Math.max(1,rect.width),h=Math.max(1,rect.height);
+  const n=items.length;if(n<=0)return{cols:1,font:FONT_MAX};
+  const maxChars=Math.max(1,...items.map(x=>(x.label||"").length));
+  let best={cols:1,font:FONT_MIN};
+  for(let cols=1;cols<=Math.min(8,n);cols++){
+    const rows=Math.ceil(n/cols);const cellW=w/cols;const cellH=h/rows;
+    const fontFromH=cellH*0.62;const fontFromW=(cellW*0.92)/(maxChars*0.58);
+    const font=Math.max(FONT_MIN,Math.min(FONT_MAX,Math.floor(Math.min(fontFromH,fontFromW))));
+    if(font>best.font)best={cols,font};
   }
   return best;
 }
 
-function renderNameGrid(gridEl, items){
+function renderNameGrid(gridEl,items){
   clearNode(gridEl);
-
-  const layout = bestLayout(gridEl, items);
-  gridEl.style.gridTemplateColumns = `repeat(${layout.cols}, minmax(0, 1fr))`;
-
-  items.forEach(it=>{
-    const div = document.createElement("div");
-    div.className = "name";
-    div.style.fontSize = `${layout.font}px`;
-    div.style.lineHeight = "1.05";
-    div.textContent = it.label || "";
-    gridEl.appendChild(div);
-  });
+  const layout=bestLayout(gridEl,items);
+  gridEl.style.gridTemplateColumns=`repeat(${layout.cols},minmax(0,1fr))`;
+  items.forEach(it=>{const div=document.createElement("div");div.className="name";div.style.fontSize=`${layout.font}px`;div.style.lineHeight="1.05";div.textContent=it.label||"";gridEl.appendChild(div);});
 }
 
-/* ===========================
-KIOSK UI AUTO-HIDE
-=========================== */
-function isKiosk(){ return document.body.classList.contains("kiosk"); }
+function isKiosk(){return document.body.classList.contains("kiosk");}
+function showKioskUi(){if(!isKiosk())return;document.body.classList.remove("kiosk-ui-hidden");if(kioskHideTimer)clearTimeout(kioskHideTimer);kioskHideTimer=setTimeout(()=>{if(isKiosk())document.body.classList.add("kiosk-ui-hidden");},KIOSK_HIDE_MS);}
+function stopKioskUiTimer(){if(kioskHideTimer)clearTimeout(kioskHideTimer);kioskHideTimer=null;document.body.classList.remove("kiosk-ui-hidden");}
+["mousemove","mousedown","keydown","touchstart"].forEach(evt=>{window.addEventListener(evt,showKioskUi,{passive:true});});
 
-function showKioskUi(){
-  if (!isKiosk()) return;
-  document.body.classList.remove("kiosk-ui-hidden");
-  if (kioskHideTimer) clearTimeout(kioskHideTimer);
-  kioskHideTimer = setTimeout(()=> {
-    if (isKiosk()) document.body.classList.add("kiosk-ui-hidden");
-  }, KIOSK_HIDE_MS);
-}
+async function fetchCsv(url){const u=`${url}&_=${Date.now()}`;const r=await fetch(u,{cache:"no-store"});return r.text();}
 
-function stopKioskUiTimer(){
-  if (kioskHideTimer) clearTimeout(kioskHideTimer);
-  kioskHideTimer = null;
-  document.body.classList.remove("kiosk-ui-hidden");
-}
-
-["mousemove","mousedown","keydown","touchstart"].forEach(evt=>{
-  window.addEventListener(evt, showKioskUi, { passive:true });
-});
-
-/* ===========================
-DATA LOAD + SNAPSHOT GUARD
-=========================== */
-async function fetchCsv(url){
-  const u = `${url}&_=${Date.now()}`;
-  const r = await fetch(u, { cache:"no-store" });
-  return r.text();
-}
-
-function acceptOrRejectSnapshot({ rows, latestTs }, lastAcceptedTs, lastAcceptedRows){
-  const gotClearlyOlder = lastAcceptedTs > 0 && (latestTs === 0 || latestTs + 2000 < lastAcceptedTs);
-  const gotRowDrop = lastAcceptedRows > 0 && rows + 2 < lastAcceptedRows && latestTs <= lastAcceptedTs;
-  return !(gotClearlyOlder || gotRowDrop);
+function acceptOrRejectSnapshot({rows,latestTs},lastAcceptedTs,lastAcceptedRows){
+  const gotClearlyOlder=lastAcceptedTs>0&&(latestTs===0||latestTs+2000<lastAcceptedTs);
+  const gotRowDrop=lastAcceptedRows>0&&rows+2<lastAcceptedRows&&latestTs<=lastAcceptedTs;
+  return!(gotClearlyOlder||gotRowDrop);
 }
 
 function setMeta(latestAttTs){
-  const updated = nowStr();
-  const kioskStale = latestAttTs ? `Stale: ${minutesBetween(Date.now(), latestAttTs)}m` : "Stale: —";
-  kioskMeta.textContent = `Updated: ${updated} • ${kioskStale}`;
-
-  if (!latestAttTs){
-    metaLeft.textContent = `Updated: ${updated}`;
-    metaStale.textContent = "Stale: —";
-    metaStale.className = "pill";
-    return;
-  }
-
-  const mins = minutesBetween(Date.now(), latestAttTs);
-  const warn = mins >= STALE_WARN_MIN;
-
-  const staleText = warn ? `Stale: ${mins}m ⚠️` : `Stale: ${mins}m`;
-  metaStale.textContent = staleText;
-  metaStale.className = warn ? "pill warn" : "pill";
-
-  if (document.body.classList.contains("compact")){
-    metaLeft.textContent = `Updated: ${updated} | ${staleText}`;
-    metaStale.style.display = "none";
-    metaLag.style.display = "none";
-  } else {
-    metaLeft.textContent = `Last updated: ${updated}`;
-    metaStale.style.display = "inline-flex";
-    metaLag.style.display = "inline-flex";
-  }
+  const updated=nowStr();
+  kioskMeta.textContent=`Updated: ${updated}`;
+  if(!latestAttTs){metaLeft.textContent=`Updated: ${updated}`;metaStale.textContent="Stale: —";metaStale.className="pill";return;}
+  const mins=minutesBetween(Date.now(),latestAttTs);
+  const warn=mins>=STALE_WARN_MIN;
+  metaStale.textContent=warn?`Stale: ${mins}m ⚠️`:`Stale: ${mins}m`;
+  metaStale.className=warn?"pill warn":"pill";
+  metaLeft.textContent=`Updated: ${updated}`;
 }
 
-function startBurst(){
-  burstUntilTs = Date.now() + BURST_FOR_MS;
-  restartPolling();
-}
+function startBurst(){burstUntilTs=Date.now()+BURST_FOR_MS;restartPolling();}
+function currentPollMs(){return Date.now()<burstUntilTs?POLL_MS_BURST:POLL_MS_BASE;}
+function restartPolling(){if(pollTimer)clearInterval(pollTimer);pollTimer=setInterval(loadAndRender,currentPollMs());}
 
-function currentPollMs(){
-  return Date.now() < burstUntilTs ? POLL_MS_BURST : POLL_MS_BASE;
-}
+function computeLatestTs(rows,tsField){let t=0;rows.forEach(r=>{const v=parseEU(r[tsField]);if(v>t)t=v;});return t;}
 
-function restartPolling(){
-  if (pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(loadAndRender, currentPollMs());
-}
-
-function computeLatestTs(rows, tsField){
-  let t = 0;
-  rows.forEach(r=>{
-    const v = parseEU(r[tsField]);
-    if (v > t) t = v;
-  });
-  return t;
-}
-
-function buildLatestByCardToday(attRows, localScans){
-  const dayStart = startOfTodayLocalTs();
-  const latest = {};
-
-  // Process Google Sheets data
-  attRows.forEach(r=>{
-    const t = parseEU(r.Timestamp);
-    if (!t || t < dayStart) return;
-    if (!r.card_uid) return;
-
-    const ev = (r.event || "").trim();
-    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") return;
-
-    const prev = latest[r.card_uid];
-    if (!prev || t >= prev._t){
-      latest[r.card_uid] = { ...r, _t: t };
-    }
-  });
-
-  // Merge with local scans (local takes priority if newer)
-  for (const [card, scan] of Object.entries(localScans)){
-    if (scan.timestamp < dayStart) continue;
-    const ev = (scan.event || "").trim();
-    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") continue;
-
-    const prev = latest[card];
-    if (!prev || scan.timestamp >= prev._t){
-      latest[card] = {
-        card_uid: card,
-        event: ev,
-        _t: scan.timestamp,
-        _local: true
-      };
-    }
-  }
-
+function buildLatestByCardToday(attRows,localScans){
+  const dayStart=startOfTodayLocalTs();const latest={};
+  attRows.forEach(r=>{const t=parseEU(r.Timestamp);if(!t||t<dayStart)return;if(!r.card_uid)return;const ev=(r.event||"").trim();if(ev!=="IN"&&ev!=="OUT"&&ev!=="UNKNOWN")return;const prev=latest[r.card_uid];if(!prev||t>=prev._t)latest[r.card_uid]={...r,_t:t};});
+  for(const[card,scan]of Object.entries(localScans)){if(scan.timestamp<dayStart)continue;const ev=(scan.event||"").trim();if(ev!=="IN"&&ev!=="OUT"&&ev!=="UNKNOWN")continue;const prev=latest[card];if(!prev||scan.timestamp>=prev._t)latest[card]={card_uid:card,event:ev,_t:scan.timestamp,_local:true};}
   return latest;
 }
 
-function buildLatestMapping(mapRows, localMapping){
-  const mapping = {};
-  
-  // Process Google Sheets data
-  mapRows.forEach(r=>{
-    if (!r.card_uid) return;
-    const t = parseEU(r.Timestamp);
-    const prev = mapping[r.card_uid];
-    if (!prev || t >= prev._t){
-      mapping[r.card_uid] = { ...r, _t: t };
-    }
-  });
-
-  // Merge with local mapping (from index.html)
-  for (const [card, rec] of Object.entries(localMapping)){
-    if (!mapping[card]){
-      mapping[card] = { ...rec, _t: 0 };
-    }
-  }
-
+function buildLatestMapping(mapRows,localMapping){
+  const mapping={};
+  mapRows.forEach(r=>{if(!r.card_uid)return;const t=parseEU(r.Timestamp);const prev=mapping[r.card_uid];if(!prev||t>=prev._t)mapping[r.card_uid]={...r,_t:t};});
+  for(const[card,rec]of Object.entries(localMapping)){if(!mapping[card])mapping[card]={...rec,_t:0};}
   return mapping;
 }
 
-function normalizePresent(latestByCard, mapping){
-  const present = [];
-  const justLeft = [];
-
-  const now = Date.now();
-
+function normalizePresent(latestByCard,mapping){
+  const present=[],justLeft=[];const now=Date.now();
   Object.values(latestByCard).forEach(scan=>{
-    const m = mapping[scan.card_uid];
-    if (!m) return;
-    if ((m.status || "").trim() !== "active") return;
-
-    const studentName = (m.student_name || "").trim();
-    if (!studentName) return;
-
-    const ev = (scan.event || "").trim();
-    if (ev === "IN"){
-      present.push({
-        card_uid: scan.card_uid,
-        student_name: studentName,
-        class: (m.class || "").trim(),
-        _t: scan._t,
-        _local: scan._local || false
-      });
-      return;
-    }
-
-    if (ev === "OUT" && scan._t && (now - scan._t) <= JUST_LEFT_WINDOW_MS){
-      justLeft.push({
-        card_uid: scan.card_uid,
-        student_name: studentName,
-        class: (m.class || "").trim(),
-        _t: scan._t,
-        _local: scan._local || false
-      });
-    }
+    const m=mapping[scan.card_uid];if(!m)return;if((m.status||"").trim()!=="active")return;
+    const studentName=(m.student_name||"").trim();if(!studentName)return;
+    const ev=(scan.event||"").trim();
+    if(ev==="IN"){present.push({card_uid:scan.card_uid,student_name:studentName,class:(m.class||"").trim(),_t:scan._t});return;}
+    if(ev==="OUT"&&scan._t&&(now-scan._t)<=JUST_LEFT_WINDOW_MS){justLeft.push({card_uid:scan.card_uid,student_name:studentName,class:(m.class||"").trim(),_t:scan._t});}
   });
-
-  present.sort((a,b)=> (a.class || "").localeCompare(b.class || "") || (a.student_name || "").localeCompare(b.student_name || ""));
-  justLeft.sort((a,b)=> b._t - a._t);
-
-  const presentDisplay = buildDisplayNames(present);
-  const leftDisplay = buildDisplayNames(justLeft);
-
-  return { presentDisplay, leftDisplay };
+  present.sort((a,b)=>(a.class||"").localeCompare(b.class||"")||(a.student_name||"").localeCompare(b.student_name||""));
+  justLeft.sort((a,b)=>b._t-a._t);
+  return{presentDisplay:buildDisplayNames(present),leftDisplay:buildDisplayNames(justLeft)};
 }
 
-function setJustLeftVisible(hasAny){
-  leftWrap.style.display = hasAny ? "flex" : "none";
-  mainEl.style.gridTemplateRows = hasAny ? "1fr auto" : "1fr";
-  document.body.classList.toggle("compact", !hasAny);
-}
+function setJustLeftVisible(hasAny){leftWrap.style.display=hasAny?"flex":"none";mainEl.style.gridTemplateRows=hasAny?"1fr auto":"1fr";document.body.classList.toggle("compact",!hasAny);}
 
 async function loadAndRender(){
   try{
-    lastError = null;
-
-    // Load local data first (instant)
-    const localScans = loadLocalScans();
-    const localMapping = loadLocalMapping();
-
-    const [attText, mapText] = await Promise.all([
-      fetchCsv(ATT_CSV),
-      fetchCsv(MAP_CSV)
-    ]);
-
-    const attRows = parseCSV(attText);
-    const mapRows = parseCSV(mapText);
-
-    const latestAttTs = computeLatestTs(attRows, "Timestamp");
-    const latestMapTs = computeLatestTs(mapRows, "Timestamp");
-
-    const attOk = acceptOrRejectSnapshot(
-      { rows: attRows.length, latestTs: latestAttTs },
-      lastAcceptedLatestAttTs,
-      lastAcceptedAttRows
-    );
-
-    const mapOk = acceptOrRejectSnapshot(
-      { rows: mapRows.length, latestTs: latestMapTs },
-      lastAcceptedLatestMapTs,
-      lastAcceptedMapRows
-    );
-
-    if (!attOk){
-      setMeta(lastAcceptedLatestAttTs);
-      showBanner("Data delay", "Google served an older attendance snapshot. Waiting for the newest snapshot…");
-      return;
-    }
-
-    if (!mapOk && Object.keys(mappingByCard).length){
-      setMeta(latestAttTs);
-      showBanner("Data delay", "Google served an older mapping snapshot. Keeping newest mapping view…");
-    } else {
-      hideBanner();
-    }
-
-    lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, latestAttTs);
-    lastAcceptedAttRows = attRows.length;
-
-    if (mapOk){
-      lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, latestMapTs);
-      lastAcceptedMapRows = mapRows.length;
-      mappingByCard = buildLatestMapping(mapRows, localMapping);
-    }
-
-    const latestByCardToday = buildLatestByCardToday(attRows, localScans);
-    const { presentDisplay, leftDisplay } = normalizePresent(latestByCardToday, mappingByCard);
-
-    presentCount.textContent = String(presentDisplay.length);
-    leftCount.textContent = String(leftDisplay.length);
-    kioskCount.textContent = String(presentDisplay.length);
-
-    renderNameGrid(presentGrid, presentDisplay);
-    renderNameGrid(leftGrid, leftDisplay);
-
-    const hasLeft = leftDisplay.length > 0;
-    setJustLeftVisible(hasLeft);
-
-    setMeta(latestAttTs);
-
-    startBurst();
-    showKioskUi();
-
-  }catch(e){
-    lastError = (e && e.message) ? e.message : String(e);
-    showBanner("Error", lastError);
-  }
+    lastError=null;
+    const localScans=loadLocalScans();const localMapping=loadLocalMapping();
+    const[attText,mapText]=await Promise.all([fetchCsv(ATT_CSV),fetchCsv(MAP_CSV)]);
+    const attRows=parseCSV(attText);const mapRows=parseCSV(mapText);
+    const latestAttTs=computeLatestTs(attRows,"Timestamp");const latestMapTs=computeLatestTs(mapRows,"Timestamp");
+    const attOk=acceptOrRejectSnapshot({rows:attRows.length,latestTs:latestAttTs},lastAcceptedLatestAttTs,lastAcceptedAttRows);
+    const mapOk=acceptOrRejectSnapshot({rows:mapRows.length,latestTs:latestMapTs},lastAcceptedLatestMapTs,lastAcceptedMapRows);
+    if(!attOk){setMeta(lastAcceptedLatestAttTs);showBanner("Data delay","Google served older snapshot. Waiting...");return;}
+    if(!mapOk&&Object.keys(mappingByCard).length){showBanner("Data delay","Older mapping snapshot.");}else{hideBanner();}
+    lastAcceptedLatestAttTs=Math.max(lastAcceptedLatestAttTs,latestAttTs);lastAcceptedAttRows=attRows.length;
+    if(mapOk){lastAcceptedLatestMapTs=Math.max(lastAcceptedLatestMapTs,latestMapTs);lastAcceptedMapRows=mapRows.length;mappingByCard=buildLatestMapping(mapRows,localMapping);}
+    const latestByCardToday=buildLatestByCardToday(attRows,localScans);
+    const{presentDisplay,leftDisplay}=normalizePresent(latestByCardToday,mappingByCard);
+    presentCount.textContent=String(presentDisplay.length);leftCount.textContent=String(leftDisplay.length);kioskCount.textContent=String(presentDisplay.length);
+    renderNameGrid(presentGrid,presentDisplay);renderNameGrid(leftGrid,leftDisplay);
+    setJustLeftVisible(leftDisplay.length>0);setMeta(latestAttTs);startBurst();showKioskUi();
+  }catch(e){lastError=(e&&e.message)?e.message:String(e);showBanner("Error",lastError);}
 }
 
-/* Listen for scan events from index.html */
-window.addEventListener("storage", (e) => {
-  if (e.key === "juniorclub_scan_notify"){
-    // Instant refresh when a scan happens
-    loadAndRender();
-  }
-});
+window.addEventListener("storage",(e)=>{if(e.key==="juniorclub_scan_notify")loadAndRender();});
 
-/* Resize → recompute layout without reloading data */
-let resizeTimer = null;
-window.addEventListener("resize", ()=>{
-  if (resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(()=>{
-    const presentItems = Array.from(presentGrid.children).map(el => ({ label: el.textContent || "" }));
-    const leftItems = Array.from(leftGrid.children).map(el => ({ label: el.textContent || "" }));
-    renderNameGrid(presentGrid, presentItems);
-    renderNameGrid(leftGrid, leftItems);
-  }, 120);
-});
+let resizeTimer=null;
+window.addEventListener("resize",()=>{if(resizeTimer)clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{const pItems=Array.from(presentGrid.children).map(el=>({label:el.textContent||""}));const lItems=Array.from(leftGrid.children).map(el=>({label:el.textContent||""}));renderNameGrid(presentGrid,pItems);renderNameGrid(leftGrid,lItems);},120);});
 
-/* ===========================
-DARK MODE + FULLSCREEN
-=========================== */
-function setDark(on){
-  document.body.classList.toggle("dark", !!on);
-  localStorage.setItem("here_dark", on ? "1" : "0");
-  btnDark.textContent = on ? "Light mode" : "Dark mode";
-}
-setDark(localStorage.getItem("here_dark") === "1");
+async function toggleFullscreen(){try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();btnFull.textContent="Exit fullscreen";}else{await document.exitFullscreen();btnFull.textContent="Fullscreen";}}catch{}}
+btnFull.addEventListener("click",toggleFullscreen);
+document.addEventListener("fullscreenchange",()=>{const isFs=!!document.fullscreenElement;document.body.classList.toggle("kiosk",isFs);btnFull.textContent=isFs?"Exit fullscreen":"Fullscreen";if(isFs)showKioskUi();else stopKioskUiTimer();});
+btnRefresh.addEventListener("click",()=>{burstUntilTs=Date.now()+BURST_FOR_MS;restartPolling();loadAndRender();});
 
-btnDark.addEventListener("click", ()=>{
-  setDark(!document.body.classList.contains("dark"));
-});
+function gateEnabled(){return(STAFF_PIN||"").trim().length>0;}
+function gateIsOpen(){if(!gateEnabled())return true;return localStorage.getItem("here_gate_ok")==="1";}
+function openGate(){gate.classList.add("show");gatePin.value="";gateErr.textContent="";gatePin.focus();}
+function closeGate(){gate.classList.remove("show");}
+function tryGate(remember){const pin=(gatePin.value||"").trim();if(pin!==(STAFF_PIN||"").trim()){gateErr.textContent="Incorrect PIN.";return false;}if(remember)localStorage.setItem("here_gate_ok","1");closeGate();return true;}
+gateRemember.addEventListener("click",()=>tryGate(true));
+gateEnter.addEventListener("click",()=>tryGate(false));
+gatePin.addEventListener("keydown",(e)=>{if(e.key==="Enter")tryGate(false);});
+if(!gateIsOpen())openGate();
 
-async function toggleFullscreen(){
-  try{
-    if (!document.fullscreenElement){
-      await document.documentElement.requestFullscreen();
-      btnFull.textContent = "Exit fullscreen";
-    } else {
-      await document.exitFullscreen();
-      btnFull.textContent = "Fullscreen";
-    }
-  }catch{
-    /* ignore */
-  }
-}
-
-btnFull.addEventListener("click", toggleFullscreen);
-
-document.addEventListener("fullscreenchange", ()=>{
-  const isFs = !!document.fullscreenElement;
-  document.body.classList.toggle("kiosk", isFs);
-  btnFull.textContent = isFs ? "Exit fullscreen" : "Fullscreen";
-  if (isFs) showKioskUi();
-  else stopKioskUiTimer();
-});
-
-btnRefresh.addEventListener("click", ()=>{
-  burstUntilTs = Date.now() + BURST_FOR_MS;
-  restartPolling();
-  loadAndRender();
-});
-
-/* ===========================
-LIGHTWEIGHT STAFF GATE (OPTIONAL)
-=========================== */
-function gateEnabled(){ return (STAFF_PIN || "").trim().length > 0; }
-
-function gateIsOpen(){
-  if (!gateEnabled()) return true;
-  return localStorage.getItem("here_gate_ok") === "1";
-}
-
-function openGate(){
-  gate.classList.add("show");
-  gatePin.value = "";
-  gateErr.textContent = "";
-  gatePin.focus();
-}
-
-function closeGate(){
-  gate.classList.remove("show");
-}
-
-function tryGate(remember){
-  const pin = (gatePin.value || "").trim();
-  if (pin !== (STAFF_PIN || "").trim()){
-    gateErr.textContent = "Incorrect PIN.";
-    return false;
-  }
-  if (remember){
-    localStorage.setItem("here_gate_ok", "1");
-  }
-  closeGate();
-  return true;
-}
-
-gateRemember.addEventListener("click", ()=>tryGate(true));
-gateEnter.addEventListener("click", ()=>tryGate(false));
-gatePin.addEventListener("keydown", (e)=>{
-  if (e.key === "Enter") tryGate(false);
-});
-
-if (!gateIsOpen()){
-  openGate();
-}
-
-/* ===========================
-INIT
-=========================== */
-(function init(){
-  setJustLeftVisible(false);
-  restartPolling();
-  loadAndRender();
-})();
+(function init(){setJustLeftVisible(false);restartPolling();loadAndRender();})();
 </script>
 </body>
 </html>
