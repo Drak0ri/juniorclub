@@ -1,4 +1,4 @@
-<!-- /staff.html -->
+<!-- /staff.html (v3.1 - localStorage instant sync) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,43 +9,6 @@
 <link rel="icon" href="./ies.ico" type="image/x-icon">
 
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-<script>
-(async function setStaffFavicon(){
-  try{
-    if (document.fonts && document.fonts.ready) await document.fonts.ready;
-
-    const size = 64;
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.fillStyle = "#0b6b2f";
-    ctx.fillRect(0, 0, size, size);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = '800 34px "Open Sans", Arial, sans-serif';
-    ctx.fillText("S", size / 2, size / 2 + 2);
-
-    const href = canvas.toDataURL("image/png");
-    let link = document.querySelector('link[rel~="icon"]');
-    if (!link){
-      link = document.createElement("link");
-      link.rel = "icon";
-      document.head.appendChild(link);
-    }
-    link.type = "image/png";
-    link.href = href;
-  }catch{
-    /* ignore */
-  }
-})();
-</script>
 
 <style>
 :root{
@@ -231,6 +194,7 @@ text-decoration:underline;
 
 .badge-warn{ color:#000; background:var(--warn); border-radius:999px; padding:2px 8px; font-weight:800; }
 .badge-danger{ color:#fff; background:var(--danger); border-radius:999px; padding:2px 8px; font-weight:800; }
+.badge-live{ color:#fff; background:var(--green); border-radius:999px; padding:2px 8px; font-weight:800; }
 
 .section-title{
 margin: 14px 0 8px;
@@ -245,9 +209,6 @@ body{ background:#fff; }
 .card{ border:none; }
 }
 
-/* ===========================
-MODAL
-=========================== */
 .modal-overlay{
 position:fixed;
 inset:0;
@@ -357,9 +318,6 @@ background:#fafbfe;
 }
 .kv strong{ color:#102d69; }
 
-/* ===========================
-TOAST
-=========================== */
 .toast{
 position:fixed;
 right:16px;
@@ -402,9 +360,10 @@ transform:translateY(0);
 
 <div class="meta">
 <span class="pill" id="updateStatus">Last updated: —</span>
+<span class="pill badge-live" id="liveStatus">⚡ Live sync</span>
 <span class="pill" id="health">Data: —</span>
 <span class="pill" id="stale">Stale: —</span>
-<span class="pill badge-warn" id="cacheWarn" style="display:none;">⚠️ Google cache served an older snapshot — showing newest known data</span>
+<span class="pill badge-warn" id="cacheWarn" style="display:none;">⚠️ Google cache served an older snapshot</span>
 </div>
 
 <div class="toolbar">
@@ -440,9 +399,7 @@ Today-only
 <div class="card">
 <h2>Currently Present</h2>
 <div class="big" id="presentCount">0</div>
-<div class="smallmuted">
-Latest scan per card (event = IN, mapping status = active)
-</div>
+<div class="smallmuted">Latest scan per card (event = IN, mapping status = active)</div>
 </div>
 
 <div class="grid">
@@ -451,14 +408,7 @@ Latest scan per card (event = IN, mapping status = active)
 <div class="card">
 <h2>Who's Here Now</h2>
 <table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Class</th>
-<th>Time (Latest IN)</th>
-<th>Actions</th>
-</tr>
-</thead>
+<thead><tr><th>Name</th><th>Class</th><th>Time (Latest IN)</th><th>Actions</th></tr></thead>
 <tbody id="presentTable"></tbody>
 </table>
 </div>
@@ -467,34 +417,18 @@ Latest scan per card (event = IN, mapping status = active)
 <div>
 <div class="card">
 <h2>Unknown Cards</h2>
-<div class="smallmuted" id="unknownCardHelp">
-Tip: Use <strong>Register</strong> to add the card to the mapping table. <strong>Changes can take 10–60 seconds to apply.</strong>
-</div>
+<div class="smallmuted" id="unknownCardHelp">Tip: Use <strong>Register</strong> to add the card to the mapping table.</div>
 
 <div class="section-title">Unknown (unmapped)</div>
 <table>
-<thead>
-<tr>
-<th>Time</th>
-<th>Card</th>
-<th>Actions</th>
-</tr>
-</thead>
+<thead><tr><th>Time</th><th>Card</th><th>Actions</th></tr></thead>
 <tbody id="unknownTable"></tbody>
 </table>
 
 <div class="section-title">Registered (awaiting rescan)</div>
-<div class="smallmuted" id="pendingHelp">After registering, the student must scan again to check in.</div>
+<div class="smallmuted">After registering, the student must scan again to check in.</div>
 <table>
-<thead>
-<tr>
-<th>Registered</th>
-<th>Card</th>
-<th>Name</th>
-<th>Class</th>
-<th>Actions</th>
-</tr>
-</thead>
+<thead><tr><th>Registered</th><th>Card</th><th>Name</th><th>Class</th><th>Actions</th></tr></thead>
 <tbody id="pendingTable"></tbody>
 </table>
 </div>
@@ -507,87 +441,37 @@ Tip: Use <strong>Register</strong> to add the card to the mapping table. <strong
 <div class="debug" id="debugBox">
 Attendance rows: <span id="dbgAttRows">—</span><br>
 Mapping rows: <span id="dbgMapRows">—</span><br>
-Attendance headers: <span id="dbgAttHeaders"></span><br>
-Mapping headers: <span id="dbgMapHeaders"></span><br>
+Local scans: <span id="dbgLocalScans">—</span><br>
 Latest attendance timestamp: <span id="dbgLatestAttTs">—</span><br>
-Last error: <span id="dbgError"></span>
+Last error: <span id="dbgError">—</span>
 </div>
 </div>
 
 </main>
 
-<div class="modal-overlay" id="mapModalOverlay" role="dialog" aria-modal="true" aria-hidden="true">
+<div class="modal-overlay" id="mapModalOverlay">
 <div class="modal">
 <div class="modal-header">
 <div class="title" id="modalTitle">Register card</div>
 <button class="secondary small" onclick="closeMapModal()">Close</button>
 </div>
-
 <div class="modal-body">
 <div class="kv" id="modalCurrentBox" style="display:none;"></div>
-
 <div class="modal-grid">
-<div class="field">
-<label>Card UID</label>
-<input id="m_card_uid" readonly>
-</div>
-
-<div class="field">
-<label>Student email</label>
-<input id="m_student_email" placeholder="student.vasteras@engelska.se">
-</div>
-
-<div class="field">
-<label>Student name</label>
-<input id="m_student_name" placeholder="First Last">
-</div>
-
-<div class="field">
-<label>Class</label>
-<select id="m_class"></select>
-<input id="m_class_custom" placeholder="Enter class" style="margin-top:8px; display:none;">
-</div>
-
-<div class="field">
-<label>Status</label>
-<select id="m_status">
-<option value="active">active</option>
-<option value="inactive">inactive</option>
-<option value="lost">lost</option>
-</select>
-</div>
-
-<div class="field">
-<label>PIN</label>
-<input id="m_pin" placeholder="optional">
-</div>
-
-<div class="field" style="grid-column:1/-1;">
-<label>Note</label>
-<textarea id="m_note" placeholder="optional"></textarea>
-</div>
-
-<div class="field">
-<label>Mapped by</label>
-<input id="m_mapped_by" readonly>
-</div>
-
-<div class="field">
-<label>Schema</label>
-<input id="m_schema" readonly>
+<div class="field"><label>Card UID</label><input id="m_card_uid" readonly></div>
+<div class="field"><label>Student email</label><input id="m_student_email" placeholder="student.vasteras@engelska.se"></div>
+<div class="field"><label>Student name</label><input id="m_student_name" placeholder="First Last"></div>
+<div class="field"><label>Class</label><select id="m_class"></select><input id="m_class_custom" placeholder="Enter class" style="margin-top:8px; display:none;"></div>
+<div class="field"><label>Status</label><select id="m_status"><option value="active">active</option><option value="inactive">inactive</option><option value="lost">lost</option></select></div>
+<div class="field"><label>PIN</label><input id="m_pin" placeholder="optional"></div>
+<div class="field" style="grid-column:1/-1;"><label>Note</label><textarea id="m_note" placeholder="optional"></textarea></div>
+<div class="field"><label>Mapped by</label><input id="m_mapped_by" readonly></div>
+<div class="field"><label>Schema</label><input id="m_schema" readonly></div>
 </div>
 </div>
-</div>
-
 <div class="modal-foot">
-<div>
-<button id="modalSubmitBtn" onclick="submitMapModal()">Save</button>
-<span class="modal-error" id="modalError"></span>
-</div>
-
-<div class="modal-note" id="modalNote">
-Saves via Google Form. It can take 10–60 seconds to appear in the published CSV.
-</div>
+<div><button id="modalSubmitBtn" onclick="submitMapModal()">Save</button><span class="modal-error" id="modalError"></span></div>
+<div class="modal-note">Saves via Google Form. It can take 10–60 seconds to appear in the published CSV.</div>
 </div>
 </div>
 </div>
@@ -598,48 +482,45 @@ Saves via Google Form. It can take 10–60 seconds to appear in the published CS
 /* ===========================
 CONFIG
 =========================== */
-const ATT_CSV =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
-
-const MAP_CSV =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
-
-const MAP_FORM_RESPONSE_URL =
-"https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
+const ATT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+const MAP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+const MAP_FORM_RESPONSE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
 
 const MAP_ENTRY = {
-card_uid:       "entry.1712147498",
-student_email: "entry.1171642279",
-student_name:  "entry.2022534068",
-class:         "entry.1723675198",
-status:        "entry.1124037588",
-pin:           "entry.352224440",
-note:          "entry.523442266",
-mapped_by:     "entry.1680238241",
-schema:        "entry.1809813215"
+  card_uid: "entry.1712147498",
+  student_email: "entry.1171642279",
+  student_name: "entry.2022534068",
+  class: "entry.1723675198",
+  status: "entry.1124037588",
+  pin: "entry.352224440",
+  note: "entry.523442266",
+  mapped_by: "entry.1680238241",
+  schema: "entry.1809813215"
 };
 
-const MAP_DEFAULTS = {
-student_email: "student.vasteras@engelska.se",
-status: "active",
-schema: "v3"
-};
-
+const MAP_DEFAULTS = { student_email: "student.vasteras@engelska.se", status: "active", schema: "v3" };
 const STALE_WARN_MINUTES = 5;
-
 const CLASS_DEFAULTS = { yearStart: 4, yearEnd: 9, letters: ["A", "B", "C"] };
 const CLASS_CUSTOM_VALUE = "__CUSTOM__";
-
-const POST_SAVE_REFRESH_MS = 20_000;
-
+const POST_SAVE_REFRESH_MS = 20000;
 const OPTIMISTIC_MAP_KEY = "juniorclub_optimistic_mapping_v1";
 const OPTIMISTIC_TTL_MS = 24 * 60 * 60 * 1000;
-
 const PENDING_RESCAN_KEY = "juniorclub_pending_rescan_v1";
 const PENDING_RESCAN_TTL_MS = 24 * 60 * 60 * 1000;
+const PENDING_AUTO_HIDE_MS = 60 * 60 * 1000;
 
-const PENDING_AUTO_HIDE_MINUTES = 60;
-const PENDING_AUTO_HIDE_MS = PENDING_AUTO_HIDE_MINUTES * 60 * 1000;
+const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
+const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
+
+/* ===========================
+STATE
+=========================== */
+let lastRefresh = 0, timer = null, lastError = "—", lastSyncAt = 0;
+let lastAcceptedLatestAttTs = 0, lastAcceptedAttRows = 0;
+let lastAcceptedLatestMapTs = 0, lastAcceptedMapRows = 0;
+let presentAll = [], unknownAll = [], pendingAll = [];
+let mappingByCard = {};
+let modalCardUid = "", modalMode = "register";
 
 /* ===========================
 OPERATOR
@@ -650,21 +531,10 @@ operator.value = localStorage.getItem("op") || "";
 /* ===========================
 PREFERENCES
 =========================== */
-function loadPrefBool(key, fallback){
-const v = localStorage.getItem(key);
-if (v === null) return fallback;
-return v === "1";
-}
-function savePrefBool(key, value){
-localStorage.setItem(key, value ? "1" : "0");
-}
-function loadPrefStr(key, fallback){
-const v = localStorage.getItem(key);
-return (v === null) ? fallback : v;
-}
-function savePrefStr(key, value){
-localStorage.setItem(key, value);
-}
+function loadPrefBool(key, fallback){ const v = localStorage.getItem(key); return v === null ? fallback : v === "1"; }
+function savePrefBool(key, value){ localStorage.setItem(key, value ? "1" : "0"); }
+function loadPrefStr(key, fallback){ const v = localStorage.getItem(key); return v === null ? fallback : v; }
+function savePrefStr(key, value){ localStorage.setItem(key, value); }
 
 todayOnly.checked = loadPrefBool("todayOnly", true);
 search.value = loadPrefStr("search", "");
@@ -672,951 +542,456 @@ sortBy.value = loadPrefStr("sortBy", "time_desc");
 classFilter.value = loadPrefStr("classFilter", "");
 
 /* ===========================
-HEALTH / STATUS
+UTILITIES
 =========================== */
-let lastRefresh = 0;
-let timer = null;
-let lastError = "—";
-let lastSyncAt = 0;
-
-/* FIX #2: Snapshot guard state */
-let lastAcceptedLatestAttTs = 0;
-let lastAcceptedAttRows = 0;
-
-let lastAcceptedLatestMapTs = 0;
-let lastAcceptedMapRows = 0;
-
-/* FIX #2: Cache last good data to render on stale snapshot rejection */
-let cachedPresentAll = [];
-let cachedUnknownAll = [];
-let cachedPendingAll = [];
-
-function fmtTime(ts){
-if(!ts) return "—";
-return new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-}
+function fmtTime(ts){ return ts ? new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}) : "—"; }
+function fmtLocal(ts){ return ts ? new Date(ts).toLocaleString("sv-SE") : ""; }
+function clearNode(node){ while (node.firstChild) node.removeChild(node.firstChild); }
+function normalizeStr(s){ return (s || "").toString().trim().toLowerCase(); }
 
 function startTimer(){
-if(timer) clearInterval(timer);
-timer = setInterval(()=>{
-if(!lastRefresh) return;
-const s = Math.floor((Date.now() - lastRefresh)/1000);
-updateStatus.textContent = `Last updated: ${s}s ago`;
-},1000);
+  if(timer) clearInterval(timer);
+  timer = setInterval(()=>{
+    if(!lastRefresh) return;
+    const s = Math.floor((Date.now() - lastRefresh)/1000);
+    updateStatus.textContent = `Last updated: ${s}s ago`;
+  },1000);
 }
 
 function setHealth(mappingOk, attendanceOk){
-const m = mappingOk ? "✅" : "⏳";
-const a = attendanceOk ? "✅" : "⏳";
-const err = lastError && lastError !== "—" ? ` | Error: ${lastError}` : "";
-health.textContent = `Data: mapping ${m} attendance ${a} | Last sync: ${fmtTime(lastSyncAt)}${err}`;
+  const m = mappingOk ? "✅" : "⏳";
+  const a = attendanceOk ? "✅" : "⏳";
+  health.textContent = `Data: mapping ${m} attendance ${a}`;
 }
 
 function setStale(latestAttTs){
-if(!latestAttTs){
-stale.textContent = "Stale: —";
-return;
-}
-const ageMs = Date.now() - latestAttTs;
-const mins = Math.max(0, Math.floor(ageMs / 60000));
-const warn = mins >= STALE_WARN_MINUTES;
-
-stale.textContent = warn ? `Stale: ${mins}m ⚠️` : `Stale: ${mins}m`;
-stale.className = "pill" + (warn ? " badge-warn" : "");
+  if(!latestAttTs){ stale.textContent = "Stale: —"; return; }
+  const mins = Math.max(0, Math.floor((Date.now() - latestAttTs) / 60000));
+  stale.textContent = mins >= STALE_WARN_MINUTES ? `Stale: ${mins}m ⚠️` : `Stale: ${mins}m`;
+  stale.className = "pill" + (mins >= STALE_WARN_MINUTES ? " badge-warn" : "");
 }
 
-function showCacheWarn(show){
-cacheWarn.style.display = show ? "inline-block" : "none";
-}
-
-/* ===========================
-CSV PARSER (RFC4180-ish) — FIX #5
-=========================== */
-function parseCSV(text){
-const rows = [];
-let row = [];
-let field = "";
-let inQuotes = false;
-
-const pushField = () => { row.push(field); field = ""; };
-const pushRow = () => {
-if (row.length === 1 && row[0] === "" && rows.length === 0) return;
-rows.push(row);
-row = [];
-};
-
-const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-for (let i = 0; i < s.length; i++){
-const c = s[i];
-
-if (c === '"'){
-const next = s[i + 1];
-if (inQuotes && next === '"'){
-field += '"';
-i++;
-} else {
-inQuotes = !inQuotes;
-}
-continue;
-}
-
-if (!inQuotes && c === ","){ pushField(); continue; }
-if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
-field += c;
-}
-
-pushField();
-pushRow();
-
-const headers = (rows.shift() || []).map(h => (h || "").trim());
-return rows
-.filter(r => r.some(v => (v || "").trim() !== ""))
-.map(r => {
-const o = {};
-headers.forEach((h, idx) => (o[h] = (r[idx] ?? "").trim()));
-return o;
-});
-}
-
-/* FIX #6: Improved timestamp parsing */
-function parseEU(ts){
-if (!ts || typeof ts !== 'string') return 0;
-
-const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
-if (!m) return 0;
-
-const day = parseInt(m[1], 10);
-const month = parseInt(m[2], 10);
-const year = parseInt(m[3], 10);
-const hour = parseInt(m[4], 10);
-const minute = parseInt(m[5], 10);
-const second = parseInt(m[6], 10);
-
-if (month < 1 || month > 12) return 0;
-if (day < 1 || day > 31) return 0;
-if (hour > 23 || minute > 59 || second > 59) return 0;
-
-return new Date(year, month - 1, day, hour, minute, second).getTime();
-}
-
-function startOfTodayLocalTs(){
-const d = new Date();
-d.setHours(0,0,0,0);
-return d.getTime();
-}
-
-function fmtLocal(ts){
-if(!ts) return "";
-return new Date(ts).toLocaleString("sv-SE");
-}
-
-/* ===========================
-SAFE RENDERING
-=========================== */
-function clearNode(node){
-while (node.firstChild) node.removeChild(node.firstChild);
-}
-
-/* ===========================
-DATA + VIEW STATE
-=========================== */
-let presentAll = [];
-let unknownAll = [];
-let pendingAll = [];
-let mappingByCard = {};
-
-function normalizeStr(s){ return (s || "").toString().trim().toLowerCase(); }
-
-/* ===========================
-OPTIMISTIC MAPPING — FIX #4
-=========================== */
-function loadOptimisticMapping(){
-try{
-const raw = localStorage.getItem(OPTIMISTIC_MAP_KEY);
-if (!raw) return {};
-const obj = JSON.parse(raw);
-if (!obj || typeof obj !== "object") return {};
-const now = Date.now();
-const out = {};
-for (const [card, rec] of Object.entries(obj)){
-if (!rec || typeof rec !== "object") continue;
-const savedAt = Number(rec._savedAt || 0);
-if (!savedAt) continue;
-if (now - savedAt > OPTIMISTIC_TTL_MS) continue;
-out[card] = rec;
-}
-return out;
-}catch{
-return {};
-}
-}
-
-function saveOptimisticMapping(obj){
-try{
-localStorage.setItem(OPTIMISTIC_MAP_KEY, JSON.stringify(obj || {}));
-}catch{
-/* ignore */
-}
-}
-
-function upsertOptimisticMapping(cardUid, rec){
-const card = (cardUid || "").trim();
-if (!card) return;
-const all = loadOptimisticMapping();
-all[card] = { ...rec, _savedAt: Date.now() };
-saveOptimisticMapping(all);
-}
-
-/* FIX #4: Improved reconciliation — only prune if mapping timestamp is AFTER optimistic save */
-function reconcileAndMergeOptimisticMapping(mapping){
-const optimistic = loadOptimisticMapping();
-let changed = false;
-
-for (const [card, optRec] of Object.entries(optimistic)){
-const realRec = mapping[card];
-if (realRec){
-const optSavedAt = Number(optRec._savedAt || 0);
-const realTs = Number(realRec._t || 0);
-// Only prune if the real mapping is newer than optimistic save
-if (realTs >= optSavedAt - 5000){ // 5s grace period
-delete optimistic[card];
-changed = true;
-console.log(`[STAFF] Optimistic mapping for ${card} reconciled with real mapping`);
-}
-}
-}
-if (changed) saveOptimisticMapping(optimistic);
-
-for (const [card, rec] of Object.entries(optimistic)){
-if (!mapping[card]){
-mapping[card] = { ...rec, _t: Number(rec._t || 0) };
-}
-}
-return mapping;
-}
-
-/* ===========================
-PENDING RESCAN — FIX #10
-=========================== */
-function loadPendingRescan(){
-try{
-const raw = localStorage.getItem(PENDING_RESCAN_KEY);
-if (!raw) return {};
-const obj = JSON.parse(raw);
-if (!obj || typeof obj !== "object") return {};
-const now = Date.now();
-const out = {};
-for (const [card, savedAt] of Object.entries(obj)){
-const t = Number(savedAt || 0);
-if (!t) continue;
-if (now - t > PENDING_RESCAN_TTL_MS) continue;
-// FIX #10: Respect auto-hide window
-if (now - t > PENDING_AUTO_HIDE_MS) continue;
-out[card] = t;
-}
-return out;
-}catch{
-return {};
-}
-}
-
-function savePendingRescan(obj){
-try{
-localStorage.setItem(PENDING_RESCAN_KEY, JSON.stringify(obj || {}));
-}catch{
-/* ignore */
-}
-}
-
-function addPendingRescan(cardUid, savedAt){
-const card = (cardUid || "").trim();
-if (!card) return;
-const all = loadPendingRescan();
-all[card] = Number(savedAt || Date.now());
-savePendingRescan(all);
-}
-
-function prunePendingRescanAgainstAttendance(latestByCard){
-const all = loadPendingRescan();
-let changed = false;
-
-for (const [card, savedAt] of Object.entries(all)){
-const t = Number(savedAt || 0);
-const scan = latestByCard[card];
-if (scan && Number(scan._t || 0) > t){
-delete all[card];
-changed = true;
-}
-}
-
-if (changed) savePendingRescan(all);
-return all;
-}
-
-/* ===========================
-TOAST
-=========================== */
-let toastHideTimer = null;
+function showCacheWarn(show){ cacheWarn.style.display = show ? "inline-block" : "none"; }
 
 function showToast(message){
-toast.textContent = message;
-toast.classList.add("show");
-if (toastHideTimer) clearTimeout(toastHideTimer);
-toastHideTimer = setTimeout(()=>toast.classList.remove("show"), 3200);
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 3200);
 }
 
 /* ===========================
-POST-SAVE RE-REFRESH
+CSV PARSER
 =========================== */
-let postSaveTimer = null;
-
-function schedulePostSaveRefresh(){
-if (postSaveTimer) clearTimeout(postSaveTimer);
-postSaveTimer = setTimeout(()=>reloadAll(), POST_SAVE_REFRESH_MS);
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  const pushField = () => { row.push(field); field = ""; };
+  const pushRow = () => { if (!(row.length === 1 && row[0] === "" && rows.length === 0)) rows.push(row); row = []; };
+  const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  for (let i = 0; i < s.length; i++){
+    const c = s[i];
+    if (c === '"'){ const next = s[i + 1]; if (inQuotes && next === '"'){ field += '"'; i++; } else { inQuotes = !inQuotes; } continue; }
+    if (!inQuotes && c === ","){ pushField(); continue; }
+    if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
+    field += c;
+  }
+  pushField(); pushRow();
+  const headers = (rows.shift() || []).map(h => (h || "").trim());
+  return rows.filter(r => r.some(v => (v || "").trim() !== "")).map(r => { const o = {}; headers.forEach((h, idx) => (o[h] = (r[idx] ?? "").trim())); return o; });
 }
 
+function parseEU(ts){
+  if (!ts || typeof ts !== 'string') return 0;
+  const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
+  if (!m) return 0;
+  return new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10), parseInt(m[4],10), parseInt(m[5],10), parseInt(m[6],10)).getTime();
+}
+
+function startOfTodayLocalTs(){ const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+
 /* ===========================
-MODAL — FIX #3
+LOCAL STORAGE SYNC
 =========================== */
-let modalCardUid = "";
-let modalMode = "register";
+function loadLocalScans(){ try { const raw = localStorage.getItem(LOCAL_SCANS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+function loadLocalMapping(){ try { const raw = localStorage.getItem(LOCAL_MAPPING_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
 
-function buildDefaultClassList(){
-const out = [];
-for (let y = CLASS_DEFAULTS.yearStart; y <= CLASS_DEFAULTS.yearEnd; y++){
-for (const letter of CLASS_DEFAULTS.letters){
-out.push(`${y}${letter}`);
-}
-}
-return out;
-}
-
-function initModalClassDropdown(){
-const opts = buildDefaultClassList();
-clearNode(m_class);
-
-const optBlank = document.createElement("option");
-optBlank.value = "";
-optBlank.textContent = "Select class";
-m_class.appendChild(optBlank);
-
-opts.forEach(v=>{
-const opt = document.createElement("option");
-opt.value = v;
-opt.textContent = v;
-m_class.appendChild(opt);
-});
-
-const optCustom = document.createElement("option");
-optCustom.value = CLASS_CUSTOM_VALUE;
-optCustom.textContent = "Other / custom…";
-m_class.appendChild(optCustom);
+/* ===========================
+OPTIMISTIC MAPPING
+=========================== */
+function loadOptimisticMapping(){
+  try {
+    const raw = localStorage.getItem(OPTIMISTIC_MAP_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw), now = Date.now(), out = {};
+    for (const [card, rec] of Object.entries(obj)){
+      if (rec && rec._savedAt && now - rec._savedAt <= OPTIMISTIC_TTL_MS) out[card] = rec;
+    }
+    return out;
+  } catch { return {}; }
 }
 
-initModalClassDropdown();
+function saveOptimisticMapping(obj){ try { localStorage.setItem(OPTIMISTIC_MAP_KEY, JSON.stringify(obj || {})); } catch {} }
 
-m_class.addEventListener("change", ()=>{
-const isCustom = m_class.value === CLASS_CUSTOM_VALUE;
-m_class_custom.style.display = isCustom ? "block" : "none";
-});
-
-function openRegisterModal(cardUid){
-modalCardUid = (cardUid || "").trim();
-modalMode = "register";
-
-modalTitle.textContent = "Register card";
-modalCurrentBox.style.display = "none";
-
-m_card_uid.value = modalCardUid;
-m_student_email.value = MAP_DEFAULTS.student_email;
-m_student_name.value = "";
-m_class.value = "";
-m_class_custom.value = "";
-m_class_custom.style.display = "none";
-m_status.value = MAP_DEFAULTS.status;
-m_pin.value = "";
-m_note.value = "";
-m_mapped_by.value = operator.value || "";
-m_schema.value = MAP_DEFAULTS.schema;
-
-modalError.textContent = "";
-mapModalOverlay.classList.add("show");
-mapModalOverlay.setAttribute("aria-hidden", "false");
-
-// FIX #3: Enable submit button and add validation
-updateModalSubmitButton();
+function upsertOptimisticMapping(cardUid, rec){
+  const card = (cardUid || "").trim();
+  if (!card) return;
+  const all = loadOptimisticMapping();
+  all[card] = { ...rec, _savedAt: Date.now() };
+  saveOptimisticMapping(all);
 }
 
-function openEditModal(cardUid){
-const row = mappingByCard[cardUid];
-if (!row) return;
-
-modalCardUid = cardUid;
-modalMode = "edit";
-
-modalTitle.textContent = "Edit mapping";
-modalCurrentBox.innerHTML = `<strong>Current:</strong> ${row.student_name || "—"} (${row.class || "—"}) | Status: ${row.status || "—"}`;
-modalCurrentBox.style.display = "block";
-
-m_card_uid.value = cardUid;
-m_student_email.value = row.student_email || MAP_DEFAULTS.student_email;
-m_student_name.value = row.student_name || "";
-m_class.value = row.class || "";
-m_class_custom.value = "";
-m_class_custom.style.display = "none";
-m_status.value = row.status || MAP_DEFAULTS.status;
-m_pin.value = row.pin || "";
-m_note.value = row.note || "";
-m_mapped_by.value = operator.value || row.mapped_by || "";
-m_schema.value = row.schema || MAP_DEFAULTS.schema;
-
-modalError.textContent = "";
-mapModalOverlay.classList.add("show");
-mapModalOverlay.setAttribute("aria-hidden", "false");
-
-// FIX #3: Enable submit button and add validation
-updateModalSubmitButton();
-}
-
-function closeMapModal(){
-mapModalOverlay.classList.remove("show");
-mapModalOverlay.setAttribute("aria-hidden", "true");
-modalCardUid = "";
-}
-
-/* FIX #3: Real-time validation for modal submit button */
-function updateModalSubmitButton(){
-const cardUid = m_card_uid.value.trim();
-const studentName = m_student_name.value.trim();
-const studentEmail = m_student_email.value.trim();
-const classVal = m_class.value === CLASS_CUSTOM_VALUE ? m_class_custom.value.trim() : m_class.value.trim();
-
-const isValid = cardUid && studentName && studentEmail && classVal;
-
-const btn = document.getElementById("modalSubmitBtn");
-if (btn) {
-btn.disabled = !isValid;
-}
-}
-
-// Attach validation listeners to modal fields
-[m_card_uid, m_student_name, m_student_email, m_class, m_class_custom].forEach(el => {
-el.addEventListener("input", updateModalSubmitButton);
-el.addEventListener("change", updateModalSubmitButton);
-});
-
-async function submitMapModal(){
-modalError.textContent = "";
-
-const cardUid = m_card_uid.value.trim();
-const studentEmail = m_student_email.value.trim();
-const studentName = m_student_name.value.trim();
-const classVal = m_class.value === CLASS_CUSTOM_VALUE ? m_class_custom.value.trim() : m_class.value.trim();
-const status = m_status.value.trim();
-const pin = m_pin.value.trim();
-const note = m_note.value.trim();
-const mappedBy = m_mapped_by.value.trim();
-const schema = m_schema.value.trim();
-
-if (!cardUid || !studentName || !studentEmail || !classVal){
-modalError.textContent = "Card UID, student name, email, and class are required.";
-return;
-}
-
-const d = new URLSearchParams();
-d.append(MAP_ENTRY.card_uid, cardUid);
-d.append(MAP_ENTRY.student_email, studentEmail);
-d.append(MAP_ENTRY.student_name, studentName);
-d.append(MAP_ENTRY.class, classVal);
-d.append(MAP_ENTRY.status, status);
-d.append(MAP_ENTRY.pin, pin);
-d.append(MAP_ENTRY.note, note);
-d.append(MAP_ENTRY.mapped_by, mappedBy);
-d.append(MAP_ENTRY.schema, schema);
-
-try{
-await fetch(MAP_FORM_RESPONSE_URL, {
-method:"POST",
-mode:"no-cors",
-body:d
-});
-
-// FIX #4: Save optimistic mapping with current timestamp
-upsertOptimisticMapping(cardUid, {
-  card_uid: cardUid,
-  student_email: studentEmail,
-  student_name: studentName,
-  class: classVal,
-  status: status,
-  pin: pin,
-  note: note,
-  mapped_by: mappedBy,
-  schema: schema,
-  _t: Date.now(),
-  _savedAt: Date.now()
-});
-
-// FIX #4: Add to pending rescan
-addPendingRescan(cardUid, Date.now());
-
-closeMapModal();
-showToast(modalMode === "edit" ? "Updated ✅" : "Registered ✅");
-
-// FIX #1: Trigger scan page to refresh mapping
-try{
-  localStorage.setItem("juniorclub_mapping_refresh_trigger", String(Date.now()));
-  localStorage.removeItem("juniorclub_mapping_refresh_trigger");
-}catch{
-  /* ignore */
-}
-
-schedulePostSaveRefresh();
-}catch(e){
-modalError.textContent = `Error: ${e.message || e}`;
-}
+function reconcileAndMergeOptimisticMapping(mapping){
+  const optimistic = loadOptimisticMapping();
+  let changed = false;
+  for (const [card, optRec] of Object.entries(optimistic)){
+    const realRec = mapping[card];
+    if (realRec && Number(realRec._t || 0) >= Number(optRec._savedAt || 0) - 5000){ delete optimistic[card]; changed = true; }
+  }
+  if (changed) saveOptimisticMapping(optimistic);
+  for (const [card, rec] of Object.entries(optimistic)){ if (!mapping[card]) mapping[card] = { ...rec, _t: Number(rec._t || 0) }; }
+  return mapping;
 }
 
 /* ===========================
-SNAPSHOT GUARD — FIX #2 & #9
+PENDING RESCAN
+=========================== */
+function loadPendingRescan(){
+  try {
+    const raw = localStorage.getItem(PENDING_RESCAN_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw), now = Date.now(), out = {};
+    for (const [card, savedAt] of Object.entries(obj)){
+      const t = Number(savedAt || 0);
+      if (t && now - t <= PENDING_AUTO_HIDE_MS) out[card] = t;
+    }
+    return out;
+  } catch { return {}; }
+}
+
+function savePendingRescan(obj){ try { localStorage.setItem(PENDING_RESCAN_KEY, JSON.stringify(obj || {})); } catch {} }
+function addPendingRescan(cardUid, savedAt){ const card = (cardUid || "").trim(); if (!card) return; const all = loadPendingRescan(); all[card] = Number(savedAt || Date.now()); savePendingRescan(all); }
+
+function prunePendingRescanAgainstAttendance(latestByCard){
+  const all = loadPendingRescan();
+  let changed = false;
+  for (const [card, savedAt] of Object.entries(all)){
+    const scan = latestByCard[card];
+    if (scan && Number(scan._t || 0) > Number(savedAt)){ delete all[card]; changed = true; }
+  }
+  if (changed) savePendingRescan(all);
+  return all;
+}
+
+/* ===========================
+SNAPSHOT GUARD
 =========================== */
 function acceptOrRejectSnapshot({ rows, latestTs }, lastAcceptedTs, lastAcceptedRows){
-if (lastAcceptedRows === 0) return true; // first load
-
-// Reject if timestamp is clearly older (more than 2s behind)
-const gotClearlyOlder = lastAcceptedTs > 0 && latestTs > 0 && latestTs + 2000 < lastAcceptedTs;
-
-// Reject if row count dropped significantly AND timestamp didn't advance
-const gotRowDrop = lastAcceptedRows > 0 && rows + 2 < lastAcceptedRows && latestTs <= lastAcceptedTs;
-
-return !(gotClearlyOlder || gotRowDrop);
+  if (lastAcceptedRows === 0) return true;
+  const gotClearlyOlder = lastAcceptedTs > 0 && latestTs > 0 && latestTs + 2000 < lastAcceptedTs;
+  const gotRowDrop = lastAcceptedRows > 0 && rows + 2 < lastAcceptedRows && latestTs <= lastAcceptedTs;
+  return !(gotClearlyOlder || gotRowDrop);
 }
+
+function computeLatestTs(rows, tsField){ let t = 0; rows.forEach(r=>{ const v = parseEU(r[tsField]); if (v > t) t = v; }); return t; }
 
 /* ===========================
-DATA LOADING — FIX #2 & #7
+DATA BUILDING
 =========================== */
-function computeLatestTs(rows, tsField){
-let t = 0;
-rows.forEach(r=>{
-const v = parseEU(r[tsField]);
-if (v > t) t = v;
-});
-return t;
+function buildLatestByCard(attRows, localScans, todayOnlyFlag){
+  const dayStart = todayOnlyFlag ? startOfTodayLocalTs() : 0;
+  const latest = {};
+  
+  attRows.forEach(r=>{
+    const t = parseEU(r.Timestamp);
+    if (!t || (dayStart && t < dayStart)) return;
+    if (!r.card_uid) return;
+    const ev = (r.event || "").trim();
+    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") return;
+    const prev = latest[r.card_uid];
+    if (!prev || t >= prev._t) latest[r.card_uid] = { ...r, _t: t };
+  });
+
+  // Merge local scans (newer takes priority)
+  for (const [card, scan] of Object.entries(localScans)){
+    if (scan.timestamp < dayStart) continue;
+    const ev = (scan.event || "").trim();
+    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") continue;
+    const prev = latest[card];
+    if (!prev || scan.timestamp >= prev._t){
+      latest[card] = { card_uid: card, event: ev, _t: scan.timestamp, _local: true, student_name: scan.student_name, class: scan.class };
+    }
+  }
+
+  return latest;
 }
 
-function buildLatestByCard(attRows, todayOnlyFlag){
-const dayStart = todayOnlyFlag ? startOfTodayLocalTs() : 0;
-const latest = {};
-
-attRows.forEach(r=>{
-const t = parseEU(r.Timestamp);
-if (!t) return;
-if (dayStart && t < dayStart) return;
-if (!r.card_uid) return;
-
-const ev = (r.event || "").trim();
-if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") return;
-
-const prev = latest[r.card_uid];
-if (!prev || t >= prev._t){
-  latest[r.card_uid] = { ...r, _t: t };
-}
-});
-
-return latest;
-}
-
-function buildLatestMapping(mapRows){
-const mapping = {};
-mapRows.forEach(r=>{
-if (!r.card_uid) return;
-const t = parseEU(r.Timestamp);
-const prev = mapping[r.card_uid];
-if (!prev || t >= prev._t){
-  mapping[r.card_uid] = { ...r, _t: t };
-}
-});
-return mapping;
+function buildLatestMapping(mapRows, localMapping){
+  const mapping = {};
+  mapRows.forEach(r=>{ if (!r.card_uid) return; const t = parseEU(r.Timestamp); const prev = mapping[r.card_uid]; if (!prev || t >= prev._t) mapping[r.card_uid] = { ...r, _t: t }; });
+  for (const [card, rec] of Object.entries(localMapping)){ if (!mapping[card]) mapping[card] = { ...rec, _t: 0 }; }
+  return mapping;
 }
 
 function computePresent(latestByCard, mapping){
-const present = [];
-Object.values(latestByCard).forEach(scan=>{
-if (scan.event !== "IN") return;
-const m = mapping[scan.card_uid];
-if (!m) return;
-if ((m.status || "").trim() !== "active") return;
-
-present.push({
-  card_uid: scan.card_uid,
-  student_name: (m.student_name || "").trim(),
-  student_email: (m.student_email || "").trim(),
-  class: (m.class || "").trim(),
-  status: (m.status || "").trim(),
-  time: scan._t,
-  timeStr: fmtLocal(scan._t)
-});
-});
-return present;
+  const present = [];
+  Object.values(latestByCard).forEach(scan=>{
+    if (scan.event !== "IN") return;
+    const m = mapping[scan.card_uid];
+    if (!m || (m.status || "").trim() !== "active") return;
+    present.push({
+      card_uid: scan.card_uid,
+      student_name: (m.student_name || "").trim(),
+      class: (m.class || "").trim(),
+      time: scan._t,
+      timeStr: fmtLocal(scan._t),
+      _local: scan._local || false
+    });
+  });
+  return present;
 }
 
 function computeUnknown(latestByCard, mapping, pendingRescan){
-const unknown = [];
-Object.values(latestByCard).forEach(scan=>{
-if (scan.event !== "UNKNOWN") return;
-const m = mapping[scan.card_uid];
-if (m) return; // has mapping now
-if (pendingRescan[scan.card_uid]) return; // awaiting rescan
-
-unknown.push({
-  card_uid: scan.card_uid,
-  time: scan._t,
-  timeStr: fmtLocal(scan._t)
-});
-});
-unknown.sort((a,b)=> b.time - a.time);
-return unknown;
+  const unknown = [];
+  Object.values(latestByCard).forEach(scan=>{
+    if (scan.event !== "UNKNOWN") return;
+    if (mapping[scan.card_uid]) return;
+    if (pendingRescan[scan.card_uid]) return;
+    unknown.push({ card_uid: scan.card_uid, time: scan._t, timeStr: fmtLocal(scan._t) });
+  });
+  unknown.sort((a,b)=> b.time - a.time);
+  return unknown;
 }
 
 function computePending(pendingRescan, mapping){
-const pending = [];
-for (const [card, savedAt] of Object.entries(pendingRescan)){
-const m = mapping[card];
-if (!m) continue; // shouldn't happen but defensive
-
-pending.push({
-  card_uid: card,
-  student_name: (m.student_name || "").trim(),
-  class: (m.class || "").trim(),
-  registered: savedAt,
-  registeredStr: fmtLocal(savedAt)
-});
-}
-pending.sort((a,b)=> b.registered - a.registered);
-return pending;
-}
-
-/* FIX #2: Render using cached data if available */
-function renderUI(present, unknown, pending){
-presentAll = present;
-unknownAll = unknown;
-pendingAll = pending;
-
-// Cache for future use if snapshot is rejected
-cachedPresentAll = present;
-cachedUnknownAll = unknown;
-cachedPendingAll = pending;
-
-applyFiltersAndRender();
-}
-
-/* FIX #2: Fallback render when snapshot is rejected */
-function renderUsingCachedData(){
-presentAll = cachedPresentAll;
-unknownAll = cachedUnknownAll;
-pendingAll = cachedPendingAll;
-applyFiltersAndRender();
-}
-
-async function loadAndRender(){
-try{
-lastError = "—";
-
-const [attText, mapText] = await Promise.all([
-  fetch(ATT_CSV + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text()),
-  fetch(MAP_CSV + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text())
-]);
-
-const attRows = parseCSV(attText);
-const mapRows = parseCSV(mapText);
-
-const latestAttTs = computeLatestTs(attRows, "Timestamp");
-const latestMapTs = computeLatestTs(mapRows, "Timestamp");
-
-// FIX #2: Apply snapshot guards
-const attOk = acceptOrRejectSnapshot(
-  { rows: attRows.length, latestTs: latestAttTs },
-  lastAcceptedLatestAttTs,
-  lastAcceptedAttRows
-);
-
-const mapOk = acceptOrRejectSnapshot(
-  { rows: mapRows.length, latestTs: latestMapTs },
-  lastAcceptedLatestMapTs,
-  lastAcceptedMapRows
-);
-
-// FIX #9: If snapshot rejected, render cached data and show warning
-if (!attOk){
-  console.warn("[STAFF] Rejected older attendance snapshot. Keeping current view.");
-  showCacheWarn(true);
-  setHealth(mapOk, false);
-  setStale(lastAcceptedLatestAttTs);
-  renderUsingCachedData();
-  return;
-}
-
-if (!mapOk && Object.keys(mappingByCard).length > 0){
-  console.warn("[STAFF] Rejected older mapping snapshot. Keeping current mapping.");
-  showCacheWarn(true);
-} else {
-  showCacheWarn(false);
-}
-
-// Accept new snapshots
-lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, latestAttTs);
-lastAcceptedAttRows = attRows.length;
-
-if (mapOk){
-  lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, latestMapTs);
-  lastAcceptedMapRows = mapRows.length;
-  
-  let mapping = buildLatestMapping(mapRows);
-  mapping = reconcileAndMergeOptimisticMapping(mapping);
-  mappingByCard = mapping;
-}
-
-const todayOnlyFlag = todayOnly.checked;
-const latestByCard = buildLatestByCard(attRows, todayOnlyFlag);
-
-const pendingRescan = prunePendingRescanAgainstAttendance(latestByCard);
-
-const present = computePresent(latestByCard, mappingByCard);
-const unknown = computeUnknown(latestByCard, mappingByCard, pendingRescan);
-const pending = computePending(pendingRescan, mappingByCard);
-
-renderUI(present, unknown, pending);
-
-lastSyncAt = Date.now();
-lastRefresh = Date.now();
-setHealth(mapOk, attOk);
-setStale(latestAttTs);
-startTimer();
-
-// Debug info
-dbgAttRows.textContent = attRows.length;
-dbgMapRows.textContent = mapRows.length;
-dbgAttHeaders.textContent = attRows.length > 0 ? Object.keys(attRows[0]).join(", ") : "—";
-dbgMapHeaders.textContent = mapRows.length > 0 ? Object.keys(mapRows[0]).join(", ") : "—";
-dbgLatestAttTs.textContent = fmtLocal(latestAttTs);
-dbgError.textContent = "—";
-}catch(e){
-lastError = (e && e.message) ? e.message : String(e);
-dbgError.textContent = lastError;
-console.error("[STAFF] Load error:", e);
-}
+  const pending = [];
+  for (const [card, savedAt] of Object.entries(pendingRescan)){
+    const m = mapping[card];
+    if (!m) continue;
+    pending.push({ card_uid: card, student_name: (m.student_name || "").trim(), class: (m.class || "").trim(), registered: savedAt, registeredStr: fmtLocal(savedAt) });
+  }
+  pending.sort((a,b)=> b.registered - a.registered);
+  return pending;
 }
 
 /* ===========================
-FILTERING & RENDERING — FIX #7
+DATA LOADING
 =========================== */
-function applyFiltersAndRender(){
-const searchTerm = normalizeStr(search.value);
-const classFilterVal = normalizeStr(classFilter.value);
-const sortByVal = sortBy.value;
+async function loadAndRender(){
+  try {
+    lastError = "—";
+    const localScans = loadLocalScans();
+    const localMapping = loadLocalMapping();
 
-// Filter present
-let filtered = presentAll.filter(p=>{
-if (searchTerm){
-  const match = normalizeStr(p.student_name).includes(searchTerm) ||
-    normalizeStr(p.class).includes(searchTerm) ||
-    normalizeStr(p.card_uid).includes(searchTerm);
-  if (!match) return false;
+    const [attText, mapText] = await Promise.all([
+      fetch(ATT_CSV + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text()),
+      fetch(MAP_CSV + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text())
+    ]);
+
+    const attRows = parseCSV(attText);
+    const mapRows = parseCSV(mapText);
+    const latestAttTs = computeLatestTs(attRows, "Timestamp");
+    const latestMapTs = computeLatestTs(mapRows, "Timestamp");
+
+    const attOk = acceptOrRejectSnapshot({ rows: attRows.length, latestTs: latestAttTs }, lastAcceptedLatestAttTs, lastAcceptedAttRows);
+    const mapOk = acceptOrRejectSnapshot({ rows: mapRows.length, latestTs: latestMapTs }, lastAcceptedLatestMapTs, lastAcceptedMapRows);
+
+    if (!attOk){ showCacheWarn(true); setHealth(mapOk, false); setStale(lastAcceptedLatestAttTs); return; }
+    showCacheWarn(!mapOk && Object.keys(mappingByCard).length > 0);
+
+    lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, latestAttTs);
+    lastAcceptedAttRows = attRows.length;
+
+    if (mapOk){
+      lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, latestMapTs);
+      lastAcceptedMapRows = mapRows.length;
+      let mapping = buildLatestMapping(mapRows, localMapping);
+      mapping = reconcileAndMergeOptimisticMapping(mapping);
+      mappingByCard = mapping;
+    }
+
+    const todayOnlyFlag = todayOnly.checked;
+    const latestByCard = buildLatestByCard(attRows, localScans, todayOnlyFlag);
+    const pendingRescan = prunePendingRescanAgainstAttendance(latestByCard);
+
+    presentAll = computePresent(latestByCard, mappingByCard);
+    unknownAll = computeUnknown(latestByCard, mappingByCard, pendingRescan);
+    pendingAll = computePending(pendingRescan, mappingByCard);
+
+    applyFiltersAndRender();
+    lastSyncAt = Date.now();
+    lastRefresh = Date.now();
+    setHealth(mapOk, attOk);
+    setStale(latestAttTs);
+    startTimer();
+
+    dbgAttRows.textContent = attRows.length;
+    dbgMapRows.textContent = mapRows.length;
+    dbgLocalScans.textContent = Object.keys(localScans).length;
+    dbgLatestAttTs.textContent = fmtLocal(latestAttTs);
+    dbgError.textContent = "—";
+  } catch(e){
+    lastError = (e && e.message) ? e.message : String(e);
+    dbgError.textContent = lastError;
+  }
 }
-if (classFilterVal && normalizeStr(p.class) !== classFilterVal) return false;
-return true;
+
+/* Listen for scan events from index.html */
+window.addEventListener("storage", (e) => {
+  if (e.key === "juniorclub_scan_notify") loadAndRender();
 });
 
-// Sort
-if (sortByVal === "name_asc"){
-filtered.sort((a,b)=> (a.student_name || "").localeCompare(b.student_name || ""));
-} else if (sortByVal === "class_asc"){
-filtered.sort((a,b)=> (a.class || "").localeCompare(b.class || "") || (a.student_name || "").localeCompare(b.student_name || ""));
-} else { // time_desc (default)
-filtered.sort((a,b)=> b.time - a.time);
-}
+/* ===========================
+FILTERING & RENDERING
+=========================== */
+function applyFiltersAndRender(){
+  const searchTerm = normalizeStr(search.value);
+  const classFilterVal = normalizeStr(classFilter.value);
+  const sortByVal = sortBy.value;
 
-// FIX #7: Efficient DOM update — only rebuild if changed
-renderPresentTable(filtered);
-renderUnknownTable(unknownAll);
-renderPendingTable(pendingAll);
+  let filtered = presentAll.filter(p=>{
+    if (searchTerm && !normalizeStr(p.student_name).includes(searchTerm) && !normalizeStr(p.class).includes(searchTerm) && !normalizeStr(p.card_uid).includes(searchTerm)) return false;
+    if (classFilterVal && normalizeStr(p.class) !== classFilterVal) return false;
+    return true;
+  });
 
-presentCount.textContent = String(filtered.length);
+  if (sortByVal === "name_asc") filtered.sort((a,b)=> (a.student_name || "").localeCompare(b.student_name || ""));
+  else if (sortByVal === "class_asc") filtered.sort((a,b)=> (a.class || "").localeCompare(b.class || "") || (a.student_name || "").localeCompare(b.student_name || ""));
+  else filtered.sort((a,b)=> b.time - a.time);
 
-// Update class filter dropdown
-updateClassFilterDropdown();
+  renderPresentTable(filtered);
+  renderUnknownTable(unknownAll);
+  renderPendingTable(pendingAll);
+  presentCount.textContent = String(filtered.length);
+  updateClassFilterDropdown();
 }
 
 function updateClassFilterDropdown(){
-const currentVal = classFilter.value;
-const classes = new Set();
-presentAll.forEach(p=> p.class && classes.add(p.class));
-
-const sorted = Array.from(classes).sort();
-clearNode(classFilter);
-
-const optAll = document.createElement("option");
-optAll.value = "";
-optAll.textContent = "All classes";
-classFilter.appendChild(optAll);
-
-sorted.forEach(c=>{
-const opt = document.createElement("option");
-opt.value = c;
-opt.textContent = c;
-classFilter.appendChild(opt);
-});
-
-classFilter.value = currentVal;
+  const currentVal = classFilter.value;
+  const classes = new Set();
+  presentAll.forEach(p=> p.class && classes.add(p.class));
+  const sorted = Array.from(classes).sort();
+  clearNode(classFilter);
+  const optAll = document.createElement("option"); optAll.value = ""; optAll.textContent = "All classes"; classFilter.appendChild(optAll);
+  sorted.forEach(c=>{ const opt = document.createElement("option"); opt.value = c; opt.textContent = c; classFilter.appendChild(opt); });
+  classFilter.value = currentVal;
 }
 
 function renderPresentTable(items){
-clearNode(presentTable);
-items.forEach(p=>{
-const tr = document.createElement("tr");
-
-const tdName = document.createElement("td");
-tdName.textContent = p.student_name || "—";
-tr.appendChild(tdName);
-
-const tdClass = document.createElement("td");
-tdClass.textContent = p.class || "—";
-tr.appendChild(tdClass);
-
-const tdTime = document.createElement("td");
-tdTime.textContent = p.timeStr || "—";
-tr.appendChild(tdTime);
-
-const tdActions = document.createElement("td");
-const btnEdit = document.createElement("button");
-btnEdit.className = "small";
-btnEdit.textContent = "Edit";
-btnEdit.onclick = ()=> openEditModal(p.card_uid);
-tdActions.appendChild(btnEdit);
-tr.appendChild(tdActions);
-
-presentTable.appendChild(tr);
-});
+  clearNode(presentTable);
+  items.forEach(p=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p.student_name || "—"}</td><td>${p.class || "—"}</td><td>${p.timeStr || "—"}</td><td><button class="small" onclick="openEditModal('${p.card_uid}')">Edit</button></td>`;
+    presentTable.appendChild(tr);
+  });
 }
 
 function renderUnknownTable(items){
-clearNode(unknownTable);
-items.forEach(u=>{
-const tr = document.createElement("tr");
-tr.className = "unknown";
-
-const tdTime = document.createElement("td");
-tdTime.textContent = u.timeStr || "—";
-tr.appendChild(tdTime);
-
-const tdCard = document.createElement("td");
-tdCard.textContent = u.card_uid || "—";
-tr.appendChild(tdCard);
-
-const tdActions = document.createElement("td");
-const btnReg = document.createElement("button");
-btnReg.className = "small";
-btnReg.textContent = "Register";
-btnReg.onclick = ()=> openRegisterModal(u.card_uid);
-tdActions.appendChild(btnReg);
-tr.appendChild(tdActions);
-
-unknownTable.appendChild(tr);
-});
+  clearNode(unknownTable);
+  items.forEach(u=>{
+    const tr = document.createElement("tr"); tr.className = "unknown";
+    tr.innerHTML = `<td>${u.timeStr || "—"}</td><td>${u.card_uid || "—"}</td><td><button class="small" onclick="openRegisterModal('${u.card_uid}')">Register</button></td>`;
+    unknownTable.appendChild(tr);
+  });
 }
 
 function renderPendingTable(items){
-clearNode(pendingTable);
-items.forEach(p=>{
-const tr = document.createElement("tr");
-
-const tdReg = document.createElement("td");
-tdReg.textContent = p.registeredStr || "—";
-tr.appendChild(tdReg);
-
-const tdCard = document.createElement("td");
-tdCard.textContent = p.card_uid || "—";
-tr.appendChild(tdCard);
-
-const tdName = document.createElement("td");
-tdName.textContent = p.student_name || "—";
-tr.appendChild(tdName);
-
-const tdClass = document.createElement("td");
-tdClass.textContent = p.class || "—";
-tr.appendChild(tdClass);
-
-const tdActions = document.createElement("td");
-const btnEdit = document.createElement("button");
-btnEdit.className = "small";
-btnEdit.textContent = "Edit";
-btnEdit.onclick = ()=> openEditModal(p.card_uid);
-tdActions.appendChild(btnEdit);
-tr.appendChild(tdActions);
-
-pendingTable.appendChild(tr);
-});
+  clearNode(pendingTable);
+  items.forEach(p=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p.registeredStr || "—"}</td><td>${p.card_uid || "—"}</td><td>${p.student_name || "—"}</td><td>${p.class || "—"}</td><td><button class="small" onclick="openEditModal('${p.card_uid}')">Edit</button></td>`;
+    pendingTable.appendChild(tr);
+  });
 }
 
 /* ===========================
 USER ACTIONS
 =========================== */
-function reloadAll(){
-loadAndRender();
-}
-
-function printPage(){
-window.print();
-}
-
-function copyPresent(){
-const text = presentAll.map(p=> `${p.student_name}\t${p.class}\t${p.timeStr}`).join("\n");
-navigator.clipboard.writeText(text).then(()=>{
-showToast("Copied to clipboard ✅");
-}).catch(()=>{
-showToast("Copy failed ❌");
-});
-}
-
+function reloadAll(){ loadAndRender(); }
+function printPage(){ window.print(); }
+function copyPresent(){ navigator.clipboard.writeText(presentAll.map(p=> `${p.student_name}\t${p.class}\t${p.timeStr}`).join("\n")).then(()=>showToast("Copied ✅")).catch(()=>showToast("Copy failed ❌")); }
 function exportPresentCsv(){
-const headers = "Name,Class,Time\n";
-const rows = presentAll.map(p=> `"${p.student_name}","${p.class}","${p.timeStr}"`).join("\n");
-const csv = headers + rows;
-const blob = new Blob([csv], {type:"text/csv"});
-const url = URL.createObjectURL(blob);
-const a = document.createElement("a");
-a.href = url;
-a.download = `present_${new Date().toISOString().split("T")[0]}.csv`;
-a.click();
-URL.revokeObjectURL(url);
+  const csv = "Name,Class,Time\n" + presentAll.map(p=> `"${p.student_name}","${p.class}","${p.timeStr}"`).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `present_${new Date().toISOString().split("T")[0]}.csv`; a.click();
+}
+function toggleDebug(){ debugBox.classList.toggle("show"); }
+
+/* ===========================
+MODAL
+=========================== */
+function buildDefaultClassList(){ const out = []; for (let y = CLASS_DEFAULTS.yearStart; y <= CLASS_DEFAULTS.yearEnd; y++) for (const letter of CLASS_DEFAULTS.letters) out.push(`${y}${letter}`); return out; }
+
+function initModalClassDropdown(){
+  const opts = buildDefaultClassList();
+  clearNode(m_class);
+  const optBlank = document.createElement("option"); optBlank.value = ""; optBlank.textContent = "Select class"; m_class.appendChild(optBlank);
+  opts.forEach(v=>{ const opt = document.createElement("option"); opt.value = v; opt.textContent = v; m_class.appendChild(opt); });
+  const optCustom = document.createElement("option"); optCustom.value = CLASS_CUSTOM_VALUE; optCustom.textContent = "Other / custom…"; m_class.appendChild(optCustom);
+}
+initModalClassDropdown();
+m_class.addEventListener("change", ()=>{ m_class_custom.style.display = m_class.value === CLASS_CUSTOM_VALUE ? "block" : "none"; });
+
+function openRegisterModal(cardUid){
+  modalCardUid = (cardUid || "").trim(); modalMode = "register";
+  modalTitle.textContent = "Register card"; modalCurrentBox.style.display = "none";
+  m_card_uid.value = modalCardUid; m_student_email.value = MAP_DEFAULTS.student_email; m_student_name.value = ""; m_class.value = ""; m_class_custom.value = ""; m_class_custom.style.display = "none";
+  m_status.value = MAP_DEFAULTS.status; m_pin.value = ""; m_note.value = ""; m_mapped_by.value = operator.value || ""; m_schema.value = MAP_DEFAULTS.schema;
+  modalError.textContent = ""; mapModalOverlay.classList.add("show"); updateModalSubmitButton();
 }
 
-function toggleDebug(){
-debugBox.classList.toggle("show");
+function openEditModal(cardUid){
+  const row = mappingByCard[cardUid]; if (!row) return;
+  modalCardUid = cardUid; modalMode = "edit";
+  modalTitle.textContent = "Edit mapping"; modalCurrentBox.innerHTML = `<strong>Current:</strong> ${row.student_name || "—"} (${row.class || "—"}) | Status: ${row.status || "—"}`; modalCurrentBox.style.display = "block";
+  m_card_uid.value = cardUid; m_student_email.value = row.student_email || MAP_DEFAULTS.student_email; m_student_name.value = row.student_name || ""; m_class.value = row.class || ""; m_class_custom.value = ""; m_class_custom.style.display = "none";
+  m_status.value = row.status || MAP_DEFAULTS.status; m_pin.value = row.pin || ""; m_note.value = row.note || ""; m_mapped_by.value = operator.value || row.mapped_by || ""; m_schema.value = row.schema || MAP_DEFAULTS.schema;
+  modalError.textContent = ""; mapModalOverlay.classList.add("show"); updateModalSubmitButton();
+}
+
+function closeMapModal(){ mapModalOverlay.classList.remove("show"); modalCardUid = ""; }
+
+function updateModalSubmitButton(){
+  const isValid = m_card_uid.value.trim() && m_student_name.value.trim() && m_student_email.value.trim() && (m_class.value === CLASS_CUSTOM_VALUE ? m_class_custom.value.trim() : m_class.value.trim());
+  modalSubmitBtn.disabled = !isValid;
+}
+[m_card_uid, m_student_name, m_student_email, m_class, m_class_custom].forEach(el => { el.addEventListener("input", updateModalSubmitButton); el.addEventListener("change", updateModalSubmitButton); });
+
+async function submitMapModal(){
+  modalError.textContent = "";
+  const cardUid = m_card_uid.value.trim(), studentEmail = m_student_email.value.trim(), studentName = m_student_name.value.trim();
+  const classVal = m_class.value === CLASS_CUSTOM_VALUE ? m_class_custom.value.trim() : m_class.value.trim();
+  const status = m_status.value.trim(), pin = m_pin.value.trim(), note = m_note.value.trim(), mappedBy = m_mapped_by.value.trim(), schema = m_schema.value.trim();
+
+  if (!cardUid || !studentName || !studentEmail || !classVal){ modalError.textContent = "Card UID, student name, email, and class are required."; return; }
+
+  const d = new URLSearchParams();
+  d.append(MAP_ENTRY.card_uid, cardUid); d.append(MAP_ENTRY.student_email, studentEmail); d.append(MAP_ENTRY.student_name, studentName);
+  d.append(MAP_ENTRY.class, classVal); d.append(MAP_ENTRY.status, status); d.append(MAP_ENTRY.pin, pin);
+  d.append(MAP_ENTRY.note, note); d.append(MAP_ENTRY.mapped_by, mappedBy); d.append(MAP_ENTRY.schema, schema);
+
+  try {
+    await fetch(MAP_FORM_RESPONSE_URL, { method:"POST", mode:"no-cors", body:d });
+    upsertOptimisticMapping(cardUid, { card_uid: cardUid, student_email: studentEmail, student_name: studentName, class: classVal, status: status, pin: pin, note: note, mapped_by: mappedBy, schema: schema, _t: Date.now(), _savedAt: Date.now() });
+    addPendingRescan(cardUid, Date.now());
+    closeMapModal();
+    showToast(modalMode === "edit" ? "Updated ✅" : "Registered ✅");
+    setTimeout(()=>loadAndRender(), POST_SAVE_REFRESH_MS);
+  } catch(e){ modalError.textContent = `Error: ${e.message || e}`; }
 }
 
 /* ===========================
 EVENT LISTENERS
 =========================== */
 search.addEventListener("input", applyFiltersAndRender);
-classFilter.addEventListener("change", ()=>{
-savePrefStr("classFilter", classFilter.value);
-applyFiltersAndRender();
-});
-sortBy.addEventListener("change", ()=>{
-savePrefStr("sortBy", sortBy.value);
-applyFiltersAndRender();
-});
-todayOnly.addEventListener("change", ()=>{
-savePrefBool("todayOnly", todayOnly.checked);
-reloadAll();
-});
+classFilter.addEventListener("change", ()=>{ savePrefStr("classFilter", classFilter.value); applyFiltersAndRender(); });
+sortBy.addEventListener("change", ()=>{ savePrefStr("sortBy", sortBy.value); applyFiltersAndRender(); });
+todayOnly.addEventListener("change", ()=>{ savePrefBool("todayOnly", todayOnly.checked); reloadAll(); });
 
 /* ===========================
 INIT
 =========================== */
 loadAndRender();
-setInterval(loadAndRender, 10000); // poll every 10s
+setInterval(loadAndRender, 10000);
 </script>
 
 </body>
