@@ -134,6 +134,148 @@ color:var(--dark);
 }
 body.unknown .status{ color:var(--red-text); }
 
+/* ---------- REGISTER BUTTON ---------- */
+.register-btn{
+margin-top:16px;
+padding:14px 28px;
+border:none;
+border-radius:12px;
+background:var(--navy);
+color:#fff;
+font-family:inherit;
+font-size:18px;
+font-weight:800;
+cursor:pointer;
+transition:transform .15s ease, background .15s ease;
+}
+.register-btn:hover{
+background:#1a3d7a;
+transform:translateY(-2px);
+}
+
+/* ---------- MODAL ---------- */
+.modal-overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.75);
+display:none;
+align-items:center;
+justify-content:center;
+padding:20px;
+z-index:9999;
+}
+.modal-overlay.show{ display:flex; }
+
+.modal{
+background:var(--navy);
+border:1px solid rgba(255,255,255,0.25);
+border-radius:18px;
+width:min(480px, 95vw);
+overflow:hidden;
+}
+
+.modal-header{
+background:rgba(255,255,255,0.08);
+padding:16px 20px;
+border-bottom:1px solid rgba(255,255,255,0.15);
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.modal-header h2{
+margin:0;
+font-size:18px;
+font-weight:800;
+color:#fff;
+}
+
+.modal-close{
+background:transparent;
+border:1px solid rgba(255,255,255,0.3);
+color:#fff;
+padding:6px 12px;
+border-radius:8px;
+font-weight:700;
+cursor:pointer;
+}
+
+.modal-body{
+padding:20px;
+}
+
+.field{
+margin-bottom:16px;
+}
+
+.field label{
+display:block;
+font-size:12px;
+font-weight:800;
+text-transform:uppercase;
+margin-bottom:6px;
+color:rgba(255,255,255,0.7);
+}
+
+.field input, .field select{
+width:100%;
+padding:12px 14px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.25);
+background:rgba(255,255,255,0.1);
+color:#fff;
+font-family:inherit;
+font-weight:700;
+font-size:16px;
+}
+
+.field input::placeholder{
+color:rgba(255,255,255,0.4);
+}
+
+.field input[readonly]{
+background:rgba(255,255,255,0.05);
+opacity:0.7;
+}
+
+.modal-footer{
+padding:16px 20px;
+border-top:1px solid rgba(255,255,255,0.15);
+display:flex;
+gap:10px;
+justify-content:flex-end;
+}
+
+.modal-footer button{
+padding:12px 20px;
+border-radius:10px;
+border:none;
+font-weight:800;
+font-size:14px;
+cursor:pointer;
+}
+
+.btn-primary{
+background:var(--green-text);
+color:#fff;
+}
+
+.btn-secondary{
+background:rgba(255,255,255,0.1);
+color:#fff;
+border:1px solid rgba(255,255,255,0.25);
+}
+
+.modal-error{
+color:var(--red-text);
+background:var(--red-bg);
+padding:10px;
+border-radius:8px;
+font-weight:700;
+font-size:13px;
+margin-top:10px;
+}
+
 /* ============================================ */
 </style>
 </head>
@@ -151,8 +293,50 @@ body.unknown .status{ color:var(--red-text); }
 <div class="pill" id="pill">READY</div>
 <h1 class="status" id="status">SCAN YOUR CARD</h1>
 <div class="sub" id="message">Junior Club</div>
+<button class="register-btn" id="registerBtn" style="display:none;" onclick="openRegisterModal()">Register This Card</button>
 </div>
 </main>
+
+<!-- Registration Modal -->
+<div class="modal-overlay" id="registerModal">
+<div class="modal">
+<div class="modal-header">
+<h2>Register New Card</h2>
+<button class="modal-close" onclick="closeRegisterModal()">Cancel</button>
+</div>
+<div class="modal-body">
+<div class="field">
+<label>Card UID</label>
+<input type="text" id="regCardUid" readonly>
+</div>
+<div class="field">
+<label>Student Name *</label>
+<input type="text" id="regName" placeholder="First Last">
+</div>
+<div class="field">
+<label>Class *</label>
+<select id="regClass">
+<option value="">Select class</option>
+<option value="4A">4A</option><option value="4B">4B</option><option value="4C">4C</option>
+<option value="5A">5A</option><option value="5B">5B</option><option value="5C">5C</option>
+<option value="6A">6A</option><option value="6B">6B</option><option value="6C">6C</option>
+<option value="7A">7A</option><option value="7B">7B</option><option value="7C">7C</option>
+<option value="8A">8A</option><option value="8B">8B</option><option value="8C">8C</option>
+<option value="9A">9A</option><option value="9B">9B</option><option value="9C">9C</option>
+</select>
+</div>
+<div class="field">
+<label>Student Email</label>
+<input type="text" id="regEmail" value="student.vasteras@engelska.se">
+</div>
+<div id="regError"></div>
+</div>
+<div class="modal-footer">
+<button class="btn-secondary" onclick="closeRegisterModal()">Cancel</button>
+<button class="btn-primary" onclick="submitRegistration()">Register & Check In</button>
+</div>
+</div>
+</div>
 
 <footer>
 <div>Junior Club Portal</div>
@@ -194,6 +378,21 @@ const SCHEMA_VERSION="v3";
 const DEBOUNCE_MS=5000;
 const RESET_MS=2500;
 
+const MAP_FORM_URL =
+"https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
+
+const MAP_ENTRY = {
+card_uid: "entry.1712147498",
+student_email: "entry.1171642279",
+student_name: "entry.2022534068",
+class: "entry.1723675198",
+status: "entry.1124037588",
+pin: "entry.352224440",
+note: "entry.523442266",
+mapped_by: "entry.1680238241",
+schema: "entry.1809813215"
+};
+
 /* ================= LOCAL SYNC KEYS ================= */
 const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
 const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
@@ -206,6 +405,7 @@ let mappingLoaded=false;
 let stateByCard={};
 let buffer="",lastKeyTime=0;
 let lastScan={card:null,time:0};
+let pendingUnknownCard = null;
 
 /* mapping lookup so we can show student names */
 let mappingByCard={};
@@ -223,13 +423,16 @@ document.body.className="ready";
 pillEl.textContent="READY";
 statusEl.textContent="SCAN YOUR CARD";
 messageEl.textContent="Junior Club";
+document.getElementById("registerBtn").style.display="none";
+pendingUnknownCard = null;
 }
 
-function showState(css,label,msg){
+function showState(css,label,msg,showRegister=false){
 document.body.className=css;
 pillEl.textContent="LOGGED";
 statusEl.textContent=label;
 messageEl.textContent=msg;
+document.getElementById("registerBtn").style.display = showRegister ? "inline-block" : "none";
 }
 
 function firstNameFromStudentName(studentName){
@@ -418,8 +621,10 @@ lastScan={card,time:now};
 if(!knownActiveCards.has(card)){
 postAttendance(card,"UNKNOWN");
 recordLocalScan(card, "UNKNOWN", "", "");
-showState("unknown","PLEASE WAIT","Ask a staff member");
-return setTimeout(resetUI,RESET_MS);
+pendingUnknownCard = card;
+showState("unknown","NEW CARD","Click below to register", true);
+// Don't auto-reset - wait for registration or next scan
+return;
 }
 
 const next=(stateByCard[card]==="IN")?"OUT":"IN";
@@ -440,6 +645,90 @@ showState("out","GOODBYE", fn || "You're checked out");
 setTimeout(resetUI,RESET_MS);
 }
 });
+
+/* ================= REGISTRATION MODAL ================= */
+function openRegisterModal(){
+  if (!pendingUnknownCard) return;
+  document.getElementById("regCardUid").value = pendingUnknownCard;
+  document.getElementById("regName").value = "";
+  document.getElementById("regClass").value = "";
+  document.getElementById("regEmail").value = "student.vasteras@engelska.se";
+  document.getElementById("regError").innerHTML = "";
+  document.getElementById("registerModal").classList.add("show");
+  document.getElementById("regName").focus();
+}
+
+function closeRegisterModal(){
+  document.getElementById("registerModal").classList.remove("show");
+}
+
+function saveLocalRegistered(cardUid, rec){
+  try {
+    const raw = localStorage.getItem(LOCAL_REGISTERED_KEY);
+    const all = raw ? JSON.parse(raw) : {};
+    all[cardUid] = { ...rec, _savedAt: Date.now() };
+    localStorage.setItem(LOCAL_REGISTERED_KEY, JSON.stringify(all));
+    // Notify other tabs
+    localStorage.setItem("juniorclub_register_notify", String(Date.now()));
+    localStorage.removeItem("juniorclub_register_notify");
+  } catch {
+    /* ignore */
+  }
+}
+
+async function submitRegistration(){
+  const cardUid = document.getElementById("regCardUid").value.trim();
+  const name = document.getElementById("regName").value.trim();
+  const cls = document.getElementById("regClass").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const errorEl = document.getElementById("regError");
+  
+  if (!name || !cls){
+    errorEl.innerHTML = '<div class="modal-error">Name and Class are required.</div>';
+    return;
+  }
+  
+  // Post to Google Form
+  const d = new URLSearchParams();
+  d.append(MAP_ENTRY.card_uid, cardUid);
+  d.append(MAP_ENTRY.student_email, email);
+  d.append(MAP_ENTRY.student_name, name);
+  d.append(MAP_ENTRY.class, cls);
+  d.append(MAP_ENTRY.status, "active");
+  d.append(MAP_ENTRY.pin, "");
+  d.append(MAP_ENTRY.note, "Registered at scan");
+  d.append(MAP_ENTRY.mapped_by, "scan-page");
+  d.append(MAP_ENTRY.schema, SCHEMA_VERSION);
+  
+  fetch(MAP_FORM_URL, {method:"POST", mode:"no-cors", body:d});
+  
+  // Save to localStorage for instant recognition
+  const rec = {
+    card_uid: cardUid,
+    student_email: email,
+    student_name: name,
+    class: cls,
+    status: "active",
+    _savedAt: Date.now()
+  };
+  saveLocalRegistered(cardUid, rec);
+  
+  // Add to known cards immediately
+  mappingByCard[cardUid] = rec;
+  knownActiveCards.add(cardUid);
+  
+  // Check them in
+  stateByCard[cardUid] = "IN";
+  postAttendance(cardUid, "IN");
+  recordLocalScan(cardUid, "IN", name, cls);
+  
+  closeRegisterModal();
+  
+  // Show welcome
+  const firstName = name.split(/\s+/)[0] || name;
+  showState("in", "WELCOME", firstName);
+  setTimeout(resetUI, RESET_MS);
+}
 
 /* ================= INIT ================= */
 resetUI();
