@@ -108,10 +108,28 @@ tr:hover{background:rgba(255,255,255,0.03);}
 .toast{position:fixed;right:16px;bottom:16px;background:var(--green-bg);color:var(--green-text);border-radius:10px;padding:10px 14px;font-weight:800;font-size:13px;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .18s ease;z-index:10000;}
 .toast.show{opacity:1;transform:translateY(0);}
 
-@media print{header,.toolbar,.banner,.modal-overlay,.toast{display:none!important;}body{background:#fff;color:#000;}.card{border-color:#ccc;background:#fff;}}
+.pin-gate{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:10000;}
+.pin-gate.show{display:flex;}
+.pin-box{background:var(--card-solid);border:1px solid var(--border);border-radius:16px;padding:24px;width:min(400px,90vw);text-align:center;}
+.pin-box h2{margin:0 0 16px;font-size:20px;}
+.pin-box input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.1);color:#fff;font-size:18px;text-align:center;font-family:inherit;margin-bottom:12px;}
+.pin-box .error-msg{color:var(--red-bg);font-size:13px;font-weight:700;margin-bottom:10px;}
+
+@media print{header,.toolbar,.banner,.modal-overlay,.toast,.pin-gate{display:none!important;}body{background:#fff;color:#000;}.card{border-color:#ccc;background:#fff;}}
 </style>
 </head>
 <body>
+
+<div class="pin-gate" id="pinGate">
+<div class="pin-box">
+<h2>🔒 Staff Access</h2>
+<input type="password" id="pinInput" placeholder="Enter PIN" autocomplete="off">
+<div id="pinError"></div>
+<button class="primary" onclick="checkPin()">Enter</button>
+</div>
+</div>
+
+<div id="app" style="display:none;">
 
 <header>
 <div class="top">
@@ -123,6 +141,7 @@ tr:hover{background:rgba(255,255,255,0.03);}
 <input id="operator" placeholder="staff email">
 <button onclick="saveOperator()">Save</button>
 <button onclick="reloadAll()">Refresh</button>
+<button onclick="logout()">🔒 Logout</button>
 </div>
 </div>
 
@@ -200,6 +219,8 @@ tr:hover{background:rgba(255,255,255,0.03);}
 
 </main>
 
+</div><!-- end app -->
+
 <div class="banner" id="banner">
 <div><strong id="bannerTitle">⚠️ Data delay</strong> <span class="hint" id="bannerMsg">—</span></div>
 <button onclick="hideBanner()">Dismiss</button>
@@ -241,6 +262,8 @@ const MAP_FORM_RESPONSE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEg
 const MAP_ENTRY = { card_uid:"entry.1712147498", student_email:"entry.1171642279", student_name:"entry.2022534068", class:"entry.1723675198", status:"entry.1124037588", pin:"entry.352224440", note:"entry.523442266", mapped_by:"entry.1680238241", schema:"entry.1809813215" };
 const SCHEMA = "v3";
 const JUST_LEFT_MS = 5 * 60 * 1000;
+const STAFF_PIN = "1234";
+const PIN_STORAGE_KEY = "juniorclub_staff_pin_ok";
 const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
 const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
 const LOCAL_REGISTERED_KEY = "juniorclub_local_registered_v1";
@@ -253,6 +276,40 @@ let mappingByCard = {}, presentAll = [], unknownAll = [], pendingRescan = {}, ju
 let lastAcceptedLatestAttTs = 0, lastAcceptedAttRows = 0;
 let lastAcceptedLatestMapTs = 0, lastAcceptedMapRows = 0;
 let modalMode = "new", editCardOriginal = null;
+let autoLogoutTimer = null;
+
+function resetAutoLogout(){
+  if(autoLogoutTimer) clearTimeout(autoLogoutTimer);
+  autoLogoutTimer = setTimeout(() => {
+    localStorage.removeItem(PIN_STORAGE_KEY);
+    location.reload();
+  }, 2 * 60 * 1000);
+}
+
+function checkPin(){
+  const input = document.getElementById("pinInput").value.trim();
+  if(input === STAFF_PIN){ 
+    localStorage.setItem(PIN_STORAGE_KEY, "1"); 
+    document.getElementById("pinGate").style.display = "none"; 
+    document.getElementById("app").style.display = "block"; 
+    resetAutoLogout();
+    initApp(); 
+  }
+  else { document.getElementById("pinError").innerHTML = '<div class="error-msg">Incorrect PIN.</div>'; }
+}
+
+function logout(){ 
+  if(confirm("Logout?")){ 
+    localStorage.removeItem(PIN_STORAGE_KEY); 
+    location.reload(); 
+  } 
+}
+
+document.getElementById("pinInput")?.addEventListener("keydown", e => { if(e.key === "Enter") checkPin(); });
+
+["click","keydown","touchstart","scroll"].forEach(evt => {
+  document.addEventListener(evt, resetAutoLogout, { passive: true });
+});
 
 function loadLocalScans(){ try { const raw = localStorage.getItem(LOCAL_SCANS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
 function loadLocalMapping(){ try { const raw = localStorage.getItem(LOCAL_MAPPING_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
@@ -583,11 +640,23 @@ document.getElementById("classFilter").addEventListener("change", () => renderPr
 document.getElementById("sortBy").addEventListener("change", () => renderPresent(presentAll));
 document.getElementById("todayOnly").addEventListener("change", loadAndRender);
 
-populateClassFilter();
-populateModalClass();
-loadOperator();
-loadAndRender();
-setInterval(loadAndRender, 5000);
+function initApp(){
+  populateClassFilter();
+  populateModalClass();
+  loadOperator();
+  loadAndRender();
+  setInterval(loadAndRender, 5000);
+}
+
+// PIN gate check on load
+if(localStorage.getItem(PIN_STORAGE_KEY) === "1"){ 
+  document.getElementById("pinGate").style.display = "none"; 
+  document.getElementById("app").style.display = "block"; 
+  resetAutoLogout();
+  initApp();
+} else { 
+  document.getElementById("pinGate").style.display = "flex"; 
+}
 </script>
 </body>
 </html>
