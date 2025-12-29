@@ -222,17 +222,42 @@ const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
 const LOCAL_REGISTERED_KEY = "juniorclub_local_registered_v1";
 
 let students = [], attendanceState = {}, tempStudents = [], operator = "", localOverrides = {}, justLeftStudents = [];
+let autoLogoutTimer = null;
+
+function resetAutoLogout(){
+  if(autoLogoutTimer) clearTimeout(autoLogoutTimer);
+  autoLogoutTimer = setTimeout(() => {
+    localStorage.removeItem(PIN_STORAGE_KEY);
+    location.reload();
+  }, 2 * 60 * 1000); // 2 minutes
+}
 
 function checkPin(){
   const input = document.getElementById("pinInput").value.trim();
-  if(input === STAFF_PIN){ localStorage.setItem(PIN_STORAGE_KEY, "1"); document.getElementById("pinGate").style.display = "none"; document.getElementById("app").style.display = "flex"; init(); }
+  if(input === STAFF_PIN){ 
+    localStorage.setItem(PIN_STORAGE_KEY, "1"); 
+    document.getElementById("pinGate").style.display = "none"; 
+    document.getElementById("app").style.display = "flex"; 
+    resetAutoLogout();
+    init(); 
+  }
   else { document.getElementById("pinError").innerHTML = '<div class="error-msg">Incorrect PIN.</div>'; }
 }
 
 function logout(){ if(confirm("Logout?")){ localStorage.removeItem(PIN_STORAGE_KEY); location.reload(); } }
 
-if(localStorage.getItem(PIN_STORAGE_KEY) === "1"){ document.getElementById("pinGate").style.display = "none"; document.getElementById("app").style.display = "flex"; document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", init) : init(); }
+if(localStorage.getItem(PIN_STORAGE_KEY) === "1"){ 
+  document.getElementById("pinGate").style.display = "none"; 
+  document.getElementById("app").style.display = "flex"; 
+  document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", init) : init(); 
+  resetAutoLogout();
+}
 else { document.getElementById("pinGate").style.display = "flex"; }
+
+// Reset auto logout on any activity
+["click","keydown","touchstart","scroll"].forEach(evt => {
+  document.addEventListener(evt, resetAutoLogout, { passive: true });
+});
 
 document.getElementById("pinInput")?.addEventListener("keydown", e => { if(e.key === "Enter") checkPin(); });
 
