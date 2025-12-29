@@ -423,6 +423,8 @@ const MAPPING_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb
 const ATT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 const DEVICE_ID = "Manual-Override", CLUB_ID = "IESV_JuniorClub", SCHEMA_VERSION = "v3";
 const TEMP_STORAGE_KEY = "juniorclub_temp_students", OPERATOR_STORAGE_KEY = "juniorclub_operator", PIN_STORAGE_KEY = "juniorclub_manual_pin_ok", LOCAL_OVERRIDES_KEY = "juniorclub_local_overrides";
+const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
+const LOCAL_REGISTERED_KEY = "juniorclub_local_registered_v1";
 
 let students = [], attendanceState = {}, tempStudents = [], operator = "", localOverrides = {};
 
@@ -453,6 +455,21 @@ function loadLocalOverrides(){ try{ const raw = localStorage.getItem(LOCAL_OVERR
 function saveLocalOverride(card, state){ localOverrides[card] = {state, timestamp: Date.now()}; try{ localStorage.setItem(LOCAL_OVERRIDES_KEY, JSON.stringify(localOverrides)); }catch{} }
 function clearOldOverrides(){ const now = Date.now(); Object.keys(localOverrides).forEach(card => { if(now - localOverrides[card].timestamp > 300000) delete localOverrides[card]; }); try{ localStorage.setItem(LOCAL_OVERRIDES_KEY, JSON.stringify(localOverrides)); }catch{} }
 
+function loadLocalScans(){ try { const raw = localStorage.getItem(LOCAL_SCANS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+function loadLocalRegistered(){ try { const raw = localStorage.getItem(LOCAL_REGISTERED_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+
+function recordLocalScan(card, event, studentName, studentClass){
+  const scans = loadLocalScans();
+  const now = Date.now();
+  const cutoff = now - (24 * 60 * 60 * 1000);
+  for (const [key, scan] of Object.entries(scans)){ if (scan.timestamp < cutoff) delete scans[key]; }
+  scans[card] = { card_uid: card, event: event, timestamp: now, student_name: studentName || "", class: studentClass || "" };
+  try { localStorage.setItem(LOCAL_SCANS_KEY, JSON.stringify(scans)); } catch {}
+  // Notify other tabs
+  localStorage.setItem("juniorclub_scan_notify", JSON.stringify({ card, event, timestamp: now }));
+  localStorage.removeItem("juniorclub_scan_notify");
+}
+
 function loadTempStudents(){ try{ const raw = localStorage.getItem(TEMP_STORAGE_KEY); if(!raw) return []; const data = JSON.parse(raw), unique = {}; data.forEach(t => unique[t.card_uid] = t); return Object.values(unique); }catch{ return []; } }
 function saveTempStudents(arr){ try{ const unique = {}; arr.forEach(t => unique[t.card_uid] = t); localStorage.setItem(TEMP_STORAGE_KEY, JSON.stringify(Object.values(unique))); }catch{} }
 
@@ -467,6 +484,15 @@ async function loadMapping(){
     const csv = await fetch(MAPPING_CSV_URL, {cache:"no-store"}).then(r => r.text());
     const rows = parseCSV(csv);
     const mapped = rows.filter(r => r.card_uid && r.status === "active" && r.student_name).map(r => ({ card_uid: r.card_uid, student_name: r.student_name.trim(), class: r.class || "", temp: false }));
+    
+    // Merge locally registered cards
+    const localRegistered = loadLocalRegistered();
+    for (const [card, rec] of Object.entries(localRegistered)){
+      if (rec.status === "active" && !mapped.find(m => m.card_uid === card)){
+        mapped.push({ card_uid: card, student_name: (rec.student_name || "").trim(), class: rec.class || "", temp: false });
+      }
+    }
+    
     const temps = tempStudents.map(t => ({ card_uid: t.card_uid, student_name: t.student_name, class: t.class, temp: true, note: t.note }));
     students = [...mapped, ...temps];
     students.sort((a,b) => a.student_name.localeCompare(b.student_name));
@@ -478,6 +504,17 @@ async function loadAttendance(){
     const csv = await fetch(ATT_CSV_URL, {cache:"no-store"}).then(r => r.text());
     const rows = parseCSV(csv), latest = {};
     rows.forEach(r => { if(!r.card_uid || (r.event !== "IN" && r.event !== "OUT")) return; const t = parseEU(r.Timestamp); if(!latest[r.card_uid] || t > latest[r.card_uid].t) latest[r.card_uid] = { event: r.event, t }; });
+    
+    // Merge local scans (from index.html) - local takes priority if newer
+    const localScans = loadLocalScans();
+    for (const [card, scan] of Object.entries(localScans)){
+      if (scan.event !== "IN" && scan.event !== "OUT") continue;
+      const existing = latest[card];
+      if (!existing || scan.timestamp > existing.t){
+        latest[card] = { event: scan.event, t: scan.timestamp };
+      }
+    }
+    
     attendanceState = {}; Object.entries(latest).forEach(([card, data]) => { attendanceState[card] = data.event; });
     clearOldOverrides(); Object.entries(localOverrides).forEach(([card, override]) => { attendanceState[card] = override.state; });
   }catch(e){ showToast("Failed to load attendance: " + e.message, true); }
@@ -498,6 +535,11 @@ function postAttendance(card, event, note = ""){
   d.append(ATT.card_uid, card); d.append(ATT.event, event); d.append(ATT.device_id, DEVICE_ID); d.append(ATT.method, "MANUAL");
   d.append(ATT.operator, operator); d.append(ATT.note, note); d.append(ATT.club_id, CLUB_ID); d.append(ATT.schema_version, SCHEMA_VERSION);
   fetch(ATT_FORM_URL, {method:"POST", mode:"no-cors", body:d});
+  
+  // Record to localStorage for instant sync with other pages
+  const student = students.find(s => s.card_uid === card);
+  recordLocalScan(card, event, student?.student_name || "", student?.class || "");
+  
   attendanceState[card] = event; saveLocalOverride(card, event); renderTable(); updateStats();
 }
 
@@ -606,6 +648,13 @@ function initClassFilter(){
 
 document.getElementById("search")?.addEventListener("input", renderTable);
 document.getElementById("classFilter")?.addEventListener("change", renderTable);
+
+// Listen for scan events from other pages (index.html, staff.html)
+window.addEventListener("storage", (e) => {
+  if (e.key === "juniorclub_scan_notify" || e.key === "juniorclub_register_notify"){
+    reloadData();
+  }
+});
 
 async function init(){
   loadOperator();
