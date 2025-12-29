@@ -193,6 +193,12 @@ const CLUB_ID="IESV_JuniorClub";
 const SCHEMA_VERSION="v3";
 const DEBOUNCE_MS=5000;
 const RESET_MS=2500;
+
+/* ================= LOCAL SYNC KEYS ================= */
+const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
+const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
+const LOCAL_REGISTERED_KEY = "juniorclub_local_registered_v1";
+
 /* ====================================================== */
 
 let knownActiveCards=new Set();
@@ -201,7 +207,6 @@ let stateByCard={};
 let buffer="",lastKeyTime=0;
 let lastScan={card:null,time:0};
 
-/* NEW: mapping lookup so we can show student names */
 /* mapping lookup so we can show student names */
 let mappingByCard={};
 
@@ -266,12 +271,95 @@ if(!m) return 0;
 return new Date(+m[3],m[2]-1,+m[1],+m[4],+m[5],+m[6]).getTime();
 }
 
+/* ================= LOCAL STORAGE SYNC ================= */
+function loadLocalScans(){
+  try {
+    const raw = localStorage.getItem(LOCAL_SCANS_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalScans(scans){
+  try {
+    localStorage.setItem(LOCAL_SCANS_KEY, JSON.stringify(scans));
+  } catch {
+    /* ignore */
+  }
+}
+
+function saveLocalMapping(mapping){
+  try {
+    localStorage.setItem(LOCAL_MAPPING_KEY, JSON.stringify(mapping));
+  } catch {
+    /* ignore */
+  }
+}
+
+function loadLocalRegistered(){
+  try {
+    const raw = localStorage.getItem(LOCAL_REGISTERED_KEY);
+    if (!raw) return {};
+    const obj = JSON.parse(raw);
+    // Clean up entries older than 24 hours
+    const now = Date.now();
+    const cutoff = now - (24 * 60 * 60 * 1000);
+    for (const [card, rec] of Object.entries(obj)){
+      if (rec._savedAt < cutoff) delete obj[card];
+    }
+    return obj;
+  } catch {
+    return {};
+  }
+}
+
+function recordLocalScan(card, event, studentName, studentClass){
+  const scans = loadLocalScans();
+  const now = Date.now();
+  
+  // Clean up old scans (older than 24 hours)
+  const cutoff = now - (24 * 60 * 60 * 1000);
+  for (const [key, scan] of Object.entries(scans)){
+    if (scan.timestamp < cutoff) delete scans[key];
+  }
+  
+  // Record new scan
+  scans[card] = {
+    card_uid: card,
+    event: event,
+    timestamp: now,
+    student_name: studentName || "",
+    class: studentClass || ""
+  };
+  
+  saveLocalScans(scans);
+  
+  // Notify other tabs
+  localStorage.setItem("juniorclub_scan_notify", JSON.stringify({ card, event, timestamp: now }));
+  localStorage.removeItem("juniorclub_scan_notify");
+}
+
+/* ================= DATA LOADING ================= */
 async function loadMapping(){
 const csv=await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
 const rows=parseCSV(csv),latest={};
 rows.forEach(r=>r.card_uid&&(latest[r.card_uid]=r));
 
+// Merge locally registered cards (from staff.html)
+const localRegistered = loadLocalRegistered();
+for (const [card, rec] of Object.entries(localRegistered)){
+  if (!latest[card] && rec.status === "active"){
+    latest[card] = rec;
+  }
+}
+
 mappingByCard=latest;
+
+// Save mapping to localStorage for other pages
+saveLocalMapping(latest);
+
 knownActiveCards=new Set(
 Object.values(latest).filter(r=>r.status==="active").map(r=>r.card_uid)
 );
@@ -288,6 +376,18 @@ const t=parseEU(r.Timestamp);
 if(!latest[r.card_uid]||t>latest[r.card_uid].t)
 latest[r.card_uid]={event:r.event,t};
 });
+
+// Merge with local scans (local scans take priority if newer)
+const localScans = loadLocalScans();
+for (const [card, scan] of Object.entries(localScans)){
+  if (scan.event === "IN" || scan.event === "OUT"){
+    const existing = latest[card];
+    if (!existing || scan.timestamp > existing.t){
+      latest[card] = { event: scan.event, t: scan.timestamp };
+    }
+  }
+}
+
 stateByCard=Object.fromEntries(Object.entries(latest).map(([k,v])=>[k,v.event]));
 }
 
@@ -317,6 +417,7 @@ lastScan={card,time:now};
 
 if(!knownActiveCards.has(card)){
 postAttendance(card,"UNKNOWN");
+recordLocalScan(card, "UNKNOWN", "", "");
 showState("unknown","PLEASE WAIT","Ask a staff member");
 return setTimeout(resetUI,RESET_MS);
 }
@@ -325,12 +426,16 @@ const next=(stateByCard[card]==="IN")?"OUT":"IN";
 stateByCard[card]=next;
 postAttendance(card,next);
 
+const mapping = mappingByCard[card] || {};
 const fn=nameForCard(card);
 
+// Record to localStorage for instant sync
+recordLocalScan(card, next, mapping.student_name || "", mapping.class || "");
+
 if(next==="IN"){
-showState("in","WELCOME", fn || "You’re checked in");
+showState("in","WELCOME", fn || "You're checked in");
 }else{
-showState("out","GOODBYE", fn || "You’re checked out");
+showState("out","GOODBYE", fn || "You're checked out");
 }
 setTimeout(resetUI,RESET_MS);
 }
@@ -340,6 +445,14 @@ setTimeout(resetUI,RESET_MS);
 resetUI();
 loadMapping();
 loadLatestInOutState();
+
+// Listen for new card registrations from staff.html
+window.addEventListener("storage", (e) => {
+  if (e.key === "juniorclub_register_notify"){
+    // Reload mapping to pick up newly registered card
+    loadMapping();
+  }
+});
 </script>
 </body>
 </html>
