@@ -1,416 +1,179 @@
-<!-- /staff.html (v3.1 - localStorage instant sync) -->
+<!-- /staff.html (v3.2 - consistent blue design) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Junior Club – Staff</title>
-
 <link rel="icon" href="./ies.ico" type="image/x-icon">
-
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-
 <style>
 :root{
---navy:#102d69;
---bg:#f6f8fb;
---border:#d0d7e2;
---warn:#fff7b2;
---green:#0b6b2f;
---muted:#5b6b86;
---danger:#b00020;
+  --navy:#102d69;
+  --bg:#102d69;
+  --card:rgba(255,255,255,0.08);
+  --card-solid:#1a3a7a;
+  --text:#ffffff;
+  --muted:rgba(255,255,255,0.7);
+  --border:rgba(255,255,255,0.15);
+  --green-bg:#d9f2c7;
+  --green-text:#0b6b2f;
+  --red-bg:#ffd6d6;
+  --red-text:#b00020;
+  --yellow-bg:#fff3b0;
 }
 
-body{
-margin:0;
-font-family:"Open Sans",Arial,sans-serif;
-background: var(--bg);
-color:#102d69;
-}
+*{box-sizing:border-box;}
+body{margin:0;font-family:"Open Sans",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-header{
-background:var(--navy);
-color:#fff;
-padding:14px 18px;
-}
+header{background:var(--navy);color:#fff;padding:14px 18px;border-bottom:1px solid var(--border);}
+header .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+header .brandlink{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-weight:800;}
+header .brandlink img{height:34px;}
+header input,header select{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,0.1);color:#fff;font-family:inherit;}
+header input::placeholder{color:var(--muted);}
 
-header .top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:12px;
-flex-wrap:wrap;
-}
+header .meta{font-size:12px;margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.meta .pill{display:inline-block;background:rgba(255,255,255,0.12);padding:4px 8px;border-radius:999px;font-weight:700;border:1px solid var(--border);}
+.meta .warn{color:#000;background:#fff7b2;border-color:#f1dd6d;}
+.meta .live{color:#fff;background:var(--green-text);border-color:var(--green-text);}
 
-header .brandlink{
-display:flex;
-align-items:center;
-gap:10px;
-text-decoration:none;
-color:#fff;
-font-weight:800;
-}
-header .brandlink img{ height:34px; }
+.toolbar{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.toolbar .group{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
 
-header input, header select{
-padding:6px 8px;
-border-radius:6px;
-border:none;
-min-width:220px;
-}
+.toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.10);padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;user-select:none;}
 
-header .meta{
-font-size:12px;
-opacity:.95;
-margin-top:8px;
-display:flex;
-flex-wrap:wrap;
-gap: 10px;
-align-items:center;
-}
+button{background:rgba(255,255,255,0.12);color:#fff;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-weight:800;cursor:pointer;font-family:inherit;font-size:13px;}
+button:hover{background:rgba(255,255,255,0.2);}
+button.small{padding:5px 8px;font-size:12px;}
+button:disabled{opacity:0.5;cursor:not-allowed;}
+button.danger{color:var(--red-bg);}
 
-.meta .pill{
-display:inline-block;
-background:rgba(255,255,255,0.12);
-padding:4px 8px;
-border-radius:999px;
-font-weight:700;
-}
+main{max-width:1200px;margin:20px auto;padding:0 16px 80px;}
 
-.toolbar{
-margin-top:10px;
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-align-items:center;
-}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.card h2{margin:0 0 12px;font-size:16px;font-weight:800;}
 
-.toolbar .group{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-align-items:center;
-}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+.stat{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 16px;min-width:100px;}
+.stat-label{font-size:11px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.stat-value{font-size:28px;font-weight:800;}
+.stat.in .stat-value{color:var(--green-bg);}
+.stat.out .stat-value{color:var(--red-bg);}
 
-.toggle{
-display:flex;
-align-items: center;
-gap:6px;
-background:rgba(255,255,255,0.10);
-padding:6px 10px;
-border-radius:999px;
-font-weight:700;
-font-size:12px;
-user-select:none;
-}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;}
+th{font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:800;}
+tr:hover{background:rgba(255,255,255,0.03);}
 
-.toggle input{ min-width:auto; }
+.grid{display:grid;grid-template-columns:1fr;gap:16px;}
+@media(min-width:980px){.grid{grid-template-columns:1fr 1fr;}}
 
-button{
-background:var(--navy);
-color:#fff;
-border:none;
-padding:6px 10px;
-border-radius:6px;
-font-weight:800;
-cursor:pointer;
-}
+.status-in{color:var(--green-text);background:var(--green-bg);padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;}
+.status-out{color:var(--red-text);background:var(--red-bg);padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;}
 
-button.secondary{
-background:#fff;
-color: var(--navy);
-border:1px solid var(--border);
-}
+.section-title{margin:14px 0 8px;font-size:13px;font-weight:800;color:var(--muted);}
+.smallmuted{font-size:12px;color:var(--muted);}
 
-button.small{
-padding:5px 8px;
-font-size:12px;
-border-radius:6px;
-}
+.just-left-card{background:rgba(176,0,32,0.1);border:1px solid rgba(176,0,32,0.3);}
+.just-left-card h2{color:var(--red-bg);}
+.left-list{display:flex;flex-wrap:wrap;gap:8px;}
+.left-chip{background:rgba(176,0,32,0.2);border:1px solid rgba(176,0,32,0.3);padding:6px 12px;border-radius:8px;font-weight:700;font-size:13px;color:var(--red-bg);}
 
-button:disabled{
-opacity: 0.5;
-cursor:not-allowed;
-}
+.banner{position:fixed;left:12px;right:12px;bottom:12px;background:rgba(255,243,176,0.95);border:1px solid #f1dd6d;border-radius:10px;padding:8px 14px;display:none;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:9998;font-size:12px;color:#000;}
+.banner.show{display:flex;}
+.banner strong{color:#b00020;font-weight:800;}
+.banner .hint{color:#666;font-size:11px;}
+.banner button{padding:5px 10px;font-size:11px;background:#102d69;color:#fff;border:none;border-radius:6px;cursor:pointer;}
 
-main{
-max-width:1200px;
-margin:20px auto;
-padding:0 16px;
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:9999;}
+.modal-overlay.show{display:flex;}
+.modal{width:min(700px,96vw);background:var(--card-solid);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.modal-header{background:var(--navy);color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.modal-header .title{font-weight:800;}
+.modal-body{padding:14px;display:grid;gap:12px;}
+.modal-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:600px){.modal-grid{grid-template-columns:1fr 1fr;}}
+.field label{display:block;font-size:11px;font-weight:800;margin-bottom:4px;color:var(--muted);text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:14px;background:rgba(255,255,255,0.1);color:#fff;}
+.field input::placeholder{color:var(--muted);}
+.field textarea{min-height:70px;resize:vertical;}
+.field input[readonly]{background:rgba(255,255,255,0.05);opacity:0.7;}
+.modal-foot{padding:12px 14px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;}
+.modal-note{font-size:11px;color:var(--muted);}
+.modal-error{font-size:12px;color:var(--red-bg);font-weight:800;margin-left:10px;}
+.kv{font-size:12px;color:var(--muted);border:1px dashed var(--border);border-radius:8px;padding:8px;background:rgba(255,255,255,0.03);}
+.kv strong{color:#fff;}
 
-.card{
-background:#fff;
-border: 1px solid var(--border);
-border-radius:12px;
-padding:16px;
-margin-bottom:16px;
-}
+.toast{position:fixed;right:16px;bottom:16px;background:var(--green-bg);color:var(--green-text);border-radius:10px;padding:10px 14px;font-weight:800;font-size:13px;opacity:0;transform:translateY(10px);pointer-events:none;transition:all .18s ease;z-index:10000;}
+.toast.show{opacity:1;transform:translateY(0);}
 
-.big{
-font-size:48px;
-font-weight:800;
-color:var(--green);
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-th,td{
-padding:10px;
-border-bottom:1px solid var(--border);
-vertical-align:top;
-}
-
-tr.unknown{ background:var(--warn); }
-
-.grid{
-display:grid;
-grid-template-columns:1fr;
-gap:16px;
-}
-
-@media (min-width:980px){
-.grid{ grid-template-columns:1fr 1fr; }
-}
-
-.debug{
-display:none;
-font-size:12px;
-opacity:.85;
-color: var(--muted);
-}
-.debug.show{ display:block; }
-.toggle-debug{
-font-size:12px;
-cursor:pointer;
-opacity:.8;
-text-decoration:underline;
-}
-
-.smallmuted{ font-size:12px; opacity:.75; }
-
-.badge-warn{ color:#000; background:var(--warn); border-radius:999px; padding:2px 8px; font-weight:800; }
-.badge-danger{ color:#fff; background:var(--danger); border-radius:999px; padding:2px 8px; font-weight:800; }
-.badge-live{ color:#fff; background:var(--green); border-radius:999px; padding:2px 8px; font-weight:800; }
-
-.section-title{
-margin: 14px 0 8px;
-font-size: 14px;
-font-weight:800;
-color:var(--navy);
-}
-
-@media print{
-header, .toggle-debug, #debugBox, #unknownCardHelp, #mapModalOverlay, #toast { display:none !important; }
-body{ background:#fff; }
-.card{ border:none; }
-}
-
-.modal-overlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.45);
-display:none;
-align-items:center;
-justify-content:center;
-padding:16px;
-z-index:9999;
-}
-.modal-overlay.show{ display:flex; }
-
-.modal{
-width:min(780px, 96vw);
-background:#fff;
-border:1px solid var(--border);
-border-radius:14px;
-overflow:hidden;
-box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-}
-
-.modal-header{
-background:var(--navy);
-color:#fff;
-padding:12px 14px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-}
-
-.modal-header .title{
-font-weight:800;
-}
-
-.modal-body{
-padding:14px;
-display:grid;
-gap:12px;
-}
-
-.modal-grid{
-display:grid;
-grid-template-columns:1fr;
-gap:12px;
-}
-
-@media (min-width:900px){
-.modal-grid{ grid-template-columns:1fr 1fr; }
-}
-
-.field label{
-display:block;
-font-size:12px;
-font-weight:800;
-margin-bottom:4px;
-color:var(--muted);
-}
-
-.field input, .field select, .field textarea{
-width:100%;
-border:1px solid var(--border);
-border-radius:8px;
-padding:8px 10px;
-font-family: inherit;
-font-size:14px;
-}
-
-.field textarea{
-min-height:90px;
-resize:vertical;
-}
-
-.field input[readonly]{
-background:#f3f5f9;
-}
-
-.modal-foot{
-padding:12px 14px;
-border-top:1px solid var(--border);
-display:flex;
-flex-wrap:wrap;
-gap: 10px;
-justify-content:space-between;
-align-items: center;
-}
-
-.modal-note{
-font-size:12px;
-color:var(--muted);
-line-height:1.3;
-}
-
-.modal-error{
-font-size:12px;
-color:var(--danger);
-font-weight:800;
-}
-
-.kv{
-font-size:12px;
-color:var(--muted);
-border: 1px dashed var(--border);
-border-radius:10px;
-padding:10px;
-background:#fafbfe;
-}
-.kv strong{ color:#102d69; }
-
-.toast{
-position:fixed;
-right:16px;
-bottom:16px;
-background:#fff;
-border:1px solid var(--border);
-border-radius:12px;
-padding:10px 12px;
-box-shadow:0 12px 40px rgba(0,0,0,0.18);
-font-weight:800;
-color:var(--navy);
-opacity: 0;
-transform:translateY(10px);
-pointer-events:none;
-transition: opacity .18s ease, transform .18s ease;
-z-index:10000;
-}
-.toast.show{
-opacity:1;
-transform:translateY(0);
-}
+@media print{header,.toolbar,.banner,.modal-overlay,.toast{display:none!important;}body{background:#fff;color:#000;}.card{border-color:#ccc;background:#fff;}}
 </style>
 </head>
-
 <body>
 
 <header>
 <div class="top">
-<a class="brandlink" href="./index.html" aria-label="Back to scan page" title="Scan page">
+<a class="brandlink" href="./index.html" title="Scan page">
 <img src="./logo-negative.png" alt="IES Logo">
 <span>Junior Club – Staff</span>
 </a>
-
 <div class="group">
 <input id="operator" placeholder="staff email">
 <button onclick="saveOperator()">Save</button>
-<button class="secondary" onclick="reloadAll()">Refresh</button>
+<button onclick="reloadAll()">Refresh</button>
 </div>
 </div>
 
 <div class="meta">
-<span class="pill" id="updateStatus">Last updated: —</span>
-<span class="pill badge-live" id="liveStatus">⚡ Live sync</span>
-<span class="pill" id="health">Data: —</span>
-<span class="pill" id="stale">Stale: —</span>
-<span class="pill badge-warn" id="cacheWarn" style="display:none;">⚠️ Google cache served an older snapshot</span>
+<span class="pill" id="updateStatus">Updated: —</span>
+<span class="pill live" id="liveStatus">⚡ Live sync</span>
+<span class="pill" id="staleStatus">Stale: —</span>
 </div>
 
 <div class="toolbar">
 <div class="group">
-<label class="toggle" title="Limits attendance view to scans from today (local time).">
-<input type="checkbox" id="todayOnly">
-Today-only
-</label>
+<label class="toggle"><input type="checkbox" id="todayOnly" checked> Today only</label>
 </div>
-
 <div class="group">
-<input id="search" placeholder="search name / class / card" style="min-width:260px;">
-<select id="classFilter" title="Filter by class" style="min-width:180px;">
-<option value="">All classes</option>
-</select>
-<select id="sortBy" title="Sort present list" style="min-width:200px;">
-<option value="time_desc">Sort: Latest time</option>
-<option value="name_asc">Sort: Name (A–Z)</option>
-<option value="class_asc">Sort: Class (A–Z)</option>
+<input id="search" placeholder="search name / class / card" style="min-width:200px;">
+<select id="classFilter"><option value="">All classes</option></select>
+<select id="sortBy">
+<option value="time_desc">Sort: Latest</option>
+<option value="name_asc">Sort: Name A–Z</option>
+<option value="class_asc">Sort: Class</option>
 </select>
 </div>
-
 <div class="group">
-<button class="secondary" onclick="printPage()">Print</button>
-<button class="secondary" onclick="copyPresent()">Copy list</button>
-<button class="secondary" onclick="exportPresentCsv()">Export CSV</button>
-<button class="secondary" onclick="syncFromSheets()">Sync from Sheets</button>
-<button class="secondary" onclick="clearAllLocalData()" style="color:var(--danger);">Clear Local Data</button>
+<button onclick="printPage()">Print</button>
+<button onclick="copyPresent()">Copy</button>
+<button onclick="exportPresentCsv()">CSV</button>
+<button onclick="syncFromSheets()">Sync Sheets</button>
+<button class="danger" onclick="clearAllLocalData()">Clear Local</button>
 </div>
 </div>
 </header>
 
 <main>
 
-<div class="card">
-<h2>Currently Present</h2>
-<div class="big" id="presentCount">0</div>
-<div class="smallmuted">Latest scan per card (event = IN, mapping status = active)</div>
+<div class="stats">
+<div class="stat in"><div class="stat-label">Present</div><div class="stat-value" id="presentCount">0</div></div>
+<div class="stat out"><div class="stat-label">Out</div><div class="stat-value" id="outCount">0</div></div>
+<div class="stat"><div class="stat-label">Total</div><div class="stat-value" id="totalCount">0</div></div>
+</div>
+
+<div class="card just-left-card" id="justLeftCard" style="display:none;">
+<h2>Just left (last 5 minutes)</h2>
+<div class="left-list" id="justLeftList"></div>
 </div>
 
 <div class="grid">
-
 <div>
 <div class="card">
 <h2>Who's Here Now</h2>
 <table>
-<thead><tr><th>Name</th><th>Class</th><th>Time (Latest IN)</th><th>Actions</th></tr></thead>
+<thead><tr><th>Name</th><th>Class</th><th>Time</th><th>Actions</th></tr></thead>
 <tbody id="presentTable"></tbody>
 </table>
 </div>
@@ -419,43 +182,34 @@ Today-only
 <div>
 <div class="card">
 <h2>Unknown Cards</h2>
-<div class="smallmuted" id="unknownCardHelp">Tip: Use <strong>Register</strong> to add the card to the mapping table.</div>
-
+<div class="smallmuted">Click Register to add a card.</div>
 <div class="section-title">Unknown (unmapped)</div>
 <table>
 <thead><tr><th>Time</th><th>Card</th><th>Actions</th></tr></thead>
 <tbody id="unknownTable"></tbody>
 </table>
-
-<div class="section-title">Registered (awaiting rescan)</div>
-<div class="smallmuted">After registering, the student must scan again to check in.</div>
+<div class="section-title">Pending rescan</div>
+<div class="smallmuted">Registered but needs to scan again.</div>
 <table>
-<thead><tr><th>Registered</th><th>Card</th><th>Name</th><th>Class</th><th>Actions</th></tr></thead>
+<thead><tr><th>Registered</th><th>Card</th><th>Name</th><th>Class</th><th></th></tr></thead>
 <tbody id="pendingTable"></tbody>
 </table>
 </div>
-</div>
-
-</div>
-
-<div class="card">
-<div class="toggle-debug" onclick="toggleDebug()">Show diagnostics</div>
-<div class="debug" id="debugBox">
-Attendance rows: <span id="dbgAttRows">—</span><br>
-Mapping rows: <span id="dbgMapRows">—</span><br>
-Local scans: <span id="dbgLocalScans">—</span><br>
-Latest attendance timestamp: <span id="dbgLatestAttTs">—</span><br>
-Last error: <span id="dbgError">—</span>
 </div>
 </div>
 
 </main>
 
+<div class="banner" id="banner">
+<div><strong id="bannerTitle">⚠️ Data delay</strong> <span class="hint" id="bannerMsg">—</span></div>
+<button onclick="hideBanner()">Dismiss</button>
+</div>
+
 <div class="modal-overlay" id="mapModalOverlay">
 <div class="modal">
 <div class="modal-header">
 <div class="title" id="modalTitle">Register card</div>
-<button class="secondary small" onclick="closeMapModal()">Close</button>
+<button class="small" onclick="closeMapModal()">Close</button>
 </div>
 <div class="modal-body">
 <div class="kv" id="modalCurrentBox" style="display:none;"></div>
@@ -463,7 +217,7 @@ Last error: <span id="dbgError">—</span>
 <div class="field"><label>Card UID</label><input id="m_card_uid" readonly></div>
 <div class="field"><label>Student email</label><input id="m_student_email" placeholder="student.vasteras@engelska.se"></div>
 <div class="field"><label>Student name</label><input id="m_student_name" placeholder="First Last"></div>
-<div class="field"><label>Class</label><select id="m_class"></select><input id="m_class_custom" placeholder="Enter class" style="margin-top:8px; display:none;"></div>
+<div class="field"><label>Class</label><select id="m_class"></select></div>
 <div class="field"><label>Status</label><select id="m_status"><option value="active">active</option><option value="inactive">inactive</option><option value="lost">lost</option></select></div>
 <div class="field"><label>PIN</label><input id="m_pin" placeholder="optional"></div>
 <div class="field" style="grid-column:1/-1;"><label>Note</label><textarea id="m_note" placeholder="optional"></textarea></div>
@@ -473,7 +227,7 @@ Last error: <span id="dbgError">—</span>
 </div>
 <div class="modal-foot">
 <div><button id="modalSubmitBtn" onclick="submitMapModal()">Save</button><span class="modal-error" id="modalError"></span></div>
-<div class="modal-note">Saves via Google Form. It can take 10–60 seconds to appear in the published CSV.</div>
+<div class="modal-note">Saves to Google Sheets.</div>
 </div>
 </div>
 </div>
@@ -481,598 +235,359 @@ Last error: <span id="dbgError">—</span>
 <div class="toast" id="toast">Saved ✅</div>
 
 <script>
-/* ===========================
-CONFIG
-=========================== */
-const ATT_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
-const MAP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+const ATT_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+const MAP_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 const MAP_FORM_RESPONSE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfzE9xEgS_MibTe-ZmcncKs617SxMauPRAMWZIZlsJoQG6qAQ/formResponse";
-
-const MAP_ENTRY = {
-  card_uid: "entry.1712147498",
-  student_email: "entry.1171642279",
-  student_name: "entry.2022534068",
-  class: "entry.1723675198",
-  status: "entry.1124037588",
-  pin: "entry.352224440",
-  note: "entry.523442266",
-  mapped_by: "entry.1680238241",
-  schema: "entry.1809813215"
-};
-
-const MAP_DEFAULTS = { student_email: "student.vasteras@engelska.se", status: "active", schema: "v3" };
-const STALE_WARN_MINUTES = 5;
-const CLASS_DEFAULTS = { yearStart: 4, yearEnd: 9, letters: ["A", "B", "C"] };
-const CLASS_CUSTOM_VALUE = "__CUSTOM__";
-const POST_SAVE_REFRESH_MS = 20000;
-const OPTIMISTIC_MAP_KEY = "juniorclub_optimistic_mapping_v1";
-const OPTIMISTIC_TTL_MS = 24 * 60 * 60 * 1000;
-const PENDING_RESCAN_KEY = "juniorclub_pending_rescan_v1";
-const PENDING_RESCAN_TTL_MS = 24 * 60 * 60 * 1000;
-const PENDING_AUTO_HIDE_MS = 60 * 60 * 1000;
-
+const MAP_ENTRY = { card_uid:"entry.1712147498", student_email:"entry.1171642279", student_name:"entry.2022534068", class:"entry.1723675198", status:"entry.1124037588", pin:"entry.352224440", note:"entry.523442266", mapped_by:"entry.1680238241", schema:"entry.1809813215" };
+const SCHEMA = "v3";
+const JUST_LEFT_MS = 5 * 60 * 1000;
 const LOCAL_SCANS_KEY = "juniorclub_local_scans_v1";
 const LOCAL_MAPPING_KEY = "juniorclub_local_mapping_v1";
 const LOCAL_REGISTERED_KEY = "juniorclub_local_registered_v1";
+const OPTIMISTIC_MAP_KEY = "juniorclub_optimistic_map_v1";
+const PENDING_RESCAN_KEY = "juniorclub_pending_rescan_v1";
+const OPERATOR_KEY = "juniorclub_staff_operator";
+const CLASSES = ["4A","4B","4C","5A","5B","5C","6A","6B","6C","7A","7B","7C","8A","8B","8C","9A","9B","9C"];
 
-/* ===========================
-STATE
-=========================== */
-let lastRefresh = 0, timer = null, lastError = "—", lastSyncAt = 0;
+let mappingByCard = {}, presentAll = [], unknownAll = [], pendingRescan = {}, justLeftAll = [];
 let lastAcceptedLatestAttTs = 0, lastAcceptedAttRows = 0;
 let lastAcceptedLatestMapTs = 0, lastAcceptedMapRows = 0;
-let presentAll = [], unknownAll = [], pendingAll = [];
-let mappingByCard = {};
-let modalCardUid = "", modalMode = "register";
+let modalMode = "new", editCardOriginal = null;
 
-/* ===========================
-OPERATOR
-=========================== */
-function saveOperator(){ localStorage.setItem("op", operator.value); }
-operator.value = localStorage.getItem("op") || "";
-
-/* ===========================
-PREFERENCES
-=========================== */
-function loadPrefBool(key, fallback){ const v = localStorage.getItem(key); return v === null ? fallback : v === "1"; }
-function savePrefBool(key, value){ localStorage.setItem(key, value ? "1" : "0"); }
-function loadPrefStr(key, fallback){ const v = localStorage.getItem(key); return v === null ? fallback : v; }
-function savePrefStr(key, value){ localStorage.setItem(key, value); }
-
-todayOnly.checked = loadPrefBool("todayOnly", true);
-search.value = loadPrefStr("search", "");
-sortBy.value = loadPrefStr("sortBy", "time_desc");
-classFilter.value = loadPrefStr("classFilter", "");
-
-/* ===========================
-UTILITIES
-=========================== */
-function fmtTime(ts){ return ts ? new Date(ts).toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}) : "—"; }
-function fmtLocal(ts){ return ts ? new Date(ts).toLocaleString("sv-SE") : ""; }
-function clearNode(node){ while (node.firstChild) node.removeChild(node.firstChild); }
-function normalizeStr(s){ return (s || "").toString().trim().toLowerCase(); }
-
-function startTimer(){
-  if(timer) clearInterval(timer);
-  timer = setInterval(()=>{
-    if(!lastRefresh) return;
-    const s = Math.floor((Date.now() - lastRefresh)/1000);
-    updateStatus.textContent = `Last updated: ${s}s ago`;
-  },1000);
-}
-
-function setHealth(mappingOk, attendanceOk){
-  const m = mappingOk ? "✅" : "⏳";
-  const a = attendanceOk ? "✅" : "⏳";
-  health.textContent = `Data: mapping ${m} attendance ${a}`;
-}
-
-function setStale(latestAttTs){
-  if(!latestAttTs){ stale.textContent = "Stale: —"; return; }
-  const mins = Math.max(0, Math.floor((Date.now() - latestAttTs) / 60000));
-  stale.textContent = mins >= STALE_WARN_MINUTES ? `Stale: ${mins}m ⚠️` : `Stale: ${mins}m`;
-  stale.className = "pill" + (mins >= STALE_WARN_MINUTES ? " badge-warn" : "");
-}
-
-function showCacheWarn(show){ cacheWarn.style.display = show ? "inline-block" : "none"; }
-
-function showToast(message){
-  toast.textContent = message;
-  toast.classList.add("show");
-  setTimeout(()=>toast.classList.remove("show"), 3200);
-}
-
-/* ===========================
-CSV PARSER
-=========================== */
-function parseCSV(text){
-  const rows = [];
-  let row = [], field = "", inQuotes = false;
-  const pushField = () => { row.push(field); field = ""; };
-  const pushRow = () => { if (!(row.length === 1 && row[0] === "" && rows.length === 0)) rows.push(row); row = []; };
-  const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  for (let i = 0; i < s.length; i++){
-    const c = s[i];
-    if (c === '"'){ const next = s[i + 1]; if (inQuotes && next === '"'){ field += '"'; i++; } else { inQuotes = !inQuotes; } continue; }
-    if (!inQuotes && c === ","){ pushField(); continue; }
-    if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
-    field += c;
-  }
-  pushField(); pushRow();
-  const headers = (rows.shift() || []).map(h => (h || "").trim());
-  return rows.filter(r => r.some(v => (v || "").trim() !== "")).map(r => { const o = {}; headers.forEach((h, idx) => (o[h] = (r[idx] ?? "").trim())); return o; });
-}
-
-function parseEU(ts){
-  if (!ts || typeof ts !== 'string') return 0;
-  const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
-  if (!m) return 0;
-  return new Date(parseInt(m[3],10), parseInt(m[2],10)-1, parseInt(m[1],10), parseInt(m[4],10), parseInt(m[5],10), parseInt(m[6],10)).getTime();
-}
-
-function startOfTodayLocalTs(){ const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
-
-/* ===========================
-LOCAL STORAGE SYNC
-=========================== */
 function loadLocalScans(){ try { const raw = localStorage.getItem(LOCAL_SCANS_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
 function loadLocalMapping(){ try { const raw = localStorage.getItem(LOCAL_MAPPING_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+function loadLocalRegistered(){ try { const raw = localStorage.getItem(LOCAL_REGISTERED_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+function saveLocalRegistered(cardUid, rec){ try { const all = loadLocalRegistered(); all[cardUid] = { ...rec, _savedAt: Date.now() }; localStorage.setItem(LOCAL_REGISTERED_KEY, JSON.stringify(all)); localStorage.setItem("juniorclub_register_notify", String(Date.now())); localStorage.removeItem("juniorclub_register_notify"); } catch {} }
+function loadOptimistic(){ try { const raw = localStorage.getItem(OPTIMISTIC_MAP_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+function saveOptimistic(data){ try { localStorage.setItem(OPTIMISTIC_MAP_KEY, JSON.stringify(data)); } catch {} }
+function loadPendingRescan(){ try { const raw = localStorage.getItem(PENDING_RESCAN_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
+function savePendingRescan(data){ try { localStorage.setItem(PENDING_RESCAN_KEY, JSON.stringify(data)); } catch {} }
 
-function loadLocalRegistered(){
-  try {
-    const raw = localStorage.getItem(LOCAL_REGISTERED_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
-    return {};
-  }
-}
+function showBanner(title, msg){ document.getElementById("bannerTitle").textContent = "⚠️ " + title; document.getElementById("bannerMsg").textContent = msg; document.getElementById("banner").classList.add("show"); }
+function hideBanner(){ document.getElementById("banner").classList.remove("show"); }
+function showToast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(()=> t.classList.remove("show"), 2500); }
 
-function saveLocalRegistered(cardUid, rec){
-  try {
-    const all = loadLocalRegistered();
-    all[cardUid] = { ...rec, _savedAt: Date.now() };
-    localStorage.setItem(LOCAL_REGISTERED_KEY, JSON.stringify(all));
-    // Notify index.html to reload mapping
-    localStorage.setItem("juniorclub_register_notify", String(Date.now()));
-    localStorage.removeItem("juniorclub_register_notify");
-  } catch {
-    /* ignore */
-  }
-}
+function nowStr(){ return new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}); }
+function fmtLocal(ts){ if(!ts) return "—"; const d = new Date(ts); return d.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"}); }
+function startOfTodayLocalTs(){ const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); }
+function parseEU(ts){ if(!ts) return 0; const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/); if(!m) return 0; return new Date(+m[3], m[2]-1, +m[1], +m[4], +m[5], +m[6]).getTime(); }
+function parseCSV(text){ const rows=[]; let row=[],field="",inQ=false; const s=(text||"").replace(/\r\n/g,"\n").replace(/\r/g,"\n"); for(let i=0;i<s.length;i++){ const c=s[i]; if(c==='"'){if(inQ&&s[i+1]==='"'){field+='"';i++;}else{inQ=!inQ;}continue;} if(!inQ&&c===","){row.push(field);field="";continue;} if(!inQ&&c==="\n"){row.push(field);rows.push(row);row=[];field="";continue;} field+=c; } row.push(field); rows.push(row); const headers=(rows.shift()||[]).map(h=>(h||"").trim()); return rows.filter(r=>r.some(v=>(v||"").trim()!=="")).map(r=>{ const o={}; headers.forEach((h,i)=>o[h]=(r[i]??"").trim()); return o; }); }
+function clearNode(n){ while(n.firstChild) n.removeChild(n.firstChild); }
 
-/* ===========================
-OPTIMISTIC MAPPING
-=========================== */
-function loadOptimisticMapping(){
-  try {
-    const raw = localStorage.getItem(OPTIMISTIC_MAP_KEY);
-    if (!raw) return {};
-    const obj = JSON.parse(raw), now = Date.now(), out = {};
-    for (const [card, rec] of Object.entries(obj)){
-      if (rec && rec._savedAt && now - rec._savedAt <= OPTIMISTIC_TTL_MS) out[card] = rec;
-    }
-    return out;
-  } catch { return {}; }
-}
+function saveOperator(){ const v = document.getElementById("operator").value.trim(); localStorage.setItem(OPERATOR_KEY, v); showToast("Operator saved"); }
+function loadOperator(){ const v = localStorage.getItem(OPERATOR_KEY) || ""; document.getElementById("operator").value = v; return v; }
 
-function saveOptimisticMapping(obj){ try { localStorage.setItem(OPTIMISTIC_MAP_KEY, JSON.stringify(obj || {})); } catch {} }
+function reloadAll(){ loadAndRender(); }
+function printPage(){ window.print(); }
 
-function upsertOptimisticMapping(cardUid, rec){
-  const card = (cardUid || "").trim();
-  if (!card) return;
-  const all = loadOptimisticMapping();
-  all[card] = { ...rec, _savedAt: Date.now() };
-  saveOptimisticMapping(all);
-}
+function clearAllLocalData(){ if(!confirm("Clear ALL local data?\n\nThis removes local scans, registrations, optimistic mappings.\n\nGoogle Sheets data is NOT affected.")) return; [LOCAL_SCANS_KEY, LOCAL_MAPPING_KEY, LOCAL_REGISTERED_KEY, OPTIMISTIC_MAP_KEY, PENDING_RESCAN_KEY, "juniorclub_local_overrides"].forEach(k=>{ try{localStorage.removeItem(k);}catch{} }); showToast("Local data cleared ✅"); setTimeout(()=>location.reload(),500); }
 
-function reconcileAndMergeOptimisticMapping(mapping){
-  const optimistic = loadOptimisticMapping();
-  let changed = false;
-  for (const [card, optRec] of Object.entries(optimistic)){
-    const realRec = mapping[card];
-    if (realRec && Number(realRec._t || 0) >= Number(optRec._savedAt || 0) - 5000){ delete optimistic[card]; changed = true; }
-  }
-  if (changed) saveOptimisticMapping(optimistic);
-  for (const [card, rec] of Object.entries(optimistic)){ if (!mapping[card]) mapping[card] = { ...rec, _t: Number(rec._t || 0) }; }
-  return mapping;
-}
+async function syncFromSheets(){ if(!confirm("Sync from Google Sheets?\n\nThis clears local data and pulls fresh from Sheets.")) return; [LOCAL_SCANS_KEY, LOCAL_MAPPING_KEY, LOCAL_REGISTERED_KEY, OPTIMISTIC_MAP_KEY, PENDING_RESCAN_KEY, "juniorclub_local_overrides"].forEach(k=>{try{localStorage.removeItem(k);}catch{}}); lastAcceptedLatestAttTs=0; lastAcceptedAttRows=0; lastAcceptedLatestMapTs=0; lastAcceptedMapRows=0; showToast("Syncing..."); await loadAndRender(); showToast("Synced ✅"); }
 
-/* ===========================
-PENDING RESCAN
-=========================== */
-function loadPendingRescan(){
-  try {
-    const raw = localStorage.getItem(PENDING_RESCAN_KEY);
-    if (!raw) return {};
-    const obj = JSON.parse(raw), now = Date.now(), out = {};
-    for (const [card, savedAt] of Object.entries(obj)){
-      const t = Number(savedAt || 0);
-      if (t && now - t <= PENDING_AUTO_HIDE_MS) out[card] = t;
-    }
-    return out;
-  } catch { return {}; }
-}
+function copyPresent(){ const lines = presentAll.map(p => `${p.student_name}\t${p.class}`).join("\n"); navigator.clipboard.writeText(lines).then(()=>showToast("Copied!")); }
+function exportPresentCsv(){ const header = "Name,Class,Time\n"; const rows = presentAll.map(p => `"${p.student_name}","${p.class}","${fmtLocal(p.time)}"`).join("\n"); const blob = new Blob([header + rows], {type:"text/csv"}); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `present_${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url); }
 
-function savePendingRescan(obj){ try { localStorage.setItem(PENDING_RESCAN_KEY, JSON.stringify(obj || {})); } catch {} }
-function addPendingRescan(cardUid, savedAt){ const card = (cardUid || "").trim(); if (!card) return; const all = loadPendingRescan(); all[card] = Number(savedAt || Date.now()); savePendingRescan(all); }
+function upsertOptimisticMapping(cardUid, rec){ const opt = loadOptimistic(); opt[cardUid] = rec; saveOptimistic(opt); mappingByCard[cardUid] = rec; }
+function addPendingRescan(cardUid, ts){ pendingRescan[cardUid] = ts; savePendingRescan(pendingRescan); }
+function removePendingRescan(cardUid){ delete pendingRescan[cardUid]; savePendingRescan(pendingRescan); }
 
-function prunePendingRescanAgainstAttendance(latestByCard){
-  const all = loadPendingRescan();
-  let changed = false;
-  for (const [card, savedAt] of Object.entries(all)){
-    const scan = latestByCard[card];
-    if (scan && Number(scan._t || 0) > Number(savedAt)){ delete all[card]; changed = true; }
-  }
-  if (changed) savePendingRescan(all);
-  return all;
-}
-
-/* ===========================
-SNAPSHOT GUARD
-=========================== */
-function acceptOrRejectSnapshot({ rows, latestTs }, lastAcceptedTs, lastAcceptedRows){
-  if (lastAcceptedRows === 0) return true;
-  const gotClearlyOlder = lastAcceptedTs > 0 && latestTs > 0 && latestTs + 2000 < lastAcceptedTs;
-  const gotRowDrop = lastAcceptedRows > 0 && rows + 2 < lastAcceptedRows && latestTs <= lastAcceptedTs;
-  return !(gotClearlyOlder || gotRowDrop);
-}
-
-function computeLatestTs(rows, tsField){ let t = 0; rows.forEach(r=>{ const v = parseEU(r[tsField]); if (v > t) t = v; }); return t; }
-
-/* ===========================
-DATA BUILDING
-=========================== */
-function buildLatestByCard(attRows, localScans, todayOnlyFlag){
-  const dayStart = todayOnlyFlag ? startOfTodayLocalTs() : 0;
+function buildLatestByCardToday(attRows, localScans, todayOnly){
+  const dayStart = startOfTodayLocalTs();
   const latest = {};
-  
-  attRows.forEach(r=>{
+  attRows.forEach(r => {
     const t = parseEU(r.Timestamp);
-    if (!t || (dayStart && t < dayStart)) return;
-    if (!r.card_uid) return;
-    const ev = (r.event || "").trim();
-    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") return;
+    if(todayOnly && t < dayStart) return;
+    if(!r.card_uid) return;
+    const ev = (r.event||"").trim();
+    if(ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") return;
     const prev = latest[r.card_uid];
-    if (!prev || t >= prev._t) latest[r.card_uid] = { ...r, _t: t };
+    if(!prev || t >= prev._t) latest[r.card_uid] = { ...r, _t: t };
   });
-
-  // Merge local scans (newer takes priority)
-  for (const [card, scan] of Object.entries(localScans)){
-    if (scan.timestamp < dayStart) continue;
-    const ev = (scan.event || "").trim();
-    if (ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") continue;
+  for(const [card, scan] of Object.entries(localScans)){
+    if(todayOnly && scan.timestamp < dayStart) continue;
+    const ev = (scan.event||"").trim();
+    if(ev !== "IN" && ev !== "OUT" && ev !== "UNKNOWN") continue;
     const prev = latest[card];
-    if (!prev || scan.timestamp >= prev._t){
-      latest[card] = { card_uid: card, event: ev, _t: scan.timestamp, _local: true, student_name: scan.student_name, class: scan.class };
-    }
+    if(!prev || scan.timestamp >= prev._t) latest[card] = { card_uid: card, event: ev, _t: scan.timestamp, _local: true, student_name: scan.student_name || "", class: scan.class || "" };
   }
-
   return latest;
 }
 
-function buildLatestMapping(mapRows, localMapping){
+function buildLatestMapping(mapRows, localMapping, localRegistered){
   const mapping = {};
-  mapRows.forEach(r=>{ if (!r.card_uid) return; const t = parseEU(r.Timestamp); const prev = mapping[r.card_uid]; if (!prev || t >= prev._t) mapping[r.card_uid] = { ...r, _t: t }; });
-  for (const [card, rec] of Object.entries(localMapping)){ if (!mapping[card]) mapping[card] = { ...rec, _t: 0 }; }
-  // Merge locally registered cards
-  const localRegistered = loadLocalRegistered();
-  for (const [card, rec] of Object.entries(localRegistered)){ if (!mapping[card]) mapping[card] = { ...rec, _t: rec._savedAt || 0 }; }
+  mapRows.forEach(r => {
+    if(!r.card_uid) return;
+    const t = parseEU(r.Timestamp);
+    const prev = mapping[r.card_uid];
+    if(!prev || t >= prev._t) mapping[r.card_uid] = { ...r, _t: t };
+  });
+  for(const [card, rec] of Object.entries(localMapping)){ if(!mapping[card]) mapping[card] = { ...rec, _t: 0 }; }
+  for(const [card, rec] of Object.entries(localRegistered)){ if(!mapping[card]) mapping[card] = { ...rec, _t: rec._savedAt || 0 }; }
+  const opt = loadOptimistic();
+  for(const [card, rec] of Object.entries(opt)){ mapping[card] = rec; }
   return mapping;
 }
 
 function computePresent(latestByCard, mapping){
-  const present = [];
-  Object.values(latestByCard).forEach(scan=>{
-    if (scan.event !== "IN") return;
+  const present = [], justLeft = [];
+  const now = Date.now();
+  Object.values(latestByCard).forEach(scan => {
     const m = mapping[scan.card_uid];
-    if (!m || (m.status || "").trim() !== "active") return;
-    present.push({
-      card_uid: scan.card_uid,
-      student_name: (m.student_name || "").trim(),
-      class: (m.class || "").trim(),
-      time: scan._t,
-      timeStr: fmtLocal(scan._t),
-      _local: scan._local || false
-    });
+    if(!m || (m.status||"").trim() !== "active") return;
+    const ev = (scan.event||"").trim();
+    if(ev === "IN"){
+      present.push({ card_uid: scan.card_uid, student_name: (m.student_name||"").trim(), class: (m.class||"").trim(), time: scan._t, timeStr: fmtLocal(scan._t), _local: scan._local || false });
+    } else if(ev === "OUT" && scan._t && (now - scan._t) <= JUST_LEFT_MS){
+      justLeft.push({ card_uid: scan.card_uid, student_name: (m.student_name||"").trim(), class: (m.class||"").trim(), time: scan._t });
+    }
   });
-  return present;
+  justLeft.sort((a,b) => b.time - a.time);
+  return { present, justLeft };
 }
 
 function computeUnknown(latestByCard, mapping, pendingRescan){
   const unknown = [];
-  Object.values(latestByCard).forEach(scan=>{
-    if (scan.event !== "UNKNOWN") return;
-    if (mapping[scan.card_uid]) return;
-    if (pendingRescan[scan.card_uid]) return;
+  Object.values(latestByCard).forEach(scan => {
+    if(scan.event !== "UNKNOWN") return;
+    if(mapping[scan.card_uid]) return;
+    if(pendingRescan[scan.card_uid]) return;
     unknown.push({ card_uid: scan.card_uid, time: scan._t, timeStr: fmtLocal(scan._t) });
   });
-  unknown.sort((a,b)=> b.time - a.time);
+  unknown.sort((a,b) => b.time - a.time);
   return unknown;
 }
 
 function computePending(pendingRescan, mapping){
   const pending = [];
-  for (const [card, savedAt] of Object.entries(pendingRescan)){
+  for(const [card, savedAt] of Object.entries(pendingRescan)){
     const m = mapping[card];
-    if (!m) continue;
-    pending.push({ card_uid: card, student_name: (m.student_name || "").trim(), class: (m.class || "").trim(), registered: savedAt, registeredStr: fmtLocal(savedAt) });
+    if(!m) continue;
+    pending.push({ card_uid: card, student_name: (m.student_name||"").trim(), class: (m.class||"").trim(), registered: savedAt, registeredStr: fmtLocal(savedAt) });
   }
-  pending.sort((a,b)=> b.registered - a.registered);
+  pending.sort((a,b) => b.registered - a.registered);
   return pending;
 }
 
-/* ===========================
-DATA LOADING
-=========================== */
-async function loadAndRender(){
-  try {
-    lastError = "—";
-    const localScans = loadLocalScans();
-    const localMapping = loadLocalMapping();
-
-    const [attText, mapText] = await Promise.all([
-      fetch(ATT_CSV + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text()),
-      fetch(MAP_CSV + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text())
-    ]);
-
-    const attRows = parseCSV(attText);
-    const mapRows = parseCSV(mapText);
-    const latestAttTs = computeLatestTs(attRows, "Timestamp");
-    const latestMapTs = computeLatestTs(mapRows, "Timestamp");
-
-    const attOk = acceptOrRejectSnapshot({ rows: attRows.length, latestTs: latestAttTs }, lastAcceptedLatestAttTs, lastAcceptedAttRows);
-    const mapOk = acceptOrRejectSnapshot({ rows: mapRows.length, latestTs: latestMapTs }, lastAcceptedLatestMapTs, lastAcceptedMapRows);
-
-    if (!attOk){ showCacheWarn(true); setHealth(mapOk, false); setStale(lastAcceptedLatestAttTs); return; }
-    showCacheWarn(!mapOk && Object.keys(mappingByCard).length > 0);
-
-    lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, latestAttTs);
-    lastAcceptedAttRows = attRows.length;
-
-    if (mapOk){
-      lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, latestMapTs);
-      lastAcceptedMapRows = mapRows.length;
-      let mapping = buildLatestMapping(mapRows, localMapping);
-      mapping = reconcileAndMergeOptimisticMapping(mapping);
-      mappingByCard = mapping;
-    }
-
-    const todayOnlyFlag = todayOnly.checked;
-    const latestByCard = buildLatestByCard(attRows, localScans, todayOnlyFlag);
-    const pendingRescan = prunePendingRescanAgainstAttendance(latestByCard);
-
-    presentAll = computePresent(latestByCard, mappingByCard);
-    unknownAll = computeUnknown(latestByCard, mappingByCard, pendingRescan);
-    pendingAll = computePending(pendingRescan, mappingByCard);
-
-    applyFiltersAndRender();
-    lastSyncAt = Date.now();
-    lastRefresh = Date.now();
-    setHealth(mapOk, attOk);
-    setStale(latestAttTs);
-    startTimer();
-
-    dbgAttRows.textContent = attRows.length;
-    dbgMapRows.textContent = mapRows.length;
-    dbgLocalScans.textContent = Object.keys(localScans).length;
-    dbgLatestAttTs.textContent = fmtLocal(latestAttTs);
-    dbgError.textContent = "—";
-  } catch(e){
-    lastError = (e && e.message) ? e.message : String(e);
-    dbgError.textContent = lastError;
-  }
+function renderStats(present, total){
+  document.getElementById("presentCount").textContent = present.length;
+  document.getElementById("outCount").textContent = Math.max(0, total - present.length);
+  document.getElementById("totalCount").textContent = total;
 }
 
-/* Listen for scan events from index.html */
-window.addEventListener("storage", (e) => {
-  if (e.key === "juniorclub_scan_notify") loadAndRender();
-});
+function renderJustLeft(justLeft){
+  const card = document.getElementById("justLeftCard");
+  const list = document.getElementById("justLeftList");
+  clearNode(list);
+  if(justLeft.length === 0){ card.style.display = "none"; return; }
+  card.style.display = "block";
+  justLeft.forEach(s => {
+    const chip = document.createElement("div");
+    chip.className = "left-chip";
+    chip.textContent = s.student_name || s.card_uid;
+    list.appendChild(chip);
+  });
+}
 
-/* ===========================
-FILTERING & RENDERING
-=========================== */
-function applyFiltersAndRender(){
-  const searchTerm = normalizeStr(search.value);
-  const classFilterVal = normalizeStr(classFilter.value);
-  const sortByVal = sortBy.value;
-
-  let filtered = presentAll.filter(p=>{
-    if (searchTerm && !normalizeStr(p.student_name).includes(searchTerm) && !normalizeStr(p.class).includes(searchTerm) && !normalizeStr(p.card_uid).includes(searchTerm)) return false;
-    if (classFilterVal && normalizeStr(p.class) !== classFilterVal) return false;
+function renderPresent(list){
+  const tbody = document.getElementById("presentTable");
+  clearNode(tbody);
+  const search = (document.getElementById("search").value || "").toLowerCase();
+  const classFilter = document.getElementById("classFilter").value;
+  const sortBy = document.getElementById("sortBy").value;
+  let filtered = list.filter(p => {
+    if(classFilter && p.class !== classFilter) return false;
+    if(search && !p.student_name.toLowerCase().includes(search) && !p.class.toLowerCase().includes(search) && !p.card_uid.toLowerCase().includes(search)) return false;
     return true;
   });
-
-  if (sortByVal === "name_asc") filtered.sort((a,b)=> (a.student_name || "").localeCompare(b.student_name || ""));
-  else if (sortByVal === "class_asc") filtered.sort((a,b)=> (a.class || "").localeCompare(b.class || "") || (a.student_name || "").localeCompare(b.student_name || ""));
-  else filtered.sort((a,b)=> b.time - a.time);
-
-  renderPresentTable(filtered);
-  renderUnknownTable(unknownAll);
-  renderPendingTable(pendingAll);
-  presentCount.textContent = String(filtered.length);
-  updateClassFilterDropdown();
-}
-
-function updateClassFilterDropdown(){
-  const currentVal = classFilter.value;
-  const classes = new Set();
-  presentAll.forEach(p=> p.class && classes.add(p.class));
-  const sorted = Array.from(classes).sort();
-  clearNode(classFilter);
-  const optAll = document.createElement("option"); optAll.value = ""; optAll.textContent = "All classes"; classFilter.appendChild(optAll);
-  sorted.forEach(c=>{ const opt = document.createElement("option"); opt.value = c; opt.textContent = c; classFilter.appendChild(opt); });
-  classFilter.value = currentVal;
-}
-
-function renderPresentTable(items){
-  clearNode(presentTable);
-  items.forEach(p=>{
+  if(sortBy === "name_asc") filtered.sort((a,b) => a.student_name.localeCompare(b.student_name));
+  else if(sortBy === "class_asc") filtered.sort((a,b) => a.class.localeCompare(b.class) || a.student_name.localeCompare(b.student_name));
+  else filtered.sort((a,b) => b.time - a.time);
+  if(filtered.length === 0){ tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No students</td></tr>'; return; }
+  filtered.forEach(p => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${p.student_name || "—"}</td><td>${p.class || "—"}</td><td>${p.timeStr || "—"}</td><td><button class="small" onclick="openEditModal('${p.card_uid}')">Edit</button></td>`;
-    presentTable.appendChild(tr);
+    tr.innerHTML = `<td>${p.student_name}</td><td>${p.class}</td><td>${p.timeStr}</td><td><button class="small" onclick="openMapModal('${p.card_uid}','edit')">Edit</button></td>`;
+    tbody.appendChild(tr);
   });
 }
 
-function renderUnknownTable(items){
-  clearNode(unknownTable);
-  items.forEach(u=>{
-    const tr = document.createElement("tr"); tr.className = "unknown";
-    tr.innerHTML = `<td>${u.timeStr || "—"}</td><td>${u.card_uid || "—"}</td><td><button class="small" onclick="openRegisterModal('${u.card_uid}')">Register</button></td>`;
-    unknownTable.appendChild(tr);
-  });
-}
-
-function renderPendingTable(items){
-  clearNode(pendingTable);
-  items.forEach(p=>{
+function renderUnknown(list){
+  const tbody = document.getElementById("unknownTable");
+  clearNode(tbody);
+  if(list.length === 0){ tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);">None</td></tr>'; return; }
+  list.forEach(u => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${p.registeredStr || "—"}</td><td>${p.card_uid || "—"}</td><td>${p.student_name || "—"}</td><td>${p.class || "—"}</td><td><button class="small" onclick="openEditModal('${p.card_uid}')">Edit</button></td>`;
-    pendingTable.appendChild(tr);
+    tr.innerHTML = `<td>${u.timeStr}</td><td style="font-family:monospace;font-size:12px;">${u.card_uid}</td><td><button class="small" onclick="openMapModal('${u.card_uid}','new')">Register</button></td>`;
+    tbody.appendChild(tr);
   });
 }
 
-/* ===========================
-USER ACTIONS
-=========================== */
-function reloadAll(){ loadAndRender(); }
-function printPage(){ window.print(); }
-
-function clearAllLocalData(){
-  if (!confirm("Clear ALL local data?\n\nThis removes:\n• Local scans\n• Local registrations\n• Optimistic mappings\n• Pending rescans\n\nGoogle Sheets data is NOT affected.")) return;
-  
-  const keys = [
-    LOCAL_SCANS_KEY,
-    LOCAL_MAPPING_KEY,
-    LOCAL_REGISTERED_KEY,
-    OPTIMISTIC_MAP_KEY,
-    PENDING_RESCAN_KEY,
-    "juniorclub_local_overrides"
-  ];
-  
-  keys.forEach(k => {
-    try { localStorage.removeItem(k); } catch {}
+function renderPending(list){
+  const tbody = document.getElementById("pendingTable");
+  clearNode(tbody);
+  if(list.length === 0){ tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);">None</td></tr>'; return; }
+  list.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${p.registeredStr}</td><td style="font-family:monospace;font-size:12px;">${p.card_uid}</td><td>${p.student_name}</td><td>${p.class}</td><td><button class="small" onclick="removePendingRescan('${p.card_uid}');loadAndRender();">Done</button></td>`;
+    tbody.appendChild(tr);
   });
-  
-  showToast("Local data cleared ✅");
-  setTimeout(() => location.reload(), 500);
 }
 
-async function syncFromSheets(){
-  if (!confirm("Sync from Google Sheets?\n\nThis will:\n• Clear local data\n• Pull fresh data from Sheets\n• May take 10-60s if Sheets cache is stale")) return;
-  
-  // Clear local data first
-  const keys = [
-    LOCAL_SCANS_KEY,
-    LOCAL_MAPPING_KEY,
-    LOCAL_REGISTERED_KEY,
-    OPTIMISTIC_MAP_KEY,
-    PENDING_RESCAN_KEY,
-    "juniorclub_local_overrides"
-  ];
-  keys.forEach(k => { try { localStorage.removeItem(k); } catch {} });
-  
-  // Reset snapshot guards to accept fresh data
-  lastAcceptedLatestAttTs = 0;
-  lastAcceptedAttRows = 0;
-  lastAcceptedLatestMapTs = 0;
-  lastAcceptedMapRows = 0;
-  
-  showToast("Syncing from Sheets...");
-  await loadAndRender();
-  showToast("Synced from Sheets ✅");
+function populateClassFilter(){
+  const sel = document.getElementById("classFilter");
+  const current = sel.value;
+  clearNode(sel);
+  const opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "All classes"; sel.appendChild(opt0);
+  CLASSES.forEach(c => { const opt = document.createElement("option"); opt.value = c; opt.textContent = c; sel.appendChild(opt); });
+  sel.value = current;
 }
 
-function copyPresent(){ navigator.clipboard.writeText(presentAll.map(p=> `${p.student_name}\t${p.class}\t${p.timeStr}`).join("\n")).then(()=>showToast("Copied ✅")).catch(()=>showToast("Copy failed ❌")); }
-function exportPresentCsv(){
-  const csv = "Name,Class,Time\n" + presentAll.map(p=> `"${p.student_name}","${p.class}","${p.timeStr}"`).join("\n");
-  const blob = new Blob([csv], {type:"text/csv"});
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `present_${new Date().toISOString().split("T")[0]}.csv`; a.click();
-}
-function toggleDebug(){ debugBox.classList.toggle("show"); }
-
-/* ===========================
-MODAL
-=========================== */
-function buildDefaultClassList(){ const out = []; for (let y = CLASS_DEFAULTS.yearStart; y <= CLASS_DEFAULTS.yearEnd; y++) for (const letter of CLASS_DEFAULTS.letters) out.push(`${y}${letter}`); return out; }
-
-function initModalClassDropdown(){
-  const opts = buildDefaultClassList();
-  clearNode(m_class);
-  const optBlank = document.createElement("option"); optBlank.value = ""; optBlank.textContent = "Select class"; m_class.appendChild(optBlank);
-  opts.forEach(v=>{ const opt = document.createElement("option"); opt.value = v; opt.textContent = v; m_class.appendChild(opt); });
-  const optCustom = document.createElement("option"); optCustom.value = CLASS_CUSTOM_VALUE; optCustom.textContent = "Other / custom…"; m_class.appendChild(optCustom);
-}
-initModalClassDropdown();
-m_class.addEventListener("change", ()=>{ m_class_custom.style.display = m_class.value === CLASS_CUSTOM_VALUE ? "block" : "none"; });
-
-function openRegisterModal(cardUid){
-  modalCardUid = (cardUid || "").trim(); modalMode = "register";
-  modalTitle.textContent = "Register card"; modalCurrentBox.style.display = "none";
-  m_card_uid.value = modalCardUid; m_student_email.value = MAP_DEFAULTS.student_email; m_student_name.value = ""; m_class.value = ""; m_class_custom.value = ""; m_class_custom.style.display = "none";
-  m_status.value = MAP_DEFAULTS.status; m_pin.value = ""; m_note.value = ""; m_mapped_by.value = operator.value || ""; m_schema.value = MAP_DEFAULTS.schema;
-  modalError.textContent = ""; mapModalOverlay.classList.add("show"); updateModalSubmitButton();
+function populateModalClass(){
+  const sel = document.getElementById("m_class");
+  clearNode(sel);
+  const opt0 = document.createElement("option"); opt0.value = ""; opt0.textContent = "Select class"; sel.appendChild(opt0);
+  CLASSES.forEach(c => { const opt = document.createElement("option"); opt.value = c; opt.textContent = c; sel.appendChild(opt); });
 }
 
-function openEditModal(cardUid){
-  const row = mappingByCard[cardUid]; if (!row) return;
-  modalCardUid = cardUid; modalMode = "edit";
-  modalTitle.textContent = "Edit mapping"; modalCurrentBox.innerHTML = `<strong>Current:</strong> ${row.student_name || "—"} (${row.class || "—"}) | Status: ${row.status || "—"}`; modalCurrentBox.style.display = "block";
-  m_card_uid.value = cardUid; m_student_email.value = row.student_email || MAP_DEFAULTS.student_email; m_student_name.value = row.student_name || ""; m_class.value = row.class || ""; m_class_custom.value = ""; m_class_custom.style.display = "none";
-  m_status.value = row.status || MAP_DEFAULTS.status; m_pin.value = row.pin || ""; m_note.value = row.note || ""; m_mapped_by.value = operator.value || row.mapped_by || ""; m_schema.value = row.schema || MAP_DEFAULTS.schema;
-  modalError.textContent = ""; mapModalOverlay.classList.add("show"); updateModalSubmitButton();
+function openMapModal(cardUid, mode){
+  modalMode = mode;
+  editCardOriginal = cardUid;
+  document.getElementById("modalTitle").textContent = mode === "edit" ? "Edit card mapping" : "Register new card";
+  document.getElementById("m_card_uid").value = cardUid;
+  document.getElementById("m_student_email").value = "student.vasteras@engelska.se";
+  document.getElementById("m_student_name").value = "";
+  document.getElementById("m_class").value = "";
+  document.getElementById("m_status").value = "active";
+  document.getElementById("m_pin").value = "";
+  document.getElementById("m_note").value = "";
+  document.getElementById("m_mapped_by").value = loadOperator() || "staff";
+  document.getElementById("m_schema").value = SCHEMA;
+  document.getElementById("modalError").textContent = "";
+  document.getElementById("modalCurrentBox").style.display = "none";
+  if(mode === "edit" && mappingByCard[cardUid]){
+    const m = mappingByCard[cardUid];
+    document.getElementById("m_student_email").value = m.student_email || "";
+    document.getElementById("m_student_name").value = m.student_name || "";
+    document.getElementById("m_class").value = m.class || "";
+    document.getElementById("m_status").value = m.status || "active";
+    document.getElementById("m_pin").value = m.pin || "";
+    document.getElementById("m_note").value = m.note || "";
+    document.getElementById("modalCurrentBox").innerHTML = `<strong>Current:</strong> ${m.student_name} | ${m.class} | ${m.status}`;
+    document.getElementById("modalCurrentBox").style.display = "block";
+  }
+  document.getElementById("mapModalOverlay").classList.add("show");
+  document.getElementById("m_student_name").focus();
 }
 
-function closeMapModal(){ mapModalOverlay.classList.remove("show"); modalCardUid = ""; }
-
-function updateModalSubmitButton(){
-  const isValid = m_card_uid.value.trim() && m_student_name.value.trim() && m_student_email.value.trim() && (m_class.value === CLASS_CUSTOM_VALUE ? m_class_custom.value.trim() : m_class.value.trim());
-  modalSubmitBtn.disabled = !isValid;
-}
-[m_card_uid, m_student_name, m_student_email, m_class, m_class_custom].forEach(el => { el.addEventListener("input", updateModalSubmitButton); el.addEventListener("change", updateModalSubmitButton); });
+function closeMapModal(){ document.getElementById("mapModalOverlay").classList.remove("show"); }
 
 async function submitMapModal(){
-  modalError.textContent = "";
-  const cardUid = m_card_uid.value.trim(), studentEmail = m_student_email.value.trim(), studentName = m_student_name.value.trim();
-  const classVal = m_class.value === CLASS_CUSTOM_VALUE ? m_class_custom.value.trim() : m_class.value.trim();
-  const status = m_status.value.trim(), pin = m_pin.value.trim(), note = m_note.value.trim(), mappedBy = m_mapped_by.value.trim(), schema = m_schema.value.trim();
-
-  if (!cardUid || !studentName || !studentEmail || !classVal){ modalError.textContent = "Card UID, student name, email, and class are required."; return; }
-
+  const cardUid = document.getElementById("m_card_uid").value.trim();
+  const studentEmail = document.getElementById("m_student_email").value.trim();
+  const studentName = document.getElementById("m_student_name").value.trim();
+  const classVal = document.getElementById("m_class").value.trim();
+  const status = document.getElementById("m_status").value.trim();
+  const pin = document.getElementById("m_pin").value.trim();
+  const note = document.getElementById("m_note").value.trim();
+  const mappedBy = document.getElementById("m_mapped_by").value.trim();
+  const schema = document.getElementById("m_schema").value.trim();
+  const modalError = document.getElementById("modalError");
+  if(!studentName){ modalError.textContent = "Name required."; return; }
+  if(!classVal){ modalError.textContent = "Class required."; return; }
   const d = new URLSearchParams();
-  d.append(MAP_ENTRY.card_uid, cardUid); d.append(MAP_ENTRY.student_email, studentEmail); d.append(MAP_ENTRY.student_name, studentName);
-  d.append(MAP_ENTRY.class, classVal); d.append(MAP_ENTRY.status, status); d.append(MAP_ENTRY.pin, pin);
-  d.append(MAP_ENTRY.note, note); d.append(MAP_ENTRY.mapped_by, mappedBy); d.append(MAP_ENTRY.schema, schema);
-
+  d.append(MAP_ENTRY.card_uid, cardUid);
+  d.append(MAP_ENTRY.student_email, studentEmail);
+  d.append(MAP_ENTRY.student_name, studentName);
+  d.append(MAP_ENTRY.class, classVal);
+  d.append(MAP_ENTRY.status, status);
+  d.append(MAP_ENTRY.pin, pin);
+  d.append(MAP_ENTRY.note, note);
+  d.append(MAP_ENTRY.mapped_by, mappedBy);
+  d.append(MAP_ENTRY.schema, schema);
   try {
     await fetch(MAP_FORM_RESPONSE_URL, { method:"POST", mode:"no-cors", body:d });
-    
-    // Save to localStorage for instant recognition
     const regRec = { card_uid: cardUid, student_email: studentEmail, student_name: studentName, class: classVal, status: status, pin: pin, note: note, mapped_by: mappedBy, schema: schema, _t: Date.now(), _savedAt: Date.now() };
     saveLocalRegistered(cardUid, regRec);
-    
     upsertOptimisticMapping(cardUid, regRec);
     addPendingRescan(cardUid, Date.now());
     closeMapModal();
     showToast(modalMode === "edit" ? "Updated ✅" : "Registered ✅ — scan now!");
-    setTimeout(()=>loadAndRender(), POST_SAVE_REFRESH_MS);
+    setTimeout(()=>loadAndRender(), 500);
   } catch(e){ modalError.textContent = `Error: ${e.message || e}`; }
 }
 
-/* ===========================
-EVENT LISTENERS
-=========================== */
-search.addEventListener("input", applyFiltersAndRender);
-classFilter.addEventListener("change", ()=>{ savePrefStr("classFilter", classFilter.value); applyFiltersAndRender(); });
-sortBy.addEventListener("change", ()=>{ savePrefStr("sortBy", sortBy.value); applyFiltersAndRender(); });
-todayOnly.addEventListener("change", ()=>{ savePrefBool("todayOnly", todayOnly.checked); reloadAll(); });
+function acceptOrRejectSnapshot({rows, latestTs}, lastAcceptedTs, lastAcceptedRows){
+  const gotClearlyOlder = lastAcceptedTs > 0 && (latestTs === 0 || latestTs + 2000 < lastAcceptedTs);
+  const gotRowDrop = lastAcceptedRows > 0 && rows + 2 < lastAcceptedRows && latestTs <= lastAcceptedTs;
+  return !(gotClearlyOlder || gotRowDrop);
+}
 
-/* ===========================
-INIT
-=========================== */
+function computeLatestTs(rows, tsField){ let t = 0; rows.forEach(r => { const v = parseEU(r[tsField]); if(v > t) t = v; }); return t; }
+
+async function loadAndRender(){
+  try {
+    const localScans = loadLocalScans();
+    const localMapping = loadLocalMapping();
+    const localRegistered = loadLocalRegistered();
+    pendingRescan = loadPendingRescan();
+    const todayOnly = document.getElementById("todayOnly").checked;
+    const [attText, mapText] = await Promise.all([
+      fetch(ATT_CSV_URL + "&_=" + Date.now(), {cache:"no-store"}).then(r=>r.text()),
+      fetch(MAP_CSV_URL + "&_=" + Date.now(), {cache:"no-store"}).then(r=>r.text())
+    ]);
+    const attRows = parseCSV(attText);
+    const mapRows = parseCSV(mapText);
+    const latestAttTs = computeLatestTs(attRows, "Timestamp");
+    const latestMapTs = computeLatestTs(mapRows, "Timestamp");
+    const attOk = acceptOrRejectSnapshot({rows: attRows.length, latestTs: latestAttTs}, lastAcceptedLatestAttTs, lastAcceptedAttRows);
+    const mapOk = acceptOrRejectSnapshot({rows: mapRows.length, latestTs: latestMapTs}, lastAcceptedLatestMapTs, lastAcceptedMapRows);
+    if(!attOk){ showBanner("Data delay", "Google served older snapshot. Waiting..."); return; }
+    if(!mapOk && Object.keys(mappingByCard).length){ showBanner("Data delay", "Older mapping snapshot."); } else { hideBanner(); }
+    lastAcceptedLatestAttTs = Math.max(lastAcceptedLatestAttTs, latestAttTs);
+    lastAcceptedAttRows = attRows.length;
+    if(mapOk){
+      lastAcceptedLatestMapTs = Math.max(lastAcceptedLatestMapTs, latestMapTs);
+      lastAcceptedMapRows = mapRows.length;
+      mappingByCard = buildLatestMapping(mapRows, localMapping, localRegistered);
+    }
+    const latestByCard = buildLatestByCardToday(attRows, localScans, todayOnly);
+    const { present, justLeft } = computePresent(latestByCard, mappingByCard);
+    presentAll = present;
+    justLeftAll = justLeft;
+    unknownAll = computeUnknown(latestByCard, mappingByCard, pendingRescan);
+    const totalStudents = Object.values(mappingByCard).filter(m => (m.status||"").trim() === "active").length;
+    // Clean up pending rescan for cards that have been rescanned
+    for(const card of Object.keys(pendingRescan)){
+      const scan = latestByCard[card];
+      if(scan && scan.event === "IN") removePendingRescan(card);
+    }
+    renderStats(presentAll, totalStudents);
+    renderJustLeft(justLeftAll);
+    renderPresent(presentAll);
+    renderUnknown(unknownAll);
+    renderPending(computePending(pendingRescan, mappingByCard));
+    document.getElementById("updateStatus").textContent = "Updated: " + nowStr();
+    const mins = latestAttTs ? Math.floor((Date.now() - latestAttTs) / 60000) : 0;
+    document.getElementById("staleStatus").textContent = `Stale: ${mins}m`;
+    document.getElementById("staleStatus").className = mins >= 5 ? "pill warn" : "pill";
+  } catch(e) {
+    showBanner("Error", e.message || String(e));
+  }
+}
+
+window.addEventListener("storage", (e) => {
+  if(e.key === "juniorclub_scan_notify" || e.key === "juniorclub_register_notify") loadAndRender();
+});
+
+document.getElementById("search").addEventListener("input", () => renderPresent(presentAll));
+document.getElementById("classFilter").addEventListener("change", () => renderPresent(presentAll));
+document.getElementById("sortBy").addEventListener("change", () => renderPresent(presentAll));
+document.getElementById("todayOnly").addEventListener("change", loadAndRender);
+
+populateClassFilter();
+populateModalClass();
+loadOperator();
 loadAndRender();
-setInterval(loadAndRender, 10000);
+setInterval(loadAndRender, 5000);
 </script>
-
 </body>
 </html>
