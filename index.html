@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Junior Club Portal</title>
 
-<link rel="icon" href="./ies. ico" type="image/x-icon">
+<link rel="icon" href="./ies.ico" type="image/x-icon">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,127 +14,123 @@
 
 <style>
 /* ================= DESIGN v1 ================= */
-: root{
-  --navy:#102d69;
-  --green-bg:#d9f2c7;
-  --green-text:#0b6b2f;
-  --red-bg:#ffd6d6;
-  --red-text:#b00020;
-  --yellow-bg:#fff3b0;
-  --dark:#102d69;
-  --white:#ffffff;
+:root{
+--navy:#102d69;
+--green-bg:#d9f2c7;
+--green-text:#0b6b2f;
+--red-bg:#ffd6d6;
+--red-text:#b00020;
+--yellow-bg:#fff3b0;
+--dark:#102d69;
+--white:#ffffff;
 }
 
-*{ box-sizing: border-box; }
+*{ box-sizing:border-box; }
 
 body{
-  margin:0;
-  height:100vh;
-  background: var(--navy);
-  font-family:"Open Sans",Arial,sans-serif;
-  display:grid;
-  grid-template-rows:auto 1fr auto;
-  transition:background . 25s ease;
+margin:0;
+height:100vh;
+background:var(--navy);
+font-family:"Open Sans",Arial,sans-serif;
+display:grid;
+grid-template-rows:auto 1fr auto;
+transition:background .25s ease;
 }
 
 /* ---------- HEADER ---------- */
 header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:18px 22px;
-  color:#fff;
-}
-header a{
-  display:block;
-  cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 22px;
+color:#fff;
 }
 header img{ height:40px; }
-. clock{ font-weight:800; font-size:20px; }
+.clock{ font-weight:800; font-size:20px; }
 
 /* ---------- MAIN CARD ---------- */
 main{
-  display:grid;
-  place-items:center;
-  padding:20px;
+display:grid;
+place-items:center;
+padding:20px;
 }
 
 .card{
-  width:min(900px,96vw);
-  padding:clamp(32px,4vw,56px);
-  border-radius:22px;
-  text-align:center;
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.25);
-  box-shadow:0 20px 60px rgba(0,0,0,. 25);
-  transition:
-    background .25s ease,
-    transform .2s ease,
-    box-shadow .2s ease;
+width:min(900px,96vw);
+padding:clamp(32px,4vw,56px);
+border-radius:22px;
+text-align:center;
+background:rgba(255,255,255,0.08);
+border:1px solid rgba(255,255,255,0.25);
+box-shadow:0 20px 60px rgba(0,0,0,.25);
+transition:
+background .25s ease,
+transform .2s ease,
+box-shadow .2s ease;
 }
 
 .pill{
-  display:inline-block;
-  padding:8px 18px;
-  border-radius:999px;
-  font-weight:800;
-  font-size:12px;
-  letter-spacing:. 8px;
-  margin-bottom:22px;
-  text-transform:uppercase;
-  background:rgba(255,255,255,0.15);
-  color:#fff;
+display:inline-block;
+padding:8px 18px;
+border-radius:999px;
+font-weight:800;
+font-size:12px;
+letter-spacing:.8px;
+margin-bottom:22px;
+text-transform:uppercase;
+background:rgba(255,255,255,0.15);
+color:#fff;
 }
 
 .status{
-  font-size:clamp(64px,9vw,110px);
-  font-weight:800;
-  margin: 0 0 12px;
-  line-height:1;
+font-size:clamp(64px,9vw,110px);
+font-weight:800;
+margin:0 0 12px;
+line-height:1;
 }
 
 .sub{
-  font-size:18px;
-  font-weight: 700;
-  opacity:.9;
+font-size:18px;
+font-weight:700;
+opacity:.9;
 }
 
 /* ---------- FOOTER ---------- */
 footer{
-  padding:14px 22px;
-  font-size:12px;
-  opacity:.75;
-  display:flex;
-  justify-content:space-between;
-  color:#fff;
+padding:14px 22px;
+font-size:12px;
+opacity:.75;
+display:flex;
+justify-content:space-between;
+color:#fff;
 }
 
 /* ---------- STATES ---------- */
-body.ready . card{
-  animation:idlePulse 3s ease-in-out infinite;
+body.ready .card{
+animation:idlePulse 3s ease-in-out infinite;
 }
 
 @keyframes idlePulse{
-  0%,100%{ box-shadow:0 20px 60px rgba(0,0,0,.25); }
-  50%{ box-shadow: 0 20px 80px rgba(255,255,255,. 15); }
+0%,100%{ box-shadow:0 20px 60px rgba(0,0,0,.25); }
+50%{ box-shadow:0 20px 80px rgba(255,255,255,.15); }
 }
 
-body.in . card{
-  background:var(--green-bg);
-  color:var(--dark);
-  transform:scale(1.02);
+body.in .card{
+background:var(--green-bg);
+color:var(--dark);
+transform:scale(1.02);
 }
 body.in .status{ color:var(--green-text); }
 
 body.out .card{
-  background:var(--red-bg);
-  color:var(--dark);
+background:var(--red-bg);
+color:var(--dark);
 }
 body.out .status{ color:var(--red-text); }
 
 body.unknown .card{
-  background:var(--yellow-bg);
-  color:var(--dark);
+background:var(--yellow-bg);
+color:var(--dark);
 }
 body.unknown .status{ color:var(--red-text); }
 
@@ -144,23 +140,23 @@ body.unknown .status{ color:var(--red-text); }
 
 <body class="ready">
 <header>
-  <a href="./staff.html" aria-label="Open staff page" title="Staff">
-    <img src="./logo-negative.png" alt="IES Logo">
-  </a>
-  <div class="clock" id="clock">--:--</div>
+<a href="./staff.html" aria-label="Open staff page" title="Staff">
+<img src="./logo-negative.png" alt="IES Logo">
+</a>
+<div class="clock" id="clock">--:--</div>
 </header>
 
 <main>
-  <div class="card">
-    <div class="pill" id="pill">READY</div>
-    <h1 class="status" id="status">SCAN YOUR CARD</h1>
-    <div class="sub" id="message">Junior Club</div>
-  </div>
+<div class="card">
+<div class="pill" id="pill">READY</div>
+<h1 class="status" id="status">SCAN YOUR CARD</h1>
+<div class="sub" id="message">Junior Club</div>
+</div>
 </main>
 
 <footer>
-  <div>Junior Club Portal</div>
-  <div>Design v1</div>
+<div>Junior Club Portal</div>
+<div>Design v1</div>
 </footer>
 
 <script>
@@ -173,283 +169,177 @@ const clockEl   = document.getElementById("clock");
 
 /* ================= CONFIG (UNCHANGED) ================= */
 const ATT_FORM_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
+"https://docs.google.com/forms/d/e/1FAIpQLSf5zEJQa4T8tRgKOQ2DQ80OqCkrElNcx5X_5Udg0GJ4vyvpRQ/formResponse";
 
 const ATT = {
-  card_uid:"entry.1104238975",
-  event:"entry.1735508359",
-  device_id:"entry.452811867",
-  method:"entry.1237226768",
-  operator:"entry.1642343573",
-  note:"entry.1538254700",
-  club_id:"entry.164839595",
-  schema_version:"entry.2138280654"
+card_uid:"entry.1104238975",
+event:"entry.1735508359",
+device_id:"entry.452811867",
+method:"entry.1237226768",
+operator:"entry.1642343573",
+note:"entry.1538254700",
+club_id:"entry.164839595",
+schema_version:"entry.2138280654"
 };
 
 const MAPPING_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=348834218&single=true&output=csv";
 
 const ATT_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vTTjnlb_FFAmWhqJeFz1YVXzbFOWBgYvBY-BkMVbMo1RoBuyF-KX62kPWYM8inZDMLPP5f9g2GDhWTI/pub?gid=1075501813&single=true&output=csv";
 
 const DEVICE_ID="Door-1";
 const CLUB_ID="IESV_JuniorClub";
 const SCHEMA_VERSION="v3";
 const DEBOUNCE_MS=5000;
 const RESET_MS=2500;
-
-/* FIX #1: Periodic mapping refresh */
-const MAPPING_REFRESH_MS=15000; // refresh mapping every 15s to catch new registrations
-
 /* ====================================================== */
 
 let knownActiveCards=new Set();
 let mappingLoaded=false;
 let stateByCard={};
 let buffer="",lastKeyTime=0;
-let lastScan={card: null,time:0};
+let lastScan={card:null,time:0};
 
+/* NEW: mapping lookup so we can show student names */
 /* mapping lookup so we can show student names */
 let mappingByCard={};
 
-/* FIX #1: Track last accepted mapping snapshot to avoid regressions */
-let lastAcceptedMapTs=0;
-let lastAcceptedMapRows=0;
-
 /* ================= CLOCK ================= */
 function updateClock(){
-  clockEl.textContent =
-    new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
+clockEl.textContent =
+new Date().toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
 }
 setInterval(updateClock,1000); updateClock();
 
 /* ================= UI ================= */
 function resetUI(){
-  document.body.className="ready";
-  pillEl.textContent="READY";
-  statusEl.textContent="SCAN YOUR CARD";
-  messageEl.textContent="Junior Club";
+document.body.className="ready";
+pillEl.textContent="READY";
+statusEl.textContent="SCAN YOUR CARD";
+messageEl.textContent="Junior Club";
 }
 
 function showState(css,label,msg){
-  document.body.className=css;
-  pillEl. textContent="LOGGED";
-  statusEl.textContent=label;
-  messageEl.textContent=msg;
+document.body.className=css;
+pillEl.textContent="LOGGED";
+statusEl.textContent=label;
+messageEl.textContent=msg;
 }
 
 function firstNameFromStudentName(studentName){
-  const s=(studentName||"").trim();
-  if(!s) return "";
-  return s.split(/\s+/)[0] || "";
+const s=(studentName||"").trim();
+if(!s) return "";
+return s.split(/\s+/)[0] || "";
 }
 
 function nameForCard(card){
-  const row=mappingByCard[card];
-  return firstNameFromStudentName(row?. student_name || row?.studentName || "");
+const row=mappingByCard[card];
+return firstNameFromStudentName(row?.student_name || row?.studentName || "");
 }
 
 /* ================= CSV ================= */
-/* FIX #5: Improved RFC4180 CSV parser */
+function splitCSVLine(line){
+const out=[],len=line.length; let cur="",q=false;
+for(let i=0;i<len;i++){
+const c=line[i];
+if(c==='"'){ q=!q; continue; }
+if(c===',' && !q){ out.push(cur); cur=""; continue; }
+cur+=c;
+}
+out.push(cur); return out.map(s=>s.trim());
+}
+
 function parseCSV(text){
-  const rows = [];
-  let row = [];
-  let field = "";
-  let inQuotes = false;
-
-  const pushField = () => { row.push(field); field = ""; };
-  const pushRow = () => {
-    if (row.length === 1 && row[0] === "" && rows.length === 0) return;
-    rows.push(row);
-    row = [];
-  };
-
-  const s = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-  for (let i = 0; i < s.length; i++){
-    const c = s[i];
-
-    if (c === '"'){
-      const next = s[i + 1];
-      if (inQuotes && next === '"'){
-        field += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if (! inQuotes && c === ","){ pushField(); continue; }
-    if (!inQuotes && c === "\n"){ pushField(); pushRow(); continue; }
-    field += c;
-  }
-
-  pushField();
-  pushRow();
-
-  const headers = (rows. shift() || []).map(h => (h || "").trim());
-  return rows
-    .filter(r => r.some(v => (v || "").trim() !== ""))
-    .map(r => {
-      const o = {};
-      headers.forEach((h, idx) => (o[h] = (r[idx] ??  "").trim()));
-      return o;
-    });
+const lines=text.trim().split("\n");
+const headers=splitCSVLine(lines[0]);
+return lines.slice(1).map(l=>{
+const v=splitCSVLine(l),o={};
+headers.forEach((h,i)=>o[h]=v[i]||"");
+return o;
+});
 }
 
-/* FIX #6: Improved timestamp parsing with validation */
 function parseEU(ts){
-  if (!ts || typeof ts !== 'string') return 0;
-  
-  // EU format: DD/MM/YYYY HH: MM:SS
-  const m = ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
-  if (!m) return 0;
-
-  const day = parseInt(m[1], 10);
-  const month = parseInt(m[2], 10);
-  const year = parseInt(m[3], 10);
-  const hour = parseInt(m[4], 10);
-  const minute = parseInt(m[5], 10);
-  const second = parseInt(m[6], 10);
-
-  // Basic validation
-  if (month < 1 || month > 12) return 0;
-  if (day < 1 || day > 31) return 0;
-  if (hour > 23 || minute > 59 || second > 59) return 0;
-
-  return new Date(year, month - 1, day, hour, minute, second).getTime();
-}
-
-/* FIX #1: Snapshot guard for mapping */
-function acceptOrRejectMappingSnapshot(rows, latestTs){
-  if (lastAcceptedMapRows === 0) return true; // first load
-
-  const gotOlder = lastAcceptedMapTs > 0 && latestTs > 0 && latestTs + 2000 < lastAcceptedMapTs;
-  const gotRowDrop = rows + 2 < lastAcceptedMapRows && latestTs <= lastAcceptedMapTs;
-  
-  return !(gotOlder || gotRowDrop);
+const m=ts&&ts.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{2}):(\d{2})$/);
+if(!m) return 0;
+return new Date(+m[3],m[2]-1,+m[1],+m[4],+m[5],+m[6]).getTime();
 }
 
 async function loadMapping(){
-  try{
-    const csv = await fetch(MAPPING_CSV_URL + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text());
-    const rows = parseCSV(csv);
-    
-    // Compute latest timestamp
-    let latestTs = 0;
-    rows.forEach(r=>{
-      const t = parseEU(r. Timestamp);
-      if (t > latestTs) latestTs = t;
-    });
+const csv=await fetch(MAPPING_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+const rows=parseCSV(csv),latest={};
+rows.forEach(r=>r.card_uid&&(latest[r.card_uid]=r));
 
-    // FIX #1: Apply snapshot guard
-    if (! acceptOrRejectMappingSnapshot(rows. length, latestTs)){
-      console.warn("[SCAN] Rejected older mapping snapshot.  Keeping current mapping.");
-      return; // keep existing mapping
-    }
-
-    const latest = {};
-    rows.forEach(r=> {
-      if (r.card_uid) latest[r.card_uid] = r;
-    });
-
-    mappingByCard = latest;
-    knownActiveCards = new Set(
-      Object.values(latest).filter(r=>r.status==="active").map(r=>r.card_uid)
-    );
-    
-    lastAcceptedMapTs = latestTs;
-    lastAcceptedMapRows = rows.length;
-    mappingLoaded = true;
-
-    console.log(`[SCAN] Mapping loaded:  ${rows.length} rows, latest:  ${new Date(latestTs).toLocaleString("sv-SE")}`);
-  }catch(e){
-    console.error("[SCAN] Mapping load failed:", e);
-  }
+mappingByCard=latest;
+knownActiveCards=new Set(
+Object.values(latest).filter(r=>r.status==="active").map(r=>r.card_uid)
+);
+mappingLoaded=true;
 }
 
 async function loadLatestInOutState(){
-  try{
-    const csv = await fetch(ATT_CSV_URL + `&_=${Date.now()}`, {cache:"no-store"}).then(r=>r.text());
-    const rows = parseCSV(csv);
-    const latest = {};
-    
-    rows.forEach(r=>{
-      if (! r.card_uid) return;
-      if (r.event !== "IN" && r.event !== "OUT") return;
-      const t = parseEU(r. Timestamp);
-      if (!latest[r.card_uid] || t > latest[r.card_uid].t)
-        latest[r.card_uid] = {event:  r.event, t};
-    });
-    
-    stateByCard = Object.fromEntries(Object.entries(latest).map(([k,v])=>[k,v. event]));
-    console.log(`[SCAN] Attendance state loaded: ${rows.length} rows`);
-  }catch(e){
-    console.error("[SCAN] Attendance load failed:", e);
-  }
+const csv=await fetch(ATT_CSV_URL,{cache:"no-store"}).then(r=>r.text());
+const rows=parseCSV(csv),latest={};
+rows.forEach(r=>{
+if(!r.card_uid) return;
+if(r.event!=="IN"&&r.event!=="OUT") return;
+const t=parseEU(r.Timestamp);
+if(!latest[r.card_uid]||t>latest[r.card_uid].t)
+latest[r.card_uid]={event:r.event,t};
+});
+stateByCard=Object.fromEntries(Object.entries(latest).map(([k,v])=>[k,v.event]));
 }
 
 function postAttendance(card,event){
-  const d=new URLSearchParams();
-  d.append(ATT.card_uid,card);
-  d.append(ATT.event,event);
-  d.append(ATT.device_id,DEVICE_ID);
-  d.append(ATT.method,"RFID");
-  d.append(ATT.club_id,CLUB_ID);
-  d.append(ATT.schema_version,SCHEMA_VERSION);
-  fetch(ATT_FORM_URL,{method:"POST",mode:"no-cors",body:d});
+const d=new URLSearchParams();
+d.append(ATT.card_uid,card);
+d.append(ATT.event,event);
+d.append(ATT.device_id,DEVICE_ID);
+d.append(ATT.method,"RFID");
+d.append(ATT.club_id,CLUB_ID);
+d.append(ATT.schema_version,SCHEMA_VERSION);
+fetch(ATT_FORM_URL,{method:"POST",mode:"no-cors",body:d});
 }
 
 /* ================= SCAN ================= */
 document.addEventListener("keydown",e=>{
-  const now=Date.now();
-  if(e.key. length===1){
-    if(now-lastKeyTime>80) buffer="";
-    buffer+=e.key; lastKeyTime=now; return;
-  }
-  if(e.key==="Enter"){
-    const card=buffer.trim(); buffer="";
-    if(! card||! mappingLoaded) return;
-    if(lastScan.card===card&&now-lastScan.time<DEBOUNCE_MS) return;
-    lastScan={card,time:now};
+const now=Date.now();
+if(e.key.length===1){
+if(now-lastKeyTime>80) buffer="";
+buffer+=e.key; lastKeyTime=now; return;
+}
+if(e.key==="Enter"){
+const card=buffer.trim(); buffer="";
+if(!card||!mappingLoaded) return;
+if(lastScan.card===card&&now-lastScan.time<DEBOUNCE_MS) return;
+lastScan={card,time:now};
 
-    if(! knownActiveCards.has(card)){
-      postAttendance(card,"UNKNOWN");
-      showState("unknown","PLEASE WAIT","Ask a staff member");
-      return setTimeout(resetUI,RESET_MS);
-    }
+if(!knownActiveCards.has(card)){
+postAttendance(card,"UNKNOWN");
+showState("unknown","PLEASE WAIT","Ask a staff member");
+return setTimeout(resetUI,RESET_MS);
+}
 
-    const next=(stateByCard[card]==="IN")?"OUT":"IN";
-    stateByCard[card]=next;
-    postAttendance(card,next);
+const next=(stateByCard[card]==="IN")?"OUT":"IN";
+stateByCard[card]=next;
+postAttendance(card,next);
 
-    const fn=nameForCard(card);
+const fn=nameForCard(card);
 
-    if(next==="IN"){
-      showState("in","WELCOME", fn || "You're checked in");
-    }else{
-      showState("out","GOODBYE", fn || "You're checked out");
-    }
-    setTimeout(resetUI,RESET_MS);
-  }
-});
-
-/* FIX #1: Listen for mapping updates from staff page via localStorage */
-window.addEventListener("storage", (e)=>{
-  if (e.key === "juniorclub_mapping_refresh_trigger"){
-    console.log("[SCAN] Mapping refresh triggered by staff page");
-    loadMapping();
-  }
+if(next==="IN"){
+showState("in","WELCOME", fn || "You’re checked in");
+}else{
+showState("out","GOODBYE", fn || "You’re checked out");
+}
+setTimeout(resetUI,RESET_MS);
+}
 });
 
 /* ================= INIT ================= */
 resetUI();
 loadMapping();
 loadLatestInOutState();
-
-/* FIX #1: Periodic mapping refresh */
-setInterval(loadMapping, MAPPING_REFRESH_MS);
 </script>
 </body>
 </html>
