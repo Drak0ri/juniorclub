@@ -139,7 +139,7 @@ footer{padding:10px 18px;font-size:12px;color:var(--muted);display:flex;justify-
 <div class="group">
 <input type="text" id="searchBox" placeholder="Search name or class...">
 <select id="classFilter"><option value="">All classes</option></select>
-<span class="operator-badge">Operator: <span id="operatorName">—</span></span>
+<span class="operator-badge" onclick="changeOperator()" style="cursor:pointer;" title="Click to change">Operator: <span id="operatorName">—</span></span>
 </div>
 <div class="group">
 <button onclick="openAddTempModal()">+ Add Temporary Student</button>
@@ -296,8 +296,21 @@ function saveTempStudents(arr){ try{ const unique = {}; arr.forEach(t => unique[
 
 function loadOperator(){
   operator = localStorage.getItem(OPERATOR_STORAGE_KEY) || "";
-  if(!operator){ operator = prompt("Enter your staff email/name:") || "Unknown Staff"; localStorage.setItem(OPERATOR_STORAGE_KEY, operator); }
+  if(!operator){ 
+    operator = prompt("Enter your staff email/name:") || "Unknown Staff"; 
+    localStorage.setItem(OPERATOR_STORAGE_KEY, operator); 
+  }
   const el = document.getElementById("operatorName"); if(el) el.textContent = operator;
+}
+
+function changeOperator(){
+  const newOp = prompt("Enter your staff email/name:", operator);
+  if(newOp && newOp.trim()){ 
+    operator = newOp.trim(); 
+    localStorage.setItem(OPERATOR_STORAGE_KEY, operator); 
+    const el = document.getElementById("operatorName"); if(el) el.textContent = operator;
+    showToast("Operator updated");
+  }
 }
 
 async function loadMapping(){
