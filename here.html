@@ -237,26 +237,25 @@ main{
   left:12px;
   right:12px;
   bottom:12px;
-  background:rgba(255,243,176,0.95);
-  border:1px solid #f1dd6d;
-  border-radius:10px;
-  padding:8px 14px;
+  background:rgba(255,255,255,0.1);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:6px 12px;
   display:none;
-  gap:10px;
+  gap:8px;
   align-items:center;
   justify-content:space-between;
-  box-shadow:0 4px 20px rgba(0,0,0,.3);
   z-index:9998;
-  font-size:12px;
-  color:#000;
+  font-size:11px;
+  color:var(--muted);
 }
 .banner.show{ display:flex; }
-.banner strong{ color:#b00020; font-weight:800; }
-.banner .hint{ color:#666; font-size:11px; font-weight:700; }
-.banner button{ 
-  padding:5px 10px; 
-  font-size:11px; 
-  background:#102d69;
+.banner strong{ color:#fff; font-weight:700; font-size:11px; }
+.banner .hint{ color:var(--muted); font-size:11px; }
+.banner button{
+  padding:4px 8px;
+  font-size:10px;
+  background:rgba(255,255,255,0.1);
   color:#fff;
   border:none;
   border-radius:6px;
