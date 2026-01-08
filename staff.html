@@ -115,6 +115,19 @@ tr:hover{background:rgba(255,255,255,0.03);}
 .pin-box input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.1);color:#fff;font-size:18px;text-align:center;font-family:inherit;margin-bottom:12px;}
 .pin-box .error-msg{color:var(--red-bg);font-size:13px;font-weight:700;margin-bottom:10px;}
 
+
+  /* ===== FIX: SELECT OPTION VISIBILITY ===== */
+select{
+  height:auto;
+  line-height:1.4;
+  padding-top:8px;
+  padding-bottom:8px;
+}
+select option{
+  color:#000; /* native dropdown text */
+}
+
+
 @media print{header,.toolbar,.banner,.modal-overlay,.toast,.pin-gate{display:none!important;}body{background:#fff;color:#000;}.card{border-color:#ccc;background:#fff;}}
 </style>
 </head>
